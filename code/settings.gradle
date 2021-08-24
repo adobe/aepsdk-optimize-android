@@ -1,0 +1,2 @@
+include ':optimize'
+rootProject.name = 'optimize'
