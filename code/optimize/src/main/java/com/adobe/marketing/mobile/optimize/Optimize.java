@@ -42,7 +42,7 @@ public class Optimize {
     public static void registerExtension() {
         MobileCore.registerExtension(OptimizeExtension.class, new ExtensionErrorCallback<ExtensionError>() {
             @Override
-            public void error(ExtensionError extensionError) {
+            public void error(final ExtensionError extensionError) {
                 MobileCore.log(LoggingMode.ERROR, LOG_TAG,
                         "An error occurred while registering the Optimize extension: " + extensionError.getErrorName());
             }
