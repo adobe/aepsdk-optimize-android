@@ -1,0 +1,16 @@
+{
+  "id": "xcore:personalized-offer:1111111111111111",
+  "etag": "8",
+  "schema": "https://ns.adobe.com/experience/offer-management/content-component-json",
+  "data": {
+    "id": "xcore:personalized-offer:1111111111111111",
+    "format": "application/json",
+    "content": "{\"testing\": \"ho-ho\"}",
+    "language": [
+      "en-us"
+    ],
+    "characteristics": {
+      "mobile": "true"
+    }
+  }
+}

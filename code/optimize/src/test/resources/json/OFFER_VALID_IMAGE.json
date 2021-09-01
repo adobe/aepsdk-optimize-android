@@ -1,0 +1,16 @@
+{
+  "id": "xcore:personalized-offer:4444444444444444",
+  "etag": "8",
+  "schema": "https://ns.adobe.com/experience/offer-management/content-component-imagelink",
+  "data": {
+    "id": "xcore:personalized-offer:4444444444444444",
+    "format": "image/png",
+    "deliveryURL": "https://example.com/avatar1.png?alt=media",
+    "language": [
+      "en-us"
+    ],
+    "characteristics": {
+      "mobile": "true"
+    }
+  }
+}

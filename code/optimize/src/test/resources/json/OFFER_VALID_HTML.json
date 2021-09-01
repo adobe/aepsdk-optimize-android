@@ -1,0 +1,16 @@
+{
+  "id": "xcore:personalized-offer:3333333333333333",
+  "etag": "8",
+  "schema": "https://ns.adobe.com/experience/offer-management/content-component-html",
+  "data": {
+    "id": "xcore:personalized-offer:3333333333333333",
+    "format": "text/html",
+    "content": "<h1>Hello, Welcome!</h1>",
+    "language": [
+      "en-us"
+    ],
+    "characteristics": {
+      "mobile": "true"
+    }
+  }
+}

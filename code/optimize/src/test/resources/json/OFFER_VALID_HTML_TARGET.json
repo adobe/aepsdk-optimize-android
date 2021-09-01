@@ -1,0 +1,9 @@
+{
+  "id": "222428",
+  "schema": "https://ns.adobe.com/personalization/html-content-item",
+  "data": {
+    "id": "222428",
+    "format": "text/html",
+    "content": "<h1>Hello, Welcome!</h1>"
+  }
+}

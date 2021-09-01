@@ -1,0 +1,9 @@
+{
+  "id": "222429",
+  "schema": "https://ns.adobe.com/personalization/json-content-item",
+  "data": {
+    "id": "222429",
+    "format": "application/json",
+    "content": "{\"testing\": \"ho-ho\"}"
+  }
+}
