@@ -15,6 +15,26 @@ package com.adobe.marketing.mobile.optimize;
 public enum OfferType {
     UNKNOWN, JSON, TEXT, HTML, IMAGE;
 
+    @Override
+    public String toString() {
+        switch(this) {
+            case JSON:
+                return "application/json";
+
+            case TEXT:
+                return "text/plain";
+
+            case HTML:
+                return "text/html";
+
+            case IMAGE:
+                return "image/*";
+
+            default:
+                return "";
+        }
+    }
+
     /**
      * Returns the {@code OfferType} for the given {@code format}.
      *

@@ -27,6 +27,51 @@ class OptimizeConstants {
 
     private OptimizeConstants() {}
 
+    final class EventNames {
+        static final String UPDATE_PROPOSITIONS_REQUEST = "Optimize Update Propositions Request";
+        static final String GET_PROPOSITIONS_REQUEST = "Optimize Get Propositions Request";
+        static final String TRACK_PROPOSITIONS_REQUEST = "Optimize Track Propositions Request";
+        static final String CLEAR_PROPOSITIONS_REQUEST = "Optimize Clear Propositions Request";
+        static final String OPTIMIZE_RESPONSE = "Optimize Response";
+
+        private EventNames() {}
+    }
+
+    final class EventType {
+        static final String OPTIMIZE = "com.adobe.eventType.optimize";
+
+        private EventType() {}
+    }
+
+
+    final class EventSource {
+        static final String REQUEST_CONTENT = "com.adobe.eventSource.requestContent";
+        static final String REQUEST_RESET = "com.adobe.eventSource.requestReset";
+        static final String RESPONSE_CONTENT = "com.adobe.eventSource.responseContent";
+        static final String NOTIFICATION = "com.adobe.eventSource.notification";
+
+        private EventSource() {}
+    }
+
+    final class EventDataKeys {
+        static final String REQUEST_TYPE = "requesttype";
+        static final String DECISION_SCOPES = "decisionscopes";
+        static final String DECISION_SCOPE_NAME = "name";
+        static final String XDM = "xdm";
+        static final String DATA = "data";
+        static final String PROPOSITIONS = "propositions";
+
+        private EventDataKeys() {}
+    }
+
+    final class EventDataValues {
+        static final String REQUEST_TYPE_UPDATE = "updatepropositions";
+        static final String REQUEST_TYPE_GET = "getpropositions";
+        static final String REQUEST_TYPE_TRACK = "trackpropositions";
+
+        private EventDataValues() {}
+    }
+
     final class JsonKeys {
         static final String PAYLOAD_ID = "id";
         static final String PAYLOAD_SCOPE = "scope";

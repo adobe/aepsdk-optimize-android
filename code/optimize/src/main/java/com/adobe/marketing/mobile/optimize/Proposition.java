@@ -89,20 +89,20 @@ public class Proposition {
      * @return {@code Proposition} object or null.
      */
     static Proposition fromEventData(final Map<String, Object> data) {
-        if(CollectionUtils.isNullOrEmpty(data)) {
+        if (CollectionUtils.isNullOrEmpty(data)) {
             MobileCore.log(LoggingMode.DEBUG, LOG_TAG, "Cannot create Proposition object, provided data Map is empty or null.");
             return null;
         }
 
         try {
             final String id = (String) data.get(OptimizeConstants.JsonKeys.PAYLOAD_ID);
-            if(StringUtils.isNullOrEmpty(id)) {
+            if (StringUtils.isNullOrEmpty(id)) {
                 MobileCore.log(LoggingMode.DEBUG, LOG_TAG, "Cannot create Proposition object, provided data does not contain proposition identifier.");
                 return null;
             }
 
             final String scope = (String) data.get(OptimizeConstants.JsonKeys.PAYLOAD_SCOPE);
-            if(StringUtils.isNullOrEmpty(scope)) {
+            if (StringUtils.isNullOrEmpty(scope)) {
                 MobileCore.log(LoggingMode.DEBUG, LOG_TAG, "Cannot create Proposition object, provided data does not contain proposition scope.");
                 return null;
             }
@@ -113,7 +113,7 @@ public class Proposition {
             List<Offer> offers = new ArrayList<Offer>();
             for (Object item : items) {
                 final Offer offer = Offer.fromEventData((Map<String, Object>)item);
-                if(offer != null) {
+                if (offer != null) {
                     offers.add(offer);
                 }
             }
@@ -125,15 +125,35 @@ public class Proposition {
         }
     }
 
+    /**
+     * Creates a {@code Map<String, Object>} using this {@code Proposition}'s attributes.
+     *
+     * @return {@code Map<String, Object>} containing {@link Proposition} data.
+     */
+    Map<String, Object> toEventData() {
+        final Map<String, Object> propositionMap = new HashMap<>();
+        propositionMap.put(OptimizeConstants.JsonKeys.PAYLOAD_ID, this.id);
+        propositionMap.put(OptimizeConstants.JsonKeys.PAYLOAD_SCOPE, this.scope);
+        propositionMap.put(OptimizeConstants.JsonKeys.PAYLOAD_SCOPEDETAILS, this.scopeDetails);
+
+        List<Map<String, Object>> offersMap = new ArrayList<>();
+        for (Offer offer: this.offers) {
+            offersMap.add(offer.toEventData());
+        }
+        propositionMap.put(OptimizeConstants.JsonKeys.PAYLOAD_ITEMS, offersMap);
+        return propositionMap;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
+
         Proposition that = (Proposition) o;
-        return id.equals(that.id) &&
-                offers.equals(that.offers) &&
-                scope.equals(that.scope) &&
-                scopeDetails.equals(that.scopeDetails);
+        if (id != null ? !id.equals(that.id) : that.id != null) return false;
+        if (offers != null ? !offers.equals(that.offers) : that.offers != null) return false;
+        if (scope != null ? !scope.equals(that.scope) : that.scope != null) return false;
+        return scopeDetails != null ? scopeDetails.equals(that.scopeDetails) : that.scopeDetails == null;
     }
 
     @Override

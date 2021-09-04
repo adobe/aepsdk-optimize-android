@@ -21,6 +21,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import static com.adobe.marketing.mobile.optimize.OptimizeConstants.LOG_TAG;
 
@@ -221,7 +222,7 @@ public class Offer {
      * @return {@code Offer} object or null.
      */
     static Offer fromEventData(final Map<String, Object> data) {
-        if(CollectionUtils.isNullOrEmpty(data)) {
+        if (CollectionUtils.isNullOrEmpty(data)) {
             MobileCore.log(LoggingMode.DEBUG, LOG_TAG, "Cannot create Offer object, provided data Map is empty or null.");
             return null;
         }
@@ -232,19 +233,19 @@ public class Offer {
             final String schema = (String) data.get(OptimizeConstants.JsonKeys.PAYLOAD_ITEM_SCHEMA);
 
             final Map<String, Object> offerData = (Map<String, Object>) data.get(OptimizeConstants.JsonKeys.PAYLOAD_ITEM_DATA);
-            if(CollectionUtils.isNullOrEmpty(data)) {
+            if (CollectionUtils.isNullOrEmpty(data)) {
                 MobileCore.log(LoggingMode.DEBUG, LOG_TAG, "Cannot create Offer object, provided data Map doesn't contain valid item data.");
                 return null;
             }
 
             final String nestedId = (String) offerData.get(OptimizeConstants.JsonKeys.PAYLOAD_ITEM_DATA_ID);
-            if(StringUtils.isNullOrEmpty(id) || !nestedId.equals(id)) {
+            if (StringUtils.isNullOrEmpty(id) || !nestedId.equals(id)) {
                 MobileCore.log(LoggingMode.DEBUG, LOG_TAG, "Cannot create Offer object, provided item id is null or empty or it doesn't match item data id.");
                 return null;
             }
 
-            final String type = (String) offerData.get(OptimizeConstants.JsonKeys.PAYLOAD_ITEM_DATA_FORMAT);
-            if(StringUtils.isNullOrEmpty(type)) {
+            final String format = (String) offerData.get(OptimizeConstants.JsonKeys.PAYLOAD_ITEM_DATA_FORMAT);
+            if (StringUtils.isNullOrEmpty(format)) {
                 MobileCore.log(LoggingMode.DEBUG, LOG_TAG, "Cannot create Offer object, provided data Map doesn't contain valid item data format.");
                 return null;
             }
@@ -253,17 +254,17 @@ public class Offer {
             final Map<String, String> characteristics = (Map<String, String>) offerData.get(OptimizeConstants.JsonKeys.PAYLOAD_ITEM_DATA_CHARACTERISTICS);
 
             String content = null;
-            if(offerData.containsKey(OptimizeConstants.JsonKeys.PAYLOAD_ITEM_DATA_CONTENT))
+            if (offerData.containsKey(OptimizeConstants.JsonKeys.PAYLOAD_ITEM_DATA_CONTENT))
                 content = (String) offerData.get(OptimizeConstants.JsonKeys.PAYLOAD_ITEM_DATA_CONTENT);
-            else if(offerData.containsKey(OptimizeConstants.JsonKeys.PAYLOAD_ITEM_DATA_DELIVERYURL)) {
+            else if (offerData.containsKey(OptimizeConstants.JsonKeys.PAYLOAD_ITEM_DATA_DELIVERYURL)) {
                 content = (String) offerData.get(OptimizeConstants.JsonKeys.PAYLOAD_ITEM_DATA_DELIVERYURL);
             }
-            if(StringUtils.isNullOrEmpty(content)) {
+            if (StringUtils.isNullOrEmpty(content)) {
                 MobileCore.log(LoggingMode.DEBUG, LOG_TAG, "Cannot create Offer object, provided data Map doesn't contain valid item data content.");
                 return null;
             }
 
-            return new Builder(id, OfferType.from(type), content)
+            return new Builder(id, OfferType.from(format), content)
                     .setEtag(etag)
                     .setSchema(schema)
                     .setLanguage(language)
@@ -274,5 +275,47 @@ public class Offer {
             MobileCore.log(LoggingMode.DEBUG, LOG_TAG, "Cannot create Offer object, provided data contains invalid fields.");
             return null;
         }
+    }
+
+    /**
+     * Creates a {@code Map<String, Object>} using this {@code Offer}'s attributes.
+     *
+     * @return {@code Map<String, Object>} containing {@link Offer} data.
+     */
+    Map<String, Object> toEventData() {
+        final Map<String, Object> offerMap = new HashMap<>();
+        offerMap.put(OptimizeConstants.JsonKeys.PAYLOAD_ITEM_ID, this.id);
+        offerMap.put(OptimizeConstants.JsonKeys.PAYLOAD_ITEM_ETAG, this.etag);
+        offerMap.put(OptimizeConstants.JsonKeys.PAYLOAD_ITEM_SCHEMA, this.schema);
+
+        final Map<String, Object> data = new HashMap<>();
+        data.put(OptimizeConstants.JsonKeys.PAYLOAD_ITEM_ID, this.id);
+        data.put(OptimizeConstants.JsonKeys.PAYLOAD_ITEM_DATA_FORMAT, this.type.toString());
+        data.put(OptimizeConstants.JsonKeys.PAYLOAD_ITEM_DATA_CONTENT, this.content);
+        data.put(OptimizeConstants.JsonKeys.PAYLOAD_ITEM_DATA_LANGUAGE, this.language);
+        data.put(OptimizeConstants.JsonKeys.PAYLOAD_ITEM_DATA_CHARACTERISTICS, this.characteristics);
+
+        offerMap.put(OptimizeConstants.JsonKeys.PAYLOAD_ITEM_DATA, data);
+        return offerMap;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Offer that = (Offer) o;
+        if (id != null ? !id.equals(that.id) : that.id != null) return false;
+        if (etag != null ? !etag.equals(that.etag) : that.etag != null) return false;
+        if (schema != null ? !schema.equals(that.schema) : schema != null) return false;
+        if (type != that.type) return false;
+        if (language != null ? !language.equals(that.language) : that.language != null) return false;
+        if (content != null ? !content.equals(that.content) : that.content != null) return false;
+        return characteristics != null ? characteristics.equals(that.characteristics) : that.characteristics == null;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, etag, schema, type, language, content, characteristics);
     }
 }
