@@ -8,7 +8,7 @@ workflows:
   build-test-deploy:
     jobs:
       - build-and-unit-test
-      - functional-test
+      #- functional-test
  
 jobs:
   build-and-unit-test:
