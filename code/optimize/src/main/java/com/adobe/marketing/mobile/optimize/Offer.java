@@ -16,8 +16,6 @@ import com.adobe.marketing.mobile.LoggingMode;
 import com.adobe.marketing.mobile.MobileCore;
 
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -137,7 +135,8 @@ public class Offer {
             throwIfAlreadyBuilt();
             didBuild = true;
 
-            if (StringUtils.isNullOrEmpty(offer.id) || StringUtils.isNullOrEmpty(offer.content)) {
+            if (OptimizeUtils.isNullOrEmpty(offer.id) || OptimizeUtils.isNullOrEmpty(offer.content)) {
+                MobileCore.log(LoggingMode.DEBUG, LOG_TAG, "Cannot build an Offer object, either offer id or content is null/ empty.");
                 return null;
             }
             return offer;
@@ -178,7 +177,7 @@ public class Offer {
     }
 
     /**
-     * Gets the {@code Offer} schema.
+     * Gets the {@code Offer} type.
      *
      * @return {@link OfferType} indicating the {@link Offer} type.
      */
@@ -214,7 +213,7 @@ public class Offer {
     }
 
     /**
-     * Creates an {@code Offer} object using information provided in {@code data} Map.
+     * Creates an {@code Offer} object using information provided in {@code data} map.
      * <p>
      * This method returns null if the provided {@code data} is empty or null or if it does not contain required info for creating an {@link Offer} object.
      *
@@ -222,7 +221,7 @@ public class Offer {
      * @return {@code Offer} object or null.
      */
     static Offer fromEventData(final Map<String, Object> data) {
-        if (CollectionUtils.isNullOrEmpty(data)) {
+        if (OptimizeUtils.isNullOrEmpty(data)) {
             MobileCore.log(LoggingMode.DEBUG, LOG_TAG, "Cannot create Offer object, provided data Map is empty or null.");
             return null;
         }
@@ -233,19 +232,19 @@ public class Offer {
             final String schema = (String) data.get(OptimizeConstants.JsonKeys.PAYLOAD_ITEM_SCHEMA);
 
             final Map<String, Object> offerData = (Map<String, Object>) data.get(OptimizeConstants.JsonKeys.PAYLOAD_ITEM_DATA);
-            if (CollectionUtils.isNullOrEmpty(data)) {
+            if (OptimizeUtils.isNullOrEmpty(data)) {
                 MobileCore.log(LoggingMode.DEBUG, LOG_TAG, "Cannot create Offer object, provided data Map doesn't contain valid item data.");
                 return null;
             }
 
             final String nestedId = (String) offerData.get(OptimizeConstants.JsonKeys.PAYLOAD_ITEM_DATA_ID);
-            if (StringUtils.isNullOrEmpty(id) || !nestedId.equals(id)) {
+            if (OptimizeUtils.isNullOrEmpty(id) || !nestedId.equals(id)) {
                 MobileCore.log(LoggingMode.DEBUG, LOG_TAG, "Cannot create Offer object, provided item id is null or empty or it doesn't match item data id.");
                 return null;
             }
 
             final String format = (String) offerData.get(OptimizeConstants.JsonKeys.PAYLOAD_ITEM_DATA_FORMAT);
-            if (StringUtils.isNullOrEmpty(format)) {
+            if (OptimizeUtils.isNullOrEmpty(format)) {
                 MobileCore.log(LoggingMode.DEBUG, LOG_TAG, "Cannot create Offer object, provided data Map doesn't contain valid item data format.");
                 return null;
             }
@@ -259,7 +258,7 @@ public class Offer {
             else if (offerData.containsKey(OptimizeConstants.JsonKeys.PAYLOAD_ITEM_DATA_DELIVERYURL)) {
                 content = (String) offerData.get(OptimizeConstants.JsonKeys.PAYLOAD_ITEM_DATA_DELIVERYURL);
             }
-            if (StringUtils.isNullOrEmpty(content)) {
+            if (OptimizeUtils.isNullOrEmpty(content)) {
                 MobileCore.log(LoggingMode.DEBUG, LOG_TAG, "Cannot create Offer object, provided data Map doesn't contain valid item data content.");
                 return null;
             }

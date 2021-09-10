@@ -17,13 +17,34 @@ import android.util.Base64;
 import com.adobe.marketing.mobile.LoggingMode;
 import com.adobe.marketing.mobile.MobileCore;
 
-import java.util.regex.Pattern;
+import java.util.Collection;
+import java.util.Map;
 
 import static com.adobe.marketing.mobile.optimize.OptimizeConstants.LOG_TAG;
 
-class StringUtils {
+class OptimizeUtils {
     /**
-     * Determines if the given {@code String} is null or empty.
+     * Checks if the given {@code collection} is null or empty.
+     *
+     * @param collection input {@code Collection<?>} to be tested.
+     * @return {@code boolean} result indicating whether the provided {@code collection} is null or empty.
+     */
+    static boolean isNullOrEmpty(final Collection<?> collection) {
+        return collection == null || collection.isEmpty();
+    }
+
+    /**
+     * Checks if the given {@code map} is null or empty.
+     *
+     * @param map input {@code Map<?, ?>} to be tested.
+     * @return {@code boolean} result indicating whether the provided {@code map} is null or empty.
+     */
+    static boolean isNullOrEmpty(final Map<?, ?> map) {
+        return map == null || map.isEmpty();
+    }
+
+    /**
+     * Checks if the given {@code String} is null or empty.
      *
      * @param str input {@link String} to be tested.
      * @return {@code boolean} result indicating whether the provided {@code str} is null or empty.
@@ -41,7 +62,7 @@ class StringUtils {
      * @return {@code String} containing the Base64 encoded value.
      */
     static String base64Encode(final String str) {
-        if (str == null || str.isEmpty()) {
+        if (isNullOrEmpty(str)) {
             return str;
         }
         return Base64.encodeToString(str.getBytes(), Base64.DEFAULT);
@@ -56,7 +77,7 @@ class StringUtils {
      * @return {@code String} containing the Base64 decoded value.
      */
     static String base64Decode(final String str) {
-        if (str == null || str.isEmpty()) {
+        if (isNullOrEmpty(str)) {
             return str;
         }
 

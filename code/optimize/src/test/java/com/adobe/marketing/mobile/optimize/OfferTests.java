@@ -24,7 +24,6 @@ import java.util.Map;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
-@RunWith(PowerMockRunner.class)
 @SuppressWarnings("unchecked")
 public class OfferTests {
     @Test

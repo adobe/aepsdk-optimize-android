@@ -42,7 +42,7 @@ public enum OfferType {
      * @return {@link OfferType} indicating the {@code Offer} format.
      */
     public static OfferType from(final String format) {
-        if (format == null || format.isEmpty()) {
+        if (OptimizeUtils.isNullOrEmpty(format)) {
             return OfferType.UNKNOWN;
         }
 

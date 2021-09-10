@@ -27,7 +27,6 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
-@RunWith(PowerMockRunner.class)
 @SuppressWarnings("unchecked")
 public class PropositionTests {
     @Test

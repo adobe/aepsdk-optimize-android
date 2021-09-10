@@ -18,7 +18,6 @@ import org.powermock.modules.junit4.PowerMockRunner;
 
 import static org.junit.Assert.assertEquals;
 
-@RunWith(PowerMockRunner.class)
 public class OfferTypeTests {
     @Test
     public void testOfferType_fromJson() {

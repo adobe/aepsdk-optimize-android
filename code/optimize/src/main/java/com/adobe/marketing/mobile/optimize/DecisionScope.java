@@ -12,8 +12,6 @@
 
 package com.adobe.marketing.mobile.optimize;
 
-import android.util.Base64;
-
 import com.adobe.marketing.mobile.LoggingMode;
 import com.adobe.marketing.mobile.MobileCore;
 
@@ -84,24 +82,24 @@ public class DecisionScope {
      * @return {@code boolean} indicating whether the scope is valid.
      */
     boolean isValid() {
-        if (StringUtils.isNullOrEmpty(name)) {
+        if (OptimizeUtils.isNullOrEmpty(name)) {
             MobileCore.log(LoggingMode.DEBUG, LOG_TAG, "Invalid scope! Scope name is null or empty.");
             return false;
         }
 
-        final String jsonString = StringUtils.base64Decode(name);
+        final String jsonString = OptimizeUtils.base64Decode(name);
         if (jsonString != null) {
             try {
                 final JSONObject jsonObject = new JSONObject(jsonString);
                 if (jsonObject.has(OptimizeConstants.XDM_ACTIVITY_ID)) {
                     final String activityId = jsonObject.getString(OptimizeConstants.XDM_ACTIVITY_ID);
-                    if (StringUtils.isNullOrEmpty(activityId)) {
+                    if (OptimizeUtils.isNullOrEmpty(activityId)) {
                         MobileCore.log(LoggingMode.DEBUG, LOG_TAG, String.format("Invalid scope (%s)! Activity Id is null or empty.", name));
                         return false;
                     }
 
                     final String placementId = jsonObject.getString(OptimizeConstants.XDM_PLACEMENT_ID);
-                    if (StringUtils.isNullOrEmpty(placementId)) {
+                    if (OptimizeUtils.isNullOrEmpty(placementId)) {
                         MobileCore.log(LoggingMode.DEBUG, LOG_TAG, String.format("Invalid scope (%s)! Placement Id is null or empty.", name));
                         return false;
                     }
@@ -113,13 +111,13 @@ public class DecisionScope {
                     }
                 } else {
                     final String activityId = jsonObject.getString(OptimizeConstants.ACTIVITY_ID);
-                    if (StringUtils.isNullOrEmpty(activityId)) {
+                    if (OptimizeUtils.isNullOrEmpty(activityId)) {
                         MobileCore.log(LoggingMode.DEBUG, LOG_TAG, String.format("Invalid scope (%s)! Activity Id is null or empty.", name));
                         return false;
                     }
 
                     final String placementId = jsonObject.getString(OptimizeConstants.PLACEMENT_ID);
-                    if (StringUtils.isNullOrEmpty(placementId)) {
+                    if (OptimizeUtils.isNullOrEmpty(placementId)) {
                         MobileCore.log(LoggingMode.DEBUG, LOG_TAG, String.format("Invalid scope (%s)! Placement Id is null or empty.", name));
                         return false;
                     }
@@ -135,7 +133,7 @@ public class DecisionScope {
             }
         }
 
-        MobileCore.log(LoggingMode.VERBOSE, LOG_TAG, "Decision scope is valid.");
+        MobileCore.log(LoggingMode.VERBOSE, LOG_TAG, String.format("Decision scope (%s) is valid.", name));
         return true;
     }
 
@@ -144,18 +142,18 @@ public class DecisionScope {
      * <p>
      * This method creates the scope name by Base64 encoding the JSON string created using the provided data.
      * If {@code itemCount} > 1, then JSON string is
-     *  {@literal {"activityId":#activityId,"placementId":#placementId}}
-     * otherwise it is,
      *  {@literal {"activityId":#activityId,"placementId":#placementId,"itemCount":#itemCount}}
+     * otherwise it is,
+     *  {@literal {"activityId":#activityId,"placementId":#placementId}}
      *
      * @param activityId {@link String} containing activity identifier for the given scope.
      * @param placementId {@code String} containing placement identifier for the given scope.
-     * @param itemCount {@code String} containing number of items to be returned for the given scope.
+     * @param itemCount {@code int} containing number of items to be returned for the given scope.
      *
      * @return {@code String} containing the Base64 encoded scope name.
      */
     static String generateEncodedScope(final String activityId, final String placementId, final int itemCount) {
-        if (StringUtils.isNullOrEmpty(activityId) || StringUtils.isNullOrEmpty(placementId) || itemCount <= 0) {
+        if (OptimizeUtils.isNullOrEmpty(activityId) || OptimizeUtils.isNullOrEmpty(placementId) || itemCount <= 0) {
             MobileCore.log(LoggingMode.DEBUG, LOG_TAG, "Cannot generate the Base64 encoded decision scope as the provided activityId or placementId or itemCount is invalid.");
             return null;
         }
@@ -166,11 +164,11 @@ public class DecisionScope {
         } else {
             json = String.format(SCOPE_JSON, activityId, placementId);
         }
-        return StringUtils.base64Encode(json);
+        return OptimizeUtils.base64Encode(json);
     }
 
     /**
-     * Creates a {@code DecisionScope} object using information provided in {@code data} Map.
+     * Creates a {@code DecisionScope} object using information provided in {@code data} map.
      * <p>
      * This method returns null if the provided {@code data} is empty or null or if it does not contain required info for creating a {@link DecisionScope} object.
      *
@@ -178,13 +176,15 @@ public class DecisionScope {
      * @return {@code DecisionScope} object or null.
      */
     static DecisionScope fromEventData(final Map<String, Object> data) {
-        if (CollectionUtils.isNullOrEmpty(data)
+        if (OptimizeUtils.isNullOrEmpty(data)
                 || !data.containsKey(OptimizeConstants.EventDataKeys.DECISION_SCOPE_NAME)) {
+            MobileCore.log(LoggingMode.DEBUG, LOG_TAG, "Cannot create DecisionScope object, provided data Map is empty or null.");
             return null;
         }
 
         final String name = (String) data.get(OptimizeConstants.EventDataKeys.DECISION_SCOPE_NAME);
-        if (StringUtils.isNullOrEmpty(name)) {
+        if (OptimizeUtils.isNullOrEmpty(name)) {
+            MobileCore.log(LoggingMode.DEBUG, LOG_TAG, "Cannot create DecisionScope object, provided data does not contain valid scope name.");
             return null;
         }
 

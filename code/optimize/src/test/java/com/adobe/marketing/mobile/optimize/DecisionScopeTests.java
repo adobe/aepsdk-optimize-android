@@ -80,7 +80,7 @@ public class DecisionScopeTests {
     }
 
     @Test
-    public void testConvenienceConstructor_defaultItemCount() {
+    public void testConstructor_defaultItemCount() {
         // test
         final DecisionScope scope = new DecisionScope("xcore:offer-activity:1111111111111111", "xcore:offer-placement:1111111111111111");
         assertNotNull(scope);
@@ -88,7 +88,7 @@ public class DecisionScopeTests {
     }
 
     @Test
-    public void testConvenienceConstructor_itemCount() {
+    public void testConstructor_itemCount() {
         // test
         final DecisionScope scope = new DecisionScope("xcore:offer-activity:1111111111111111", "xcore:offer-placement:1111111111111111", 10);
         assertNotNull(scope);
@@ -96,7 +96,7 @@ public class DecisionScopeTests {
     }
 
     @Test
-    public void testConvenienceConstructor_emptyActivityId() {
+    public void testConstructor_emptyActivityId() {
         // test
         final DecisionScope scope = new DecisionScope("", "xcore:offer-placement:1111111111111111");
         assertNotNull(scope);
@@ -104,7 +104,7 @@ public class DecisionScopeTests {
     }
 
     @Test
-    public void testConvenienceConstructor_nullActivityId() {
+    public void testConstructor_nullActivityId() {
         // test
         final DecisionScope scope = new DecisionScope(null, "xcore:offer-placement:1111111111111111");
         assertNotNull(scope);
@@ -112,7 +112,7 @@ public class DecisionScopeTests {
     }
 
     @Test
-    public void testConvenienceConstructor_emptyPlacementId() {
+    public void testConstructor_emptyPlacementId() {
         // test
         final DecisionScope scope = new DecisionScope("xcore:offer-activity:1111111111111111", "");
         assertNotNull(scope);
@@ -120,7 +120,7 @@ public class DecisionScopeTests {
     }
 
     @Test
-    public void testConvenienceConstructor_nullPlacementId() {
+    public void testConstructor_nullPlacementId() {
         // test
         final DecisionScope scope = new DecisionScope("xcore:offer-activity:1111111111111111", null);
         assertNotNull(scope);
@@ -128,7 +128,7 @@ public class DecisionScopeTests {
     }
 
     @Test
-    public void testConvenienceConstructor_zeroItemCount() {
+    public void testConstructor_zeroItemCount() {
         // test
         final DecisionScope scope = new DecisionScope("xcore:offer-activity:1111111111111111", "xcore:offer-placement:1111111111111111", 0);
         assertNotNull(scope);

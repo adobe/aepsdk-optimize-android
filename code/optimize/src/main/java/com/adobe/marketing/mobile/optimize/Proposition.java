@@ -33,7 +33,7 @@ public class Proposition {
      * Constructor creates a {@code Proposition} using the provided propostion {@code id}, {@code offers}, {@code scope} and {@code scopeDetails}.
      *
      * @param id {@link String} containing proposition identifier.
-     * @param offers {@link String} containing proposition items.
+     * @param offers {@code List<Offer>} containing proposition items.
      * @param scope {@code String} containing encoded scope.
      * @param scopeDetails {@code Map<String, Object>} containing scope details.
      */
@@ -81,7 +81,7 @@ public class Proposition {
     }
 
     /**
-     * Creates a {@code Proposition} object using information provided in {@code data} Map.
+     * Creates a {@code Proposition} object using information provided in {@code data} map.
      * <p>
      * This method returns null if the provided {@code data} is empty or null or if it does not contain required info for creating a {@link Proposition} object.
      *
@@ -89,20 +89,20 @@ public class Proposition {
      * @return {@code Proposition} object or null.
      */
     static Proposition fromEventData(final Map<String, Object> data) {
-        if (CollectionUtils.isNullOrEmpty(data)) {
+        if (OptimizeUtils.isNullOrEmpty(data)) {
             MobileCore.log(LoggingMode.DEBUG, LOG_TAG, "Cannot create Proposition object, provided data Map is empty or null.");
             return null;
         }
 
         try {
             final String id = (String) data.get(OptimizeConstants.JsonKeys.PAYLOAD_ID);
-            if (StringUtils.isNullOrEmpty(id)) {
+            if (OptimizeUtils.isNullOrEmpty(id)) {
                 MobileCore.log(LoggingMode.DEBUG, LOG_TAG, "Cannot create Proposition object, provided data does not contain proposition identifier.");
                 return null;
             }
 
             final String scope = (String) data.get(OptimizeConstants.JsonKeys.PAYLOAD_SCOPE);
-            if (StringUtils.isNullOrEmpty(scope)) {
+            if (OptimizeUtils.isNullOrEmpty(scope)) {
                 MobileCore.log(LoggingMode.DEBUG, LOG_TAG, "Cannot create Proposition object, provided data does not contain proposition scope.");
                 return null;
             }
@@ -111,8 +111,8 @@ public class Proposition {
 
             final List<Map<String, Object>> items = (List<Map<String, Object>>) data.get(OptimizeConstants.JsonKeys.PAYLOAD_ITEMS);
             List<Offer> offers = new ArrayList<Offer>();
-            for (Object item : items) {
-                final Offer offer = Offer.fromEventData((Map<String, Object>)item);
+            for (Map<String, Object> item : items) {
+                final Offer offer = Offer.fromEventData(item);
                 if (offer != null) {
                     offers.add(offer);
                 }
@@ -136,11 +136,11 @@ public class Proposition {
         propositionMap.put(OptimizeConstants.JsonKeys.PAYLOAD_SCOPE, this.scope);
         propositionMap.put(OptimizeConstants.JsonKeys.PAYLOAD_SCOPEDETAILS, this.scopeDetails);
 
-        List<Map<String, Object>> offersMap = new ArrayList<>();
-        for (Offer offer: this.offers) {
-            offersMap.add(offer.toEventData());
+        List<Map<String, Object>> offersList = new ArrayList<>();
+        for (final Offer offer: this.offers) {
+            offersList.add(offer.toEventData());
         }
-        propositionMap.put(OptimizeConstants.JsonKeys.PAYLOAD_ITEMS, offersMap);
+        propositionMap.put(OptimizeConstants.JsonKeys.PAYLOAD_ITEMS, offersList);
         return propositionMap;
     }
 
