@@ -27,24 +27,26 @@ class OptimizeConstants {
 
     private OptimizeConstants() {}
 
-    final class EventNames {
+    static final class EventNames {
         static final String UPDATE_PROPOSITIONS_REQUEST = "Optimize Update Propositions Request";
         static final String GET_PROPOSITIONS_REQUEST = "Optimize Get Propositions Request";
         static final String TRACK_PROPOSITIONS_REQUEST = "Optimize Track Propositions Request";
         static final String CLEAR_PROPOSITIONS_REQUEST = "Optimize Clear Propositions Request";
+        static final String EDGE_PERSONALIZATION_REQUEST = "Edge Optimize Personalization Request";
         static final String OPTIMIZE_RESPONSE = "Optimize Response";
 
         private EventNames() {}
     }
 
-    final class EventType {
+    static final class EventType {
         static final String OPTIMIZE = "com.adobe.eventType.optimize";
+        static final String EDGE = "com.adobe.eventType.edge";
 
         private EventType() {}
     }
 
 
-    final class EventSource {
+    static final class EventSource {
         static final String REQUEST_CONTENT = "com.adobe.eventSource.requestContent";
         static final String REQUEST_RESET = "com.adobe.eventSource.requestReset";
         static final String RESPONSE_CONTENT = "com.adobe.eventSource.responseContent";
@@ -53,7 +55,7 @@ class OptimizeConstants {
         private EventSource() {}
     }
 
-    final class EventDataKeys {
+    static final class EventDataKeys {
         static final String REQUEST_TYPE = "requesttype";
         static final String DECISION_SCOPES = "decisionscopes";
         static final String DECISION_SCOPE_NAME = "name";
@@ -64,7 +66,7 @@ class OptimizeConstants {
         private EventDataKeys() {}
     }
 
-    final class EventDataValues {
+    static final class EventDataValues {
         static final String REQUEST_TYPE_UPDATE = "updatepropositions";
         static final String REQUEST_TYPE_GET = "getpropositions";
         static final String REQUEST_TYPE_TRACK = "trackpropositions";
@@ -72,7 +74,12 @@ class OptimizeConstants {
         private EventDataValues() {}
     }
 
-    final class JsonKeys {
+    static final class Configuration {
+        static final String EXTENSION_NAME = "com.adobe.module.configuration";
+        static final String OPTIMIZE_OVERRIDE_DATASET_ID = "optimize.datasetId";
+    }
+
+    static final class JsonKeys {
         static final String PAYLOAD_ID = "id";
         static final String PAYLOAD_SCOPE = "scope";
         static final String PAYLOAD_SCOPEDETAILS = "scopeDetails";
@@ -89,6 +96,20 @@ class OptimizeConstants {
         static final String PAYLOAD_ITEM_DATA_LANGUAGE = "language";
         static final String PAYLOAD_ITEM_DATA_CHARACTERISTICS = "characteristics";
 
+        static final String DECISION_SCOPES = "decisionScopes";
+        static final String XDM = "xdm";
+        static final String QUERY = "query";
+        static final String QUERY_PERSONALIZATION = "personalization";
+        static final String DATA = "data";
+        static final String DATASET_ID = "datasetId";
+        static final String EXPERIENCE_EVENT_TYPE = "eventType";
+
         private JsonKeys() {}
+    }
+
+    static final class JsonValues {
+        static final String EE_EVENT_TYPE_PERSONALIZATION = "personalization.request";
+
+        private JsonValues() {}
     }
 }
