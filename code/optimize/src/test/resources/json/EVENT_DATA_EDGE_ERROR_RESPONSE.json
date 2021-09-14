@@ -1,0 +1,9 @@
+{
+  "requestId": "BBBBBBBB-BBBB-BBBB-BBBB-BBBBBBBBBBBBA",
+  "detail": "The following scope was not found: xcore:offer-activity:1111111111111111/xcore:offer-placement:1111111111111111",
+  "status": 404,
+  "requestEventId": "AAAAAAAA-AAAA-AAAA-AAAA-AAAAAAAAAAAA",
+  "type": "https://ns.adobe.com/aep/errors/ODE-0001-404",
+  "title": "Not Found"
+}
+

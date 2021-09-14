@@ -15,6 +15,8 @@ package com.adobe.marketing.mobile.optimize;
 import com.adobe.marketing.mobile.LoggingMode;
 import com.adobe.marketing.mobile.MobileCore;
 
+import org.json.JSONObject;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -252,10 +254,17 @@ public class Offer {
             final List<String> language = (List<String>) offerData.get(OptimizeConstants.JsonKeys.PAYLOAD_ITEM_DATA_LANGUAGE);
             final Map<String, String> characteristics = (Map<String, String>) offerData.get(OptimizeConstants.JsonKeys.PAYLOAD_ITEM_DATA_CHARACTERISTICS);
 
+
             String content = null;
-            if (offerData.containsKey(OptimizeConstants.JsonKeys.PAYLOAD_ITEM_DATA_CONTENT))
-                content = (String) offerData.get(OptimizeConstants.JsonKeys.PAYLOAD_ITEM_DATA_CONTENT);
-            else if (offerData.containsKey(OptimizeConstants.JsonKeys.PAYLOAD_ITEM_DATA_DELIVERYURL)) {
+            if (offerData.containsKey(OptimizeConstants.JsonKeys.PAYLOAD_ITEM_DATA_CONTENT)) {
+                final Object offerContent = offerData.get(OptimizeConstants.JsonKeys.PAYLOAD_ITEM_DATA_CONTENT);
+                if (offerContent instanceof String) {
+                    content = (String) offerContent;
+                } else {
+                    final JSONObject offerContentJson = new JSONObject((Map<String, Object>)offerContent);
+                    content = offerContentJson.toString();
+                }
+            } else if (offerData.containsKey(OptimizeConstants.JsonKeys.PAYLOAD_ITEM_DATA_DELIVERYURL)) {
                 content = (String) offerData.get(OptimizeConstants.JsonKeys.PAYLOAD_ITEM_DATA_DELIVERYURL);
             }
             if (OptimizeUtils.isNullOrEmpty(content)) {
@@ -271,7 +280,7 @@ public class Offer {
                     .build();
 
         } catch (Exception e) {
-            MobileCore.log(LoggingMode.DEBUG, LOG_TAG, "Cannot create Offer object, provided data contains invalid fields.");
+            MobileCore.log(LoggingMode.WARNING, LOG_TAG, "Cannot create Offer object, provided data contains invalid fields.");
             return null;
         }
     }

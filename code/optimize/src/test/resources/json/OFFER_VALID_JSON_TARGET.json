@@ -4,6 +4,8 @@
   "data": {
     "id": "222429",
     "format": "application/json",
-    "content": "{\"testing\": \"ho-ho\"}"
+    "content": {
+      "testing": "ho-ho"
+    }
   }
 }

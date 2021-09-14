@@ -120,7 +120,7 @@ public class Proposition {
             return new Proposition(id, offers, scope, scopeDetails);
 
         } catch (Exception e) {
-            MobileCore.log(LoggingMode.DEBUG, LOG_TAG, "Cannot create Proposition object, provided data contains invalid fields.");
+            MobileCore.log(LoggingMode.WARNING, LOG_TAG, "Cannot create Proposition object, provided data contains invalid fields.");
             return null;
         }
     }

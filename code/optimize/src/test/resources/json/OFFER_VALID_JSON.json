@@ -5,7 +5,9 @@
   "data": {
     "id": "xcore:personalized-offer:1111111111111111",
     "format": "application/json",
-    "content": "{\"testing\": \"ho-ho\"}",
+    "content": {
+      "testing": "ho-ho"
+    },
     "language": [
       "en-us"
     ],

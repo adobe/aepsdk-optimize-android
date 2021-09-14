@@ -37,7 +37,7 @@ public class OfferTests {
         assertEquals(OfferType.JSON, offer.getType());
         assertEquals(1, offer.getLanguage().size());
         assertEquals("en-us", offer.getLanguage().get(0));
-        assertEquals("{\"testing\": \"ho-ho\"}", offer.getContent());
+        assertEquals("{\"testing\":\"ho-ho\"}", offer.getContent());
         assertEquals(1, offer.getCharacteristics().size());
         assertEquals("true", offer.getCharacteristics().get("mobile"));
     }
@@ -99,7 +99,7 @@ public class OfferTests {
         assertNull(offer.getEtag());
         assertEquals("https://ns.adobe.com/personalization/json-content-item", offer.getSchema());
         assertEquals(OfferType.JSON, offer.getType());
-        assertEquals("{\"testing\": \"ho-ho\"}", offer.getContent());
+        assertEquals("{\"testing\":\"ho-ho\"}", offer.getContent());
         assertNull(offer.getLanguage());
         assertNull(offer.getCharacteristics());
     }

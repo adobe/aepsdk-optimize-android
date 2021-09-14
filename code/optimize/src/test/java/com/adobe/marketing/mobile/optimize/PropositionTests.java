@@ -85,7 +85,7 @@ public class PropositionTests {
         assertNull(offer.getEtag());
         assertEquals("https://ns.adobe.com/personalization/json-content-item", offer.getSchema());
         assertEquals(OfferType.JSON, offer.getType());
-        assertEquals("{\"testing\": \"ho-ho\"}", offer.getContent());
+        assertEquals("{\"testing\":\"ho-ho\"}", offer.getContent());
         assertNull(offer.getLanguage());
         assertNull(offer.getCharacteristics());
     }
