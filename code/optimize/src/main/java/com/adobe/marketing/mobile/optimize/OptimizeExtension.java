@@ -54,7 +54,7 @@ class OptimizeExtension extends Extension {
         final ExtensionErrorCallback<ExtensionError> errorCallback = new ExtensionErrorCallback<ExtensionError>() {
             @Override
             public void error(final ExtensionError extensionError) {
-                MobileCore.log(LoggingMode.ERROR, OptimizeConstants.LOG_TAG,
+                MobileCore.log(LoggingMode.ERROR, LOG_TAG,
                         String.format("Failed to register event listener for Optimize extension due to an error (%s)!",
                                 extensionError.getErrorName()));
             }
@@ -97,21 +97,21 @@ class OptimizeExtension extends Extension {
             @Override
             public void run() {
                 if (event == null || OptimizeUtils.isNullOrEmpty(event.getEventData())) {
-                    MobileCore.log(LoggingMode.DEBUG, OptimizeConstants.LOG_TAG, "Cannot process the update propositions request event, event is null or event data is null/ empty.");
+                    MobileCore.log(LoggingMode.DEBUG, LOG_TAG, "Cannot process the update propositions request event, event is null or event data is null/ empty.");
                     return;
                 }
                 final Map<String, Object> eventData = event.getEventData();
 
                 final Map<String, Object> configData = retrieveConfigurationSharedState(event);
                 if (OptimizeUtils.isNullOrEmpty(configData)) {
-                    MobileCore.log(LoggingMode.DEBUG, OptimizeConstants.LOG_TAG, "Cannot process the update propositions request event, Configuration shared state is not available.");
+                    MobileCore.log(LoggingMode.DEBUG, LOG_TAG, "Cannot process the update propositions request event, Configuration shared state is not available.");
                     return;
                 }
 
                 try {
                     final List<DecisionScope> decisionScopes = (List<DecisionScope>) eventData.get(OptimizeConstants.EventDataKeys.DECISION_SCOPES);
                     if (OptimizeUtils.isNullOrEmpty(decisionScopes)) {
-                        MobileCore.log(LoggingMode.DEBUG, OptimizeConstants.LOG_TAG, "Cannot process the update propositions request event, decision scopes list is null or empty.");
+                        MobileCore.log(LoggingMode.DEBUG, LOG_TAG, "Cannot process the update propositions request event, decision scopes list is null or empty.");
                         return;
                     }
 
@@ -128,12 +128,12 @@ class OptimizeExtension extends Extension {
                         return;
                     }
 
-                    Map<String, Object> edgeEventData = new HashMap<>();
+                    final Map<String, Object> edgeEventData = new HashMap<>();
 
                     // Add query
-                    Map<String, Object> queryPersonalization = new HashMap<>();
+                    final Map<String, Object> queryPersonalization = new HashMap<>();
                     queryPersonalization.put(OptimizeConstants.JsonKeys.DECISION_SCOPES, validScopes);
-                    Map<String, Object> query = new HashMap<>();
+                    final Map<String, Object> query = new HashMap<>();
                     query.put(OptimizeConstants.JsonKeys.QUERY_PERSONALIZATION, queryPersonalization);
                     edgeEventData.put(OptimizeConstants.JsonKeys.QUERY, query);
 
@@ -149,10 +149,12 @@ class OptimizeExtension extends Extension {
                     edgeEventData.put(OptimizeConstants.JsonKeys.XDM, xdm);
 
                     // Add data
+                    final Map<String, Object> data = new HashMap<>();
                     if (eventData.containsKey(OptimizeConstants.EventDataKeys.DATA)) {
                         final Map<String, Object> inputData = (Map<String, Object>) eventData.get(OptimizeConstants.EventDataKeys.DATA);
                         if (!OptimizeUtils.isNullOrEmpty(inputData)) {
-                            edgeEventData.put(OptimizeConstants.JsonKeys.DATA, inputData);
+                            data.putAll(inputData);
+                            edgeEventData.put(OptimizeConstants.JsonKeys.DATA, data);
                         }
                     }
 
@@ -196,7 +198,7 @@ class OptimizeExtension extends Extension {
         final ExtensionErrorCallback<ExtensionError> errorCallback = new ExtensionErrorCallback<ExtensionError>() {
             @Override
             public void error(final ExtensionError extensionError) {
-                MobileCore.log(LoggingMode.ERROR, OptimizeConstants.LOG_TAG,
+                MobileCore.log(LoggingMode.ERROR, LOG_TAG,
                         String.format("Failed to read Configuration shared state due to an error (%s)!",
                                 extensionError.getErrorName()));
             }
