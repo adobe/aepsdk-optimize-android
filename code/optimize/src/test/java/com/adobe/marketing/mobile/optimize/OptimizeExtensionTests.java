@@ -166,7 +166,7 @@ public class OptimizeExtensionTests {
             }
         });
 
-        Event testEvent = new Event.Builder("Optimize Update Propositions Request", "com.adobe.eventType.optimize", "com.adobe.eventSource.requestContent")
+        final Event testEvent = new Event.Builder("Optimize Update Propositions Request", "com.adobe.eventType.optimize", "com.adobe.eventSource.requestContent")
                 .setEventData(null)
                 .build();
 
@@ -189,7 +189,7 @@ public class OptimizeExtensionTests {
             }
         });
 
-        Event testEvent = new Event.Builder("Optimize Update Propositions Request", "com.adobe.eventType.optimize", "com.adobe.eventSource.requestContent")
+        final Event testEvent = new Event.Builder("Optimize Update Propositions Request", "com.adobe.eventType.optimize", "com.adobe.eventSource.requestContent")
                 .setEventData(new HashMap<String, Object>())
                 .build();
 
@@ -222,7 +222,7 @@ public class OptimizeExtensionTests {
         });
         final ArgumentCaptor<Event> eventCaptor = ArgumentCaptor.forClass(Event.class);
 
-        Event testEvent = new Event.Builder("Optimize Update Propositions Request", "com.adobe.eventType.optimize", "com.adobe.eventSource.requestContent")
+        final Event testEvent = new Event.Builder("Optimize Update Propositions Request", "com.adobe.eventType.optimize", "com.adobe.eventSource.requestContent")
                 .setEventData(testEventData)
                 .build();
 
@@ -290,7 +290,7 @@ public class OptimizeExtensionTests {
         });
         final ArgumentCaptor<Event> eventCaptor = ArgumentCaptor.forClass(Event.class);
 
-        Event testEvent = new Event.Builder("Optimize Update Propositions Request", "com.adobe.eventType.optimize", "com.adobe.eventSource.requestContent")
+        final Event testEvent = new Event.Builder("Optimize Update Propositions Request", "com.adobe.eventType.optimize", "com.adobe.eventSource.requestContent")
                 .setEventData(testEventData)
                 .build();
 
@@ -359,7 +359,7 @@ public class OptimizeExtensionTests {
         });
         final ArgumentCaptor<Event> eventCaptor = ArgumentCaptor.forClass(Event.class);
 
-        Event testEvent = new Event.Builder("Optimize Update Propositions Request", "com.adobe.eventType.optimize", "com.adobe.eventSource.requestContent")
+        final Event testEvent = new Event.Builder("Optimize Update Propositions Request", "com.adobe.eventType.optimize", "com.adobe.eventSource.requestContent")
                 .setEventData(testEventData)
                 .build();
 
@@ -420,7 +420,7 @@ public class OptimizeExtensionTests {
         });
         final ArgumentCaptor<Event> eventCaptor = ArgumentCaptor.forClass(Event.class);
 
-        Event testEvent = new Event.Builder("Optimize Update Propositions Request", "com.adobe.eventType.optimize", "com.adobe.eventSource.requestContent")
+        final Event testEvent = new Event.Builder("Optimize Update Propositions Request", "com.adobe.eventType.optimize", "com.adobe.eventSource.requestContent")
                 .setEventData(testEventData)
                 .build();
 
@@ -476,7 +476,7 @@ public class OptimizeExtensionTests {
             }
         });
 
-        Event testEvent = new Event.Builder("Optimize Update Propositions Request", "com.adobe.eventType.optimize", "com.adobe.eventSource.requestContent")
+        final Event testEvent = new Event.Builder("Optimize Update Propositions Request", "com.adobe.eventType.optimize", "com.adobe.eventSource.requestContent")
                 .setEventData(testEventData)
                 .build();
 
@@ -501,7 +501,7 @@ public class OptimizeExtensionTests {
             }
         });
 
-        Event testEvent = new Event.Builder("Optimize Update Propositions Request", "com.adobe.eventType.optimize", "com.adobe.eventSource.requestContent")
+        final Event testEvent = new Event.Builder("Optimize Update Propositions Request", "com.adobe.eventType.optimize", "com.adobe.eventSource.requestContent")
                 .setEventData(testEventData)
                 .build();
 
@@ -527,7 +527,7 @@ public class OptimizeExtensionTests {
         testEventData.put("requesttype", "updatepropositions");
         testEventData.put("decisionscopes", new ArrayList<DecisionScope>());
 
-        Event testEvent = new Event.Builder("Optimize Update Propositions Request", "com.adobe.eventType.optimize", "com.adobe.eventSource.requestContent")
+        final Event testEvent = new Event.Builder("Optimize Update Propositions Request", "com.adobe.eventType.optimize", "com.adobe.eventSource.requestContent")
                 .setEventData(testEventData)
                 .build();
 
@@ -558,7 +558,7 @@ public class OptimizeExtensionTests {
             }
         });
 
-        Event testEvent = new Event.Builder("Optimize Update Propositions Request", "com.adobe.eventType.optimize", "com.adobe.eventSource.requestContent")
+        final Event testEvent = new Event.Builder("Optimize Update Propositions Request", "com.adobe.eventType.optimize", "com.adobe.eventSource.requestContent")
                 .setEventData(testEventData)
                 .build();
 
@@ -592,7 +592,7 @@ public class OptimizeExtensionTests {
         });
         final ArgumentCaptor<Event> eventCaptor = ArgumentCaptor.forClass(Event.class);
 
-        Event testEvent = new Event.Builder("Optimize Update Propositions Request", "com.adobe.eventType.optimize", "com.adobe.eventSource.requestContent")
+        final Event testEvent = new Event.Builder("Optimize Update Propositions Request", "com.adobe.eventType.optimize", "com.adobe.eventSource.requestContent")
                 .setEventData(testEventData)
                 .build();
 
