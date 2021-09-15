@@ -45,7 +45,7 @@ public class ListenerEdgeErrorResponseContentTests {
     @Before
     public void setup() {
         listener = spy(new ListenerEdgeErrorResponseContent(mockExtensionApi,
-                "com.adobe.eventType.edge", "com.adobe.eventType.errorResponseContent"));
+                "com.adobe.eventType.edge", "com.adobe.eventSource.errorResponseContent"));
     }
 
     @Test

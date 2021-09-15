@@ -21,7 +21,7 @@ import com.adobe.marketing.mobile.MobileCore;
 import java.util.Map;
 
 /**
- * Listens for {@code EventType.Edge}, {@code EventSource.RESPONSE_CONTENT} events and invokes method on the
+ * Listens for {@code EventType.Edge}, {@code EventSource.EDGE_PERSONALIZATION_DECISIONS} events and invokes method on the
  * parent {@code OptimizeExtension} for handling the requests.
  */
 public class ListenerEdgeResponseContent extends ExtensionListener {
@@ -37,10 +37,9 @@ public class ListenerEdgeResponseContent extends ExtensionListener {
     }
 
     /**
-     * This listener method listens to {@value OptimizeConstants.EventType#EDGE} and {@value OptimizeConstants.EventSource#RESPONSE_CONTENT} events.
+     * This listener method listens to {@value OptimizeConstants.EventType#EDGE} and {@value OptimizeConstants.EventSource#EDGE_PERSONALIZATION_DECISIONS} events.
      * <p>
-     * It invokes method on the parent {@link OptimizeExtension} to handle Edge response containing error information when fetching propositions
-     * for requested decision scopes.
+     * It invokes method on the parent {@link OptimizeExtension} to handle Edge response containing propositions for requested decision scopes.
      *
      * @param event {@link Event} to be processed.
      */
@@ -48,14 +47,14 @@ public class ListenerEdgeResponseContent extends ExtensionListener {
     public void hear(final Event event) {
         if (event == null || event.getEventData() == null || event.getEventData().isEmpty()) {
             MobileCore.log(LoggingMode.DEBUG, OptimizeConstants.LOG_TAG,
-                    "Ignoring the Edge response event, either event is null or event data is null/ empty.");
+                    "Ignoring the Edge personalization:decisions event, either event is null or event data is null/ empty.");
             return;
         }
 
         final OptimizeExtension parentExtension = getOptimizeExtension();
         if (parentExtension == null) {
             MobileCore.log(LoggingMode.DEBUG, OptimizeConstants.LOG_TAG,
-                    "Ignoring the Edge response event, parent extension for this listener is null.");
+                    "Ignoring the Edge personalization:decisions event, parent extension for this listener is null.");
             return;
         }
 

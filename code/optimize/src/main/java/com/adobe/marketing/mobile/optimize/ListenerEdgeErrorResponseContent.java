@@ -37,7 +37,8 @@ public class ListenerEdgeErrorResponseContent extends ExtensionListener {
     /**
      * This listener method listens to {@value OptimizeConstants.EventType#EDGE} and {@value OptimizeConstants.EventSource#ERROR_RESPONSE_CONTENT} events.
      * <p>
-     * It invokes method on the parent {@link OptimizeExtension} to handle Edge response containing propositions for requested decision scopes.
+     * It invokes method on the parent {@link OptimizeExtension} to handle Edge response containing error information when fetching propositions
+     * for requested decision scopes.
      *
      * @param event {@link Event} to be processed.
      */

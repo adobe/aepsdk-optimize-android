@@ -213,15 +213,15 @@ class OptimizeExtension extends Extension {
               @Override
               public void run() {
                   if (event == null || OptimizeUtils.isNullOrEmpty(event.getEventData())) {
-                      MobileCore.log(LoggingMode.DEBUG, OptimizeConstants.LOG_TAG, "Cannot process the Edge response event, event is null or event data is null/ empty.");
+                      MobileCore.log(LoggingMode.DEBUG, OptimizeConstants.LOG_TAG, "Cannot process the Edge personalization:decisions event, event is null or event data is null/ empty.");
                       return;
                   }
                   final Map<String, Object> eventData = event.getEventData();
 
                   // Verify the Edge response event handle
-                  final String eventType = (String) eventData.get(OptimizeConstants.Edge.EVENT_HANDLE);
-                  if (!OptimizeConstants.Edge.EVENT_HANDLE_TYPE_PERSONALIZATION.equals(eventType)) {
-                      MobileCore.log(LoggingMode.DEBUG, OptimizeConstants.LOG_TAG, "Cannot process the Edge response event, event handle type is not personalization:decisions.");
+                  final String edgeEventHandleType = (String) eventData.get(OptimizeConstants.Edge.EVENT_HANDLE);
+                  if (!OptimizeConstants.Edge.EVENT_HANDLE_TYPE_PERSONALIZATION.equals(edgeEventHandleType)) {
+                      MobileCore.log(LoggingMode.DEBUG, OptimizeConstants.LOG_TAG, "Cannot process the Edge personalization:decisions event, event handle type is not personalization:decisions.");
                       return;
                   }
 
@@ -236,7 +236,7 @@ class OptimizeExtension extends Extension {
                   }
 
                   if (OptimizeUtils.isNullOrEmpty(propositionsMap)) {
-                      MobileCore.log(LoggingMode.DEBUG, OptimizeConstants.LOG_TAG, "Cannot process the Edge response event, no propositions with valid offers are present in the Edge response.");
+                      MobileCore.log(LoggingMode.DEBUG, OptimizeConstants.LOG_TAG, "Cannot process the Edge personalization:decisions event, no propositions with valid offers are present in the Edge response.");
                       return;
                   }
 
@@ -289,7 +289,7 @@ class OptimizeExtension extends Extension {
                 final String errorDetail = (String) eventData.get(OptimizeConstants.Edge.ErrorKeys.DETAIL);
 
                 MobileCore.log(LoggingMode.WARNING, OptimizeConstants.LOG_TAG,
-                        String.format("Decisioning Service error! Error type: %s, detail: %s", errorType, errorDetail));
+                        String.format("Decisioning Service error! Error type: (%s), detail: (%s)", errorType, errorDetail));
             }
         });
     }
