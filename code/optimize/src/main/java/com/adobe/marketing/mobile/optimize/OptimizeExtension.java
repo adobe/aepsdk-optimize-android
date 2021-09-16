@@ -12,6 +12,7 @@
 
 package com.adobe.marketing.mobile.optimize;
 
+import com.adobe.marketing.mobile.AdobeError;
 import com.adobe.marketing.mobile.Event;
 import com.adobe.marketing.mobile.Extension;
 import com.adobe.marketing.mobile.ExtensionApi;
@@ -122,21 +123,9 @@ class OptimizeExtension extends Extension {
 
                 try {
                     final List<DecisionScope> decisionScopes = (List<DecisionScope>) eventData.get(OptimizeConstants.EventDataKeys.DECISION_SCOPES);
-                    if (OptimizeUtils.isNullOrEmpty(decisionScopes)) {
-                        MobileCore.log(LoggingMode.DEBUG, LOG_TAG, "Cannot process the update propositions request event, decision scopes list is null or empty.");
-                        return;
-                    }
-
-                    final List<DecisionScope> validScopes = new ArrayList<>();
-                    for (final DecisionScope scope: decisionScopes) {
-                        if (!scope.isValid()) {
-                            continue;
-                        }
-                        validScopes.add(scope);
-                    }
-
-                    if (validScopes.size() == 0) {
-                        MobileCore.log(LoggingMode.WARNING, LOG_TAG, "Cannot process the update propositions request, provided list of decision scopes has no valid scope.");
+                    final List<DecisionScope> validScopes = retrieveValidDecisionScopes(decisionScopes);
+                    if (OptimizeUtils.isNullOrEmpty(validScopes)) {
+                        MobileCore.log(LoggingMode.DEBUG, LOG_TAG, "Cannot process the update propositions request event, provided list of decision scopes has no valid scope.");
                         return;
                     }
 
@@ -295,6 +284,66 @@ class OptimizeExtension extends Extension {
     }
 
     /**
+     * Handles the event with type {@value OptimizeConstants.EventType#OPTIMIZE} and source {@value OptimizeConstants.EventSource#REQUEST_CONTENT}.
+     * <p>
+     * This method caches the propositions, returned in the Edge response, in the SDK. It also dispatches an optimize response event with the
+     * propositions for the requested decision scopes.
+     *
+     * @param event incoming {@link Event} object to be processed.
+     */
+    void handleGetPropositions(final Event event) {
+        getExecutor().execute(new Runnable() {
+            @Override
+            public void run() {
+                final ExtensionErrorCallback<ExtensionError> callback = new ExtensionErrorCallback<ExtensionError>() {
+                    @Override
+                    public void error(final ExtensionError extensionError) {
+                        MobileCore.log(LoggingMode.WARNING, LOG_TAG,
+                                String.format("Failed to dispatch optimize response event due to an error (%s)!", extensionError.getErrorName()));
+                    }
+                };
+
+                if (event == null || OptimizeUtils.isNullOrEmpty(event.getEventData())) {
+                    MobileCore.log(LoggingMode.DEBUG, LOG_TAG, "Cannot process the update propositions request event, event is null or event data is null/ empty.");
+                    MobileCore.dispatchResponseEvent(createResponseEventWithError(AdobeError.UNEXPECTED_ERROR), event, callback);
+                }
+                final Map<String, Object> eventData = event.getEventData();
+
+                try {
+                    final List<DecisionScope> decisionScopes = (List<DecisionScope>) eventData.get(OptimizeConstants.EventDataKeys.DECISION_SCOPES);
+                    final List<DecisionScope> validScopes = retrieveValidDecisionScopes(decisionScopes);
+                    if (OptimizeUtils.isNullOrEmpty(validScopes)) {
+                        MobileCore.log(LoggingMode.DEBUG, LOG_TAG, "Cannot process the get propositions request event, provided list of decision scopes has no valid scope.");
+                        MobileCore.dispatchResponseEvent(createResponseEventWithError(AdobeError.UNEXPECTED_ERROR), event, callback);
+                    }
+
+                    final List<Map<String, Object>> propositionsList = new ArrayList<>();
+                    for (final DecisionScope scope : validScopes) {
+                        if (cachedPropositions.containsKey(scope)) {
+                            final Proposition proposition = cachedPropositions.get(scope);
+                            propositionsList.add(proposition.toEventData());
+                        }
+                    }
+                    final Map<String, Object> responseEventData = new HashMap<>();
+                    responseEventData.put(OptimizeConstants.EventDataKeys.PROPOSITIONS, propositionsList);
+
+                    final Event responseEvent = new Event.Builder(OptimizeConstants.EventNames.OPTIMIZE_RESPONSE,
+                            OptimizeConstants.EventType.OPTIMIZE,
+                            OptimizeConstants.EventSource.RESPONSE_CONTENT)
+                            .setEventData(responseEventData)
+                            .build();
+
+                    MobileCore.dispatchResponseEvent(responseEvent, event, callback);
+
+                } catch (final Exception e) {
+                    MobileCore.log(LoggingMode.WARNING, LOG_TAG,
+                            String.format("Failed to process get propositions request event due to an exception (%s)!", e.getLocalizedMessage()));
+                }
+            }
+        });
+    }
+
+    /**
      * Retrieves the {@code Configuration} shared state versioned at the current {@code event}.
      *
      * @param event incoming {@link Event} instance.
@@ -329,5 +378,55 @@ class OptimizeExtension extends Extension {
 
             return executorService;
         }
+    }
+
+    /**
+     * Retrieves the {@code List<DecisionScope>} containing valid scopes.
+     * <p>
+     * This method returns null if the given {@code decisionScopes} list is null, or empty, or if there is no valid decision scope in the
+     * provided list.
+     *
+     * @return {@link ExecutorService} instance for this extension.
+     * @see DecisionScope#isValid()
+     */
+    private List<DecisionScope> retrieveValidDecisionScopes(final List<DecisionScope> decisionScopes) {
+        if (OptimizeUtils.isNullOrEmpty(decisionScopes)) {
+            MobileCore.log(LoggingMode.DEBUG, LOG_TAG, "No valid decision scopes are retrieved, provided decision scopes list is null or empty.");
+            return null;
+        }
+
+        final List<DecisionScope> validScopes = new ArrayList<>();
+        for (final DecisionScope scope: decisionScopes) {
+            if (!scope.isValid()) {
+                continue;
+            }
+            validScopes.add(scope);
+        }
+
+        if (validScopes.size() == 0) {
+            MobileCore.log(LoggingMode.WARNING, LOG_TAG, "No valid decision scopes are retrieved, provided list of decision scopes has no valid scope.");
+            return null;
+        }
+
+        return validScopes;
+    }
+
+    /**
+     * Creates {@value OptimizeConstants.EventType#OPTIMIZE}, {@value OptimizeConstants.EventSource#RESPONSE_CONTENT} event with
+     * the given {@code error} in event data.
+     *
+     * @return {@link Event} instance.
+     */
+    private Event createResponseEventWithError(final AdobeError error) {
+        final Map<String, Object> eventData = new HashMap<>();
+        eventData.put(OptimizeConstants.EventDataKeys.RESPONSE_ERROR, error);
+
+        final Event event = new Event.Builder(OptimizeConstants.EventNames.OPTIMIZE_RESPONSE,
+                OptimizeConstants.EventType.OPTIMIZE,
+                OptimizeConstants.EventSource.RESPONSE_CONTENT)
+                .setEventData(eventData)
+                .build();
+
+        return event;
     }
 }

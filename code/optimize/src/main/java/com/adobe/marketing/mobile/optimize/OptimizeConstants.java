@@ -65,6 +65,7 @@ class OptimizeConstants {
         static final String XDM = "xdm";
         static final String DATA = "data";
         static final String PROPOSITIONS = "propositions";
+        static final String RESPONSE_ERROR = "responseerror";
 
         private EventDataKeys() {}
     }

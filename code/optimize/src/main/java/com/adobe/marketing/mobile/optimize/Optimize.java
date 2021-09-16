@@ -193,6 +193,12 @@ public class Optimize {
                     return;
                 }
 
+                if (eventData.containsKey(OptimizeConstants.EventDataKeys.RESPONSE_ERROR)) {
+                    final AdobeError error = (AdobeError) eventData.get(OptimizeConstants.EventDataKeys.RESPONSE_ERROR);
+                    callback.fail(error);
+                    return;
+                }
+
                 final List<Map<String, Object>> propositionsList = (List<Map<String, Object>>)eventData.get(OptimizeConstants.EventDataKeys.PROPOSITIONS);
 
                 final Map<DecisionScope, Proposition> propositionsMap = new HashMap<>();

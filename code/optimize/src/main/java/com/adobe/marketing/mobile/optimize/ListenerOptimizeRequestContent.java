@@ -64,6 +64,8 @@ class ListenerOptimizeRequestContent extends ExtensionListener {
 
         if (requestType.equals(OptimizeConstants.EventDataValues.REQUEST_TYPE_UPDATE)) {
             parentExtension.handleUpdatePropositions(event);
+        } else if (requestType.equals(OptimizeConstants.EventDataValues.REQUEST_TYPE_GET)) {
+            parentExtension.handleGetPropositions(event);
         } else {
             MobileCore.log(LoggingMode.DEBUG, OptimizeConstants.LOG_TAG,
                     String.format("Ignoring the Optimize request event, provided request type (%s) is not handled by this extension.", requestType));

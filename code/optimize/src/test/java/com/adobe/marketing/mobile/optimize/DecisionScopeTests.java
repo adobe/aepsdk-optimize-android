@@ -25,10 +25,14 @@ import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
@@ -234,6 +238,13 @@ public class DecisionScopeTests {
     }
 
     @Test
+    public void testIsValid_encodedScopeWithInvalidItemCount() {
+        // test
+        final DecisionScope scope = new DecisionScope( "eyJhY3Rpdml0eUlkIjoieGNvcmU6b2ZmZXItYWN0aXZpdHk6MTExMTExMTExMTExMTExMSIsInBsYWNlbWVudElkIjoieGNvcmU6b2ZmZXItcGxhY2VtZW50OjExMTExMTExMTExMTExMTEiLCJpdGVtQ291bnQiOi0xfQ==");
+        assertFalse(scope.isValid());
+    }
+
+    @Test
     public void testIsValid_encodedScopeWithZeroItemCount() {
         // test
         final DecisionScope scope = new DecisionScope( "eyJ4ZG06YWN0aXZpdHlJZCI6Inhjb3JlOm9mZmVyLWFjdGl2aXR5OjExMTExMTExMTExMTExMTEiLCJ4ZG06cGxhY2VtZW50SWQiOiJ4Y29yZTpvZmZlci1wbGFjZW1lbnQ6MTExMTExMTExMTExMTExMSIsInhkbTppdGVtQ291bnQiOjB9");
@@ -277,5 +288,90 @@ public class DecisionScopeTests {
         final DecisionScope scope1 = new DecisionScope("mymbox");
         final DecisionScope scope2 = null;
         assertNotEquals(scope1, scope2);
+    }
+
+    @Test
+    public void testFromEventData_validScopeName() {
+        // setup
+        final Map<String, Object> testEventData = new HashMap<>();
+        testEventData.put("name", "myMbox");
+
+        // test
+        final DecisionScope scope = DecisionScope.fromEventData(testEventData);
+
+        // verify
+        assertNotNull(scope);
+        assertEquals("myMbox", scope.getName());
+    }
+
+    @Test
+    public void testFromEventData_nullEventData() {
+        // test
+        final DecisionScope scope = DecisionScope.fromEventData(null);
+
+        // verify
+        assertNull(scope);
+    }
+
+    @Test
+    public void testFromEventData_emptyEventData() {
+        // test
+        final DecisionScope scope = DecisionScope.fromEventData(new HashMap<String, Object>());
+
+        // verify
+        assertNull(scope);
+    }
+
+    @Test
+    public void testFromEventData_emptyScopeName() {
+        // setup
+        final Map<String, Object> testEventData = new HashMap<>();
+        testEventData.put("name", "");
+
+        // test
+        final DecisionScope scope = DecisionScope.fromEventData(testEventData);
+
+        // verify
+        assertNull(scope);
+    }
+
+    @Test
+    public void testFromEventData_nullScopeName() {
+        // setup
+        final Map<String, Object> testEventData = new HashMap<>();
+        testEventData.put("name", null);
+
+        // test
+        final DecisionScope scope = DecisionScope.fromEventData(testEventData);
+
+        // verify
+        assertNull(scope);
+    }
+
+    @Test
+    public void testFromEventData_missingScopeName() {
+        // setup
+        final Map<String, Object> testEventData = new HashMap<>();
+        testEventData.put("somekey", "someValue");
+
+        // test
+        final DecisionScope scope = DecisionScope.fromEventData(testEventData);
+
+        // verify
+        assertNull(scope);
+    }
+
+    @Test
+    public void testToEventData_validScope() {
+        // setup
+        final DecisionScope scope = new DecisionScope("myMbox");
+
+        // test
+        final Map<String, Object> eventData = scope.toEventData();
+
+        // verify
+        assertNotNull(eventData);
+        assertEquals(1, eventData.size());
+        assertEquals("myMbox", eventData.get("name"));
     }
 }

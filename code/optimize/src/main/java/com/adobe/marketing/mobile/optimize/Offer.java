@@ -127,8 +127,6 @@ public class Offer {
 
         /**
          * Builds and returns the {@code Offer} object.
-         * <p>
-         * This method returns null if the {@link Offer#id} or {@link Offer#content} is empty or null.
          *
          * @return {@link Offer} object or null.
          * @throws UnsupportedOperationException if this method is invoked after {@link Builder#build()}.
@@ -137,10 +135,6 @@ public class Offer {
             throwIfAlreadyBuilt();
             didBuild = true;
 
-            if (OptimizeUtils.isNullOrEmpty(offer.id) || OptimizeUtils.isNullOrEmpty(offer.content)) {
-                MobileCore.log(LoggingMode.DEBUG, LOG_TAG, "Cannot build an Offer object, either offer id or content is null/ empty.");
-                return null;
-            }
             return offer;
         }
 
@@ -234,7 +228,7 @@ public class Offer {
             final String schema = (String) data.get(OptimizeConstants.JsonKeys.PAYLOAD_ITEM_SCHEMA);
 
             final Map<String, Object> offerData = (Map<String, Object>) data.get(OptimizeConstants.JsonKeys.PAYLOAD_ITEM_DATA);
-            if (OptimizeUtils.isNullOrEmpty(data)) {
+            if (OptimizeUtils.isNullOrEmpty(offerData)) {
                 MobileCore.log(LoggingMode.DEBUG, LOG_TAG, "Cannot create Offer object, provided data Map doesn't contain valid item data.");
                 return null;
             }

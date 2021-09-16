@@ -103,4 +103,34 @@ public class OfferTypeTests {
         // test
         assertEquals(OfferType.UNKNOWN, OfferType.values()[100]);
     }
+
+    @Test
+    public void testToString_jsonOfferType() {
+        // test
+        assertEquals("application/json", OfferType.JSON.toString());
+    }
+
+    @Test
+    public void testToString_textOfferType() {
+        // test
+        assertEquals("text/plain", OfferType.TEXT.toString());
+    }
+
+    @Test
+    public void testToString_htmlOfferType() {
+        // test
+        assertEquals("text/html", OfferType.HTML.toString());
+    }
+
+    @Test
+    public void testToString_imageOfferType() {
+        // test
+        assertEquals("image/*", OfferType.IMAGE.toString());
+    }
+
+    @Test
+    public void testToString_unknownOfferType() {
+        // test
+        assertEquals("", OfferType.UNKNOWN.toString());
+    }
 }

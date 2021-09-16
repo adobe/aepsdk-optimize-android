@@ -18,6 +18,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.powermock.modules.junit4.PowerMockRunner;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -26,6 +27,34 @@ import static org.junit.Assert.assertNull;
 
 @SuppressWarnings("unchecked")
 public class OfferTests {
+    @Test
+    public void testBuilder_validOffer() throws Exception {
+        final Offer offer = new Offer.Builder("xcore:personalized-offer:2222222222222222", OfferType.TEXT, "This is a plain text content!")
+                    .setEtag("7")
+                    .setSchema("https://ns.adobe.com/experience/offer-management/content-component-text")
+                    .setLanguage(new ArrayList<String>() {
+                        {
+                            add("en-us");
+                        }
+                    })
+                    .setCharacteristics(new HashMap<String, String>() {
+                        {
+                            put("mobile", "true");
+                        }
+                    })
+                    .build();
+
+        assertEquals("xcore:personalized-offer:2222222222222222", offer.getId());
+        assertEquals("7", offer.getEtag());
+        assertEquals("https://ns.adobe.com/experience/offer-management/content-component-text", offer.getSchema());
+        assertEquals(OfferType.TEXT, offer.getType());
+        assertEquals(1, offer.getLanguage().size());
+        assertEquals("en-us", offer.getLanguage().get(0));
+        assertEquals("This is a plain text content!", offer.getContent());
+        assertEquals(1, offer.getCharacteristics().size());
+        assertEquals("true", offer.getCharacteristics().get("mobile"));
+    }
+
     @Test
     public void testFromEventData_validJsonOffer() throws Exception {
         Map<String, Object> offerData = new ObjectMapper().readValue(getClass().getClassLoader().getResource("json/OFFER_VALID_JSON.json"), HashMap.class);

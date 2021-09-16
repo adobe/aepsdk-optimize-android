@@ -49,7 +49,7 @@ public class ListenerOptimizeRequestContentTests {
     }
 
     @Test
-    public void testHear_validOptimizeRequestEvent() throws Exception {
+    public void testHear_requestTypeUpdatePropositions() throws Exception {
         // setup
         when(listener.getOptimizeExtension()).thenReturn(mockOptimizeExtension);
         Map<String, Object> eventData = new HashMap<String, Object>() {
@@ -68,6 +68,53 @@ public class ListenerOptimizeRequestContentTests {
 
         // verify
         verify(mockOptimizeExtension, Mockito.times(1)).handleUpdatePropositions(testEvent);
+        verify(mockOptimizeExtension, Mockito.never()).handleGetPropositions(testEvent);
+    }
+
+    @Test
+    public void testHear_requestTypeGetPropositions() throws Exception {
+        // setup
+        when(listener.getOptimizeExtension()).thenReturn(mockOptimizeExtension);
+        Map<String, Object> eventData = new HashMap<String, Object>() {
+            {
+                put("requesttype", "getpropositions");
+            }
+        };
+        Event testEvent = new Event.Builder("Optimize Get Propositions Request",
+                "com.adobe.eventType.optimize",
+                "com.adobe.eventSource.requestContent")
+                .setEventData(eventData)
+                .build();
+
+        // test
+        listener.hear(testEvent);
+
+        // verify
+        verify(mockOptimizeExtension, Mockito.times(1)).handleGetPropositions(testEvent);
+        verify(mockOptimizeExtension, Mockito.never()).handleUpdatePropositions(testEvent);
+    }
+
+    @Test
+    public void testHear_unsupportedRequestType() throws Exception {
+        // setup
+        when(listener.getOptimizeExtension()).thenReturn(mockOptimizeExtension);
+        Map<String, Object> eventData = new HashMap<String, Object>() {
+            {
+                put("requesttype", "unknown");
+            }
+        };
+        Event testEvent = new Event.Builder("Optimize Get Propositions Request",
+                "com.adobe.eventType.optimize",
+                "com.adobe.eventSource.requestContent")
+                .setEventData(eventData)
+                .build();
+
+        // test
+        listener.hear(testEvent);
+
+        // verify
+        verify(mockOptimizeExtension, Mockito.never()).handleUpdatePropositions(testEvent);
+        verify(mockOptimizeExtension, Mockito.never()).handleGetPropositions(testEvent);
     }
 
     @Test
@@ -80,13 +127,14 @@ public class ListenerOptimizeRequestContentTests {
 
         // verify
         verify(mockOptimizeExtension, Mockito.never()).handleUpdatePropositions(Mockito.any(Event.class));
+        verify(mockOptimizeExtension, Mockito.never()).handleGetPropositions(Mockito.any(Event.class));
     }
 
     @Test
     public void testHear_nullEventData() throws Exception {
         // setup
         when(listener.getOptimizeExtension()).thenReturn(mockOptimizeExtension);
-        Event testEvent = new Event.Builder("Optimize Update Propositions Request",
+        Event testEvent = new Event.Builder("Optimize Request Event",
                 "com.adobe.eventType.optimize",
                 "com.adobe.eventSource.requestContent")
                 .setEventData(null)
@@ -97,13 +145,14 @@ public class ListenerOptimizeRequestContentTests {
 
         // verify
         verify(mockOptimizeExtension, Mockito.never()).handleUpdatePropositions(testEvent);
+        verify(mockOptimizeExtension, Mockito.never()).handleGetPropositions(testEvent);
     }
 
     @Test
     public void testHear_emptyEventData() throws Exception {
         // setup
         when(listener.getOptimizeExtension()).thenReturn(mockOptimizeExtension);
-        Event testEvent = new Event.Builder("Optimize Update Propositions Request",
+        Event testEvent = new Event.Builder("Optimize Request Event",
                 "com.adobe.eventType.optimize",
                 "com.adobe.eventSource.requestContent")
                 .setEventData(new HashMap<String, Object>())
@@ -114,6 +163,7 @@ public class ListenerOptimizeRequestContentTests {
 
         // verify
         verify(mockOptimizeExtension, Mockito.never()).handleUpdatePropositions(testEvent);
+        verify(mockOptimizeExtension, Mockito.never()).handleGetPropositions(testEvent);
     }
 
     @Test
@@ -123,10 +173,10 @@ public class ListenerOptimizeRequestContentTests {
 
         Map<String, Object> eventData = new HashMap<String, Object>() {
             {
-                put("requesttype", "updatepropositions");
+                put("requesttype", "someRequestType");
             }
         };
-        Event testEvent = new Event.Builder("Optimize Update Propositions Request",
+        Event testEvent = new Event.Builder("Optimize Request Event",
                 "com.adobe.eventType.optimize",
                 "com.adobe.eventSource.requestContent")
                 .setEventData(eventData)
@@ -137,5 +187,6 @@ public class ListenerOptimizeRequestContentTests {
 
         // verify
         verify(mockOptimizeExtension, Mockito.never()).handleUpdatePropositions(testEvent);
+        verify(mockOptimizeExtension, Mockito.never()).handleGetPropositions(testEvent);
     }
 }

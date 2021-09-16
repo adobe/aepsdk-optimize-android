@@ -16,6 +16,7 @@ import android.app.Application;
 import android.content.Context;
 import android.util.Base64;
 
+import com.adobe.marketing.mobile.AdobeError;
 import com.adobe.marketing.mobile.Event;
 import com.adobe.marketing.mobile.ExtensionApi;
 import com.adobe.marketing.mobile.ExtensionErrorCallback;
@@ -98,7 +99,6 @@ public class OptimizeExtensionTests {
                 return java.util.Base64.getDecoder().decode((byte[]) invocation.getArguments()[0]);
             }
         });
-
     }
 
     @After
@@ -460,36 +460,6 @@ public class OptimizeExtensionTests {
     }
 
     @Test
-    public void testHandleUpdatePropositions_missingEventRequestTypeInData() throws Exception {
-        // setup
-        setConfigurationSharedState(new HashMap<String, Object>() {
-            {
-                put("edge.configId", "ffffffff-ffff-ffff-ffff-ffffffffffff");
-            }
-        });
-
-        final DecisionScope testScope = new DecisionScope("eyJhY3Rpdml0eUlkIjoieGNvcmU6b2ZmZXItYWN0aXZpdHk6MTExMTExMTExMTExMTExMSIsInBsYWNlbWVudElkIjoieGNvcmU6b2ZmZXItcGxhY2VtZW50OjExMTExMTExMTExMTExMTEifQ==");
-        final Map<String, Object> testEventData = new HashMap<String, Object>();
-        testEventData.put("decisionscopes", new ArrayList<DecisionScope>() {
-            {
-                add(testScope);
-            }
-        });
-
-        final Event testEvent = new Event.Builder("Optimize Update Propositions Request", "com.adobe.eventType.optimize", "com.adobe.eventSource.requestContent")
-                .setEventData(testEventData)
-                .build();
-
-        // test
-        extension.handleUpdatePropositions(testEvent);
-
-        // verify
-        testExecutor.awaitTermination(1, TimeUnit.SECONDS);
-        PowerMockito.verifyStatic(MobileCore.class, Mockito.times(1));
-        MobileCore.log(any(LoggingMode.class), anyString(), anyString());
-    }
-
-    @Test
     public void testHandleUpdatePropositions_configurationNotAvailable() throws Exception {
         // setup
         final DecisionScope testScope = new DecisionScope("eyJhY3Rpdml0eUlkIjoieGNvcmU6b2ZmZXItYWN0aXZpdHk6MTExMTExMTExMTExMTExMSIsInBsYWNlbWVudElkIjoieGNvcmU6b2ZmZXItcGxhY2VtZW50OjExMTExMTExMTExMTExMTEifQ==");
@@ -536,7 +506,7 @@ public class OptimizeExtensionTests {
 
         // verify
         testExecutor.awaitTermination(1, TimeUnit.SECONDS);
-        PowerMockito.verifyStatic(MobileCore.class, Mockito.times(1));
+        PowerMockito.verifyStatic(MobileCore.class, Mockito.times(2));
         MobileCore.log(any(LoggingMode.class), anyString(), anyString());
     }
 
@@ -567,7 +537,7 @@ public class OptimizeExtensionTests {
 
         // verify
         testExecutor.awaitTermination(1, TimeUnit.SECONDS);
-        PowerMockito.verifyStatic(MobileCore.class, Mockito.times(2));
+        PowerMockito.verifyStatic(MobileCore.class, Mockito.times(3));
         MobileCore.log(any(LoggingMode.class), anyString(), anyString());
     }
 
@@ -864,6 +834,293 @@ public class OptimizeExtensionTests {
         MobileCore.log(any(LoggingMode.class), anyString(), anyString());
         final Map<DecisionScope, Proposition> cachedPropositions = Whitebox.getInternalState(extension, "cachedPropositions");
         assertTrue(cachedPropositions.isEmpty());
+    }
+
+    @Test
+    public void testHandleGetPropositions_decisionScopeInCache() throws Exception {
+        // setup
+        setConfigurationSharedState(new HashMap<String, Object>() {
+            {
+                put("edge.configId", "ffffffff-ffff-ffff-ffff-ffffffffffff");
+            }
+        });
+
+        final Map<String, Object> testPropositionData = new ObjectMapper().readValue(getClass().getClassLoader().getResource("json/PROPOSITION_VALID.json"), HashMap.class);
+        final Proposition testProposition = Proposition.fromEventData(testPropositionData);
+        final Map<DecisionScope, Proposition> cachedPropositions = new HashMap<>();
+        cachedPropositions.put(new DecisionScope(testProposition.getScope()), testProposition);
+        Whitebox.setInternalState(extension, "cachedPropositions", cachedPropositions);
+
+        final DecisionScope testScope = new DecisionScope("eydhY3Rpdml0eUlkIjoieGNvcmU6b2ZmZXItYWN0aXZpdHk6MTExMTExMTExMTExMTExMSIsInBsYWNlbWVudElkIjoieGNvcmU6b2ZmZXItcGxhY2VtZW50OjExMTExMTExMTExMTExMTEifQ==");
+        final Map<String, Object> testEventData = new HashMap<String, Object>();
+        testEventData.put("requesttype", "getpropositions");
+        testEventData.put("decisionscopes", new ArrayList<DecisionScope>() {
+            {
+                add(testScope);
+            }
+        });
+        final ArgumentCaptor<Event> eventCaptor = ArgumentCaptor.forClass(Event.class);
+        final ArgumentCaptor<Event> triggerEventCaptor = ArgumentCaptor.forClass(Event.class);
+
+        final Event testEvent = new Event.Builder("Optimize Get Propositions Request", "com.adobe.eventType.optimize", "com.adobe.eventSource.requestContent")
+                .setEventData(testEventData)
+                .build();
+
+        // test
+        extension.handleGetPropositions(testEvent);
+
+        // verify
+        testExecutor.awaitTermination(1, TimeUnit.SECONDS);
+        PowerMockito.verifyStatic(MobileCore.class, Mockito.times(1));
+        MobileCore.dispatchResponseEvent(eventCaptor.capture(), triggerEventCaptor.capture(), any(ExtensionErrorCallback.class));
+
+        final Event triggerEvent = triggerEventCaptor.getValue();
+        assertEquals(testEvent, triggerEvent);
+
+        final Event dispatchedEvent = eventCaptor.getValue();
+        assertEquals("com.adobe.eventType.optimize".toLowerCase(), dispatchedEvent.getType());
+        assertEquals("com.adobe.eventSource.responseContent".toLowerCase(), dispatchedEvent.getSource());
+
+        final List<Map<String, Object>> propositionsList = (List<Map<String, Object>>) dispatchedEvent.getEventData().get("propositions");
+        assertNotNull(propositionsList);
+        assertEquals(1, propositionsList.size());
+
+        final Map<String, Object> propositionData = propositionsList.get(0);
+        assertNotNull(propositionData);
+        final Proposition proposition = Proposition.fromEventData(propositionData);
+        assertNotNull(proposition);
+
+        assertEquals("de03ac85-802a-4331-a905-a57053164d35", proposition.getId());
+        assertEquals("eydhY3Rpdml0eUlkIjoieGNvcmU6b2ZmZXItYWN0aXZpdHk6MTExMTExMTExMTExMTExMSIsInBsYWNlbWVudElkIjoieGNvcmU6b2ZmZXItcGxhY2VtZW50OjExMTExMTExMTExMTExMTEifQ==", proposition.getScope());
+        assertTrue(proposition.getScopeDetails().isEmpty());
+        assertEquals(1, proposition.getOffers().size());
+
+        Offer offer = proposition.getOffers().get(0);
+        assertEquals("xcore:personalized-offer:1111111111111111", offer.getId());
+        assertEquals("10", offer.getEtag());
+        assertEquals("https://ns.adobe.com/experience/offer-management/content-component-html", offer.getSchema());
+        assertEquals(OfferType.HTML, offer.getType());
+        assertEquals("<h1>This is a HTML content</h1>", offer.getContent());
+        assertNull(offer.getLanguage());
+        assertNull(offer.getCharacteristics());
+    }
+
+    @Test
+    public void testHandleGetPropositions_notAllDecisionScopesInCache() throws Exception {
+        // setup
+        setConfigurationSharedState(new HashMap<String, Object>() {
+            {
+                put("edge.configId", "ffffffff-ffff-ffff-ffff-ffffffffffff");
+            }
+        });
+
+        final Map<String, Object> testPropositionData = new ObjectMapper().readValue(getClass().getClassLoader().getResource("json/PROPOSITION_VALID.json"), HashMap.class);
+        final Proposition testProposition = Proposition.fromEventData(testPropositionData);
+        final Map<DecisionScope, Proposition> cachedPropositions = new HashMap<>();
+        cachedPropositions.put(new DecisionScope(testProposition.getScope()), testProposition);
+        Whitebox.setInternalState(extension, "cachedPropositions", cachedPropositions);
+
+        final DecisionScope testScope1 = new DecisionScope("eydhY3Rpdml0eUlkIjoieGNvcmU6b2ZmZXItYWN0aXZpdHk6MTExMTExMTExMTExMTExMSIsInBsYWNlbWVudElkIjoieGNvcmU6b2ZmZXItcGxhY2VtZW50OjExMTExMTExMTExMTExMTEifQ==");
+        final DecisionScope testScope2 = new DecisionScope("myMbox");
+        final Map<String, Object> testEventData = new HashMap<String, Object>();
+        testEventData.put("requesttype", "getpropositions");
+        testEventData.put("decisionscopes", new ArrayList<DecisionScope>() {
+            {
+                add(testScope1);
+                add(testScope2);
+            }
+        });
+        final ArgumentCaptor<Event> eventCaptor = ArgumentCaptor.forClass(Event.class);
+        final ArgumentCaptor<Event> triggerEventCaptor = ArgumentCaptor.forClass(Event.class);
+
+        final Event testEvent = new Event.Builder("Optimize Get Propositions Request", "com.adobe.eventType.optimize", "com.adobe.eventSource.requestContent")
+                .setEventData(testEventData)
+                .build();
+
+        // test
+        extension.handleGetPropositions(testEvent);
+
+        // verify
+        testExecutor.awaitTermination(1, TimeUnit.SECONDS);
+        PowerMockito.verifyStatic(MobileCore.class, Mockito.times(1));
+        MobileCore.dispatchResponseEvent(eventCaptor.capture(), triggerEventCaptor.capture(), any(ExtensionErrorCallback.class));
+
+        final Event triggerEvent = triggerEventCaptor.getValue();
+        assertEquals(testEvent, triggerEvent);
+
+        final Event dispatchedEvent = eventCaptor.getValue();
+        assertEquals("com.adobe.eventType.optimize".toLowerCase(), dispatchedEvent.getType());
+        assertEquals("com.adobe.eventSource.responseContent".toLowerCase(), dispatchedEvent.getSource());
+
+        final List<Map<String, Object>> propositionsList = (List<Map<String, Object>>) dispatchedEvent.getEventData().get("propositions");
+        assertNotNull(propositionsList);
+        assertEquals(1, propositionsList.size());
+
+        final Map<String, Object> propositionData = propositionsList.get(0);
+        assertNotNull(propositionData);
+        final Proposition proposition = Proposition.fromEventData(propositionData);
+        assertNotNull(proposition);
+
+        assertEquals("de03ac85-802a-4331-a905-a57053164d35", proposition.getId());
+        assertEquals("eydhY3Rpdml0eUlkIjoieGNvcmU6b2ZmZXItYWN0aXZpdHk6MTExMTExMTExMTExMTExMSIsInBsYWNlbWVudElkIjoieGNvcmU6b2ZmZXItcGxhY2VtZW50OjExMTExMTExMTExMTExMTEifQ==", proposition.getScope());
+        assertTrue(proposition.getScopeDetails().isEmpty());
+        assertEquals(1, proposition.getOffers().size());
+
+        Offer offer = proposition.getOffers().get(0);
+        assertEquals("xcore:personalized-offer:1111111111111111", offer.getId());
+        assertEquals("10", offer.getEtag());
+        assertEquals("https://ns.adobe.com/experience/offer-management/content-component-html", offer.getSchema());
+        assertEquals(OfferType.HTML, offer.getType());
+        assertEquals("<h1>This is a HTML content</h1>", offer.getContent());
+        assertNull(offer.getLanguage());
+        assertNull(offer.getCharacteristics());
+    }
+
+    @Test
+    public void testHandleGetPropositions_noDecisionScopeInCache() throws Exception {
+        // setup
+        setConfigurationSharedState(new HashMap<String, Object>() {
+            {
+                put("edge.configId", "ffffffff-ffff-ffff-ffff-ffffffffffff");
+            }
+        });
+
+        final Map<String, Object> testPropositionData = new ObjectMapper().readValue(getClass().getClassLoader().getResource("json/PROPOSITION_VALID.json"), HashMap.class);
+        final Proposition testProposition = Proposition.fromEventData(testPropositionData);
+        final Map<DecisionScope, Proposition> cachedPropositions = new HashMap<>();
+        cachedPropositions.put(new DecisionScope(testProposition.getScope()), testProposition);
+        Whitebox.setInternalState(extension, "cachedPropositions", cachedPropositions);
+
+        final DecisionScope testScope1 = new DecisionScope("myMbox1");
+        final DecisionScope testScope2 = new DecisionScope("myMbox2");
+        final Map<String, Object> testEventData = new HashMap<String, Object>();
+        testEventData.put("requesttype", "getpropositions");
+        testEventData.put("decisionscopes", new ArrayList<DecisionScope>() {
+            {
+                add(testScope1);
+                add(testScope2);
+            }
+        });
+        final ArgumentCaptor<Event> eventCaptor = ArgumentCaptor.forClass(Event.class);
+        final ArgumentCaptor<Event> triggerEventCaptor = ArgumentCaptor.forClass(Event.class);
+
+        final Event testEvent = new Event.Builder("Optimize Get Propositions Request", "com.adobe.eventType.optimize", "com.adobe.eventSource.requestContent")
+                .setEventData(testEventData)
+                .build();
+
+        // test
+        extension.handleGetPropositions(testEvent);
+
+        // verify
+        testExecutor.awaitTermination(1, TimeUnit.SECONDS);
+        PowerMockito.verifyStatic(MobileCore.class, Mockito.times(1));
+        MobileCore.dispatchResponseEvent(eventCaptor.capture(), triggerEventCaptor.capture(), any(ExtensionErrorCallback.class));
+
+        final Event triggerEvent = triggerEventCaptor.getValue();
+        assertEquals(testEvent, triggerEvent);
+
+        final Event dispatchedEvent = eventCaptor.getValue();
+        assertEquals("com.adobe.eventType.optimize".toLowerCase(), dispatchedEvent.getType());
+        assertEquals("com.adobe.eventSource.responseContent".toLowerCase(), dispatchedEvent.getSource());
+
+        final List<Map<String, Object>> propositionsList = (List<Map<String, Object>>) dispatchedEvent.getEventData().get("propositions");
+        assertNotNull(propositionsList);
+        assertEquals(0, propositionsList.size());
+    }
+
+    @Test
+    public void testHandleGetPropositions_missingDecisionScopesList() throws Exception {
+        // setup
+        setConfigurationSharedState(new HashMap<String, Object>() {
+            {
+                put("edge.configId", "ffffffff-ffff-ffff-ffff-ffffffffffff");
+            }
+        });
+
+        final Map<String, Object> testPropositionData = new ObjectMapper().readValue(getClass().getClassLoader().getResource("json/PROPOSITION_VALID.json"), HashMap.class);
+        final Proposition testProposition = Proposition.fromEventData(testPropositionData);
+        final Map<DecisionScope, Proposition> cachedPropositions = new HashMap<>();
+        cachedPropositions.put(new DecisionScope(testProposition.getScope()), testProposition);
+        Whitebox.setInternalState(extension, "cachedPropositions", cachedPropositions);
+
+        final Map<String, Object> testEventData = new HashMap<String, Object>();
+        testEventData.put("requesttype", "getpropositions");
+
+        final ArgumentCaptor<Event> eventCaptor = ArgumentCaptor.forClass(Event.class);
+        final ArgumentCaptor<Event> triggerEventCaptor = ArgumentCaptor.forClass(Event.class);
+
+        final Event testEvent = new Event.Builder("Optimize Get Propositions Request", "com.adobe.eventType.optimize", "com.adobe.eventSource.requestContent")
+                .setEventData(testEventData)
+                .build();
+
+        // test
+        extension.handleGetPropositions(testEvent);
+
+        // verify
+        testExecutor.awaitTermination(1, TimeUnit.SECONDS);
+        PowerMockito.verifyStatic(MobileCore.class, Mockito.times(1));
+        MobileCore.dispatchResponseEvent(eventCaptor.capture(), triggerEventCaptor.capture(), any(ExtensionErrorCallback.class));
+
+        final Event triggerEvent = triggerEventCaptor.getValue();
+        assertEquals(testEvent, triggerEvent);
+
+        final Event dispatchedEvent = eventCaptor.getValue();
+        assertEquals("com.adobe.eventType.optimize".toLowerCase(), dispatchedEvent.getType());
+        assertEquals("com.adobe.eventSource.responseContent".toLowerCase(), dispatchedEvent.getSource());
+
+        final List<Map<String, Object>> propositionsList = (List<Map<String, Object>>) dispatchedEvent.getEventData().get("propositions");
+        assertNull(propositionsList);
+
+        final AdobeError error = (AdobeError) dispatchedEvent.getEventData().get("responseerror");
+        assertNotNull(error);
+        assertEquals(AdobeError.UNEXPECTED_ERROR, error);
+    }
+
+    @Test
+    public void testHandleGetPropositions_emptyCachedPropositions() throws Exception {
+        // setup
+        setConfigurationSharedState(new HashMap<String, Object>() {
+            {
+                put("edge.configId", "ffffffff-ffff-ffff-ffff-ffffffffffff");
+            }
+        });
+
+        final Map<DecisionScope, Proposition> cachedPropositions = new HashMap<>();
+        Whitebox.setInternalState(extension, "cachedPropositions", cachedPropositions);
+
+        final DecisionScope testScope = new DecisionScope("eydhY3Rpdml0eUlkIjoieGNvcmU6b2ZmZXItYWN0aXZpdHk6MTExMTExMTExMTExMTExMSIsInBsYWNlbWVudElkIjoieGNvcmU6b2ZmZXItcGxhY2VtZW50OjExMTExMTExMTExMTExMTEifQ==");
+        final Map<String, Object> testEventData = new HashMap<String, Object>();
+        testEventData.put("requesttype", "getpropositions");
+        testEventData.put("decisionscopes", new ArrayList<DecisionScope>() {
+            {
+                add(testScope);
+            }
+        });
+        final ArgumentCaptor<Event> eventCaptor = ArgumentCaptor.forClass(Event.class);
+        final ArgumentCaptor<Event> triggerEventCaptor = ArgumentCaptor.forClass(Event.class);
+
+        final Event testEvent = new Event.Builder("Optimize Get Propositions Request", "com.adobe.eventType.optimize", "com.adobe.eventSource.requestContent")
+                .setEventData(testEventData)
+                .build();
+
+        // test
+        extension.handleGetPropositions(testEvent);
+
+        // verify
+        testExecutor.awaitTermination(1, TimeUnit.SECONDS);
+        PowerMockito.verifyStatic(MobileCore.class, Mockito.times(1));
+        MobileCore.dispatchResponseEvent(eventCaptor.capture(), triggerEventCaptor.capture(), any(ExtensionErrorCallback.class));
+
+        final Event triggerEvent = triggerEventCaptor.getValue();
+        assertEquals(testEvent, triggerEvent);
+
+        final Event dispatchedEvent = eventCaptor.getValue();
+        assertEquals("com.adobe.eventType.optimize".toLowerCase(), dispatchedEvent.getType());
+        assertEquals("com.adobe.eventSource.responseContent".toLowerCase(), dispatchedEvent.getSource());
+
+        final List<Map<String, Object>> propositionsList = (List<Map<String, Object>>) dispatchedEvent.getEventData().get("propositions");
+        assertNotNull(propositionsList);
+        assertEquals(0, propositionsList.size());
     }
 
     // Helper methods
