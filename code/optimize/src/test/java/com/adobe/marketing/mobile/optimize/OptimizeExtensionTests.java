@@ -1123,6 +1123,60 @@ public class OptimizeExtensionTests {
         assertEquals(0, propositionsList.size());
     }
 
+    @Test
+    public void testHandleClearPropositions() throws Exception {
+        // setup
+        setConfigurationSharedState(new HashMap<String, Object>() {
+            {
+                put("edge.configId", "ffffffff-ffff-ffff-ffff-ffffffffffff");
+            }
+        });
+
+        final Map<String, Object> testPropositionData = new ObjectMapper().readValue(getClass().getClassLoader().getResource("json/PROPOSITION_VALID.json"), HashMap.class);
+        final Proposition testProposition = Proposition.fromEventData(testPropositionData);
+        final Map<DecisionScope, Proposition> cachedPropositions = new HashMap<>();
+        cachedPropositions.put(new DecisionScope(testProposition.getScope()), testProposition);
+        Whitebox.setInternalState(extension, "cachedPropositions", cachedPropositions);
+
+        final Event testEvent = new Event.Builder("Optimize Clear Propositions Request", "com.adobe.eventType.optimize", "com.adobe.eventSource.requestReset")
+                .build();
+
+        // test
+        extension.handleClearPropositions(testEvent);
+
+        // verify
+        testExecutor.awaitTermination(1, TimeUnit.SECONDS);
+        final Map<DecisionScope, Proposition> actualCachedPropositions = Whitebox.getInternalState(extension, "cachedPropositions");
+        assertTrue(actualCachedPropositions.isEmpty());
+    }
+
+    @Test
+    public void testHandleClearPropositions_coreResetIdentities() throws Exception {
+        // setup
+        setConfigurationSharedState(new HashMap<String, Object>() {
+            {
+                put("edge.configId", "ffffffff-ffff-ffff-ffff-ffffffffffff");
+            }
+        });
+
+        final Map<String, Object> testPropositionData = new ObjectMapper().readValue(getClass().getClassLoader().getResource("json/PROPOSITION_VALID.json"), HashMap.class);
+        final Proposition testProposition = Proposition.fromEventData(testPropositionData);
+        final Map<DecisionScope, Proposition> cachedPropositions = new HashMap<>();
+        cachedPropositions.put(new DecisionScope(testProposition.getScope()), testProposition);
+        Whitebox.setInternalState(extension, "cachedPropositions", cachedPropositions);
+
+        final Event testEvent = new Event.Builder("Reset Identities Request", "com.adobe.eventType.generic.identity", "com.adobe.eventSource.requestReset")
+                .build();
+
+        // test
+        extension.handleClearPropositions(testEvent);
+
+        // verify
+        testExecutor.awaitTermination(1, TimeUnit.SECONDS);
+        final Map<DecisionScope, Proposition> actualCachedPropositions = Whitebox.getInternalState(extension, "cachedPropositions");
+        assertTrue(actualCachedPropositions.isEmpty());
+    }
+
     // Helper methods
     private void setConfigurationSharedState(final Map<String, Object> data) {
         when(mockExtensionApi.getSharedEventState(eq("com.adobe.module.configuration"), any(Event.class), any(ExtensionErrorCallback.class)))

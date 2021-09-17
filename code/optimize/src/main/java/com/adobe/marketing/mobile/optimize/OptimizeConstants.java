@@ -42,6 +42,7 @@ class OptimizeConstants {
     static final class EventType {
         static final String OPTIMIZE = "com.adobe.eventType.optimize";
         static final String EDGE = "com.adobe.eventType.edge";
+        static final String GENERIC_IDENTITY = "com.adobe.eventType.generic.identity";
 
         private EventType() {}
     }

@@ -22,7 +22,7 @@ import com.adobe.marketing.mobile.MobileCore;
  * Listens for {@code EventType.Edge}, {@code EventSource.ERROR_RESPONSE_CONTENT} events and invokes method on the
  * parent {@code OptimizeExtension} for handling the requests.
  */
-public class ListenerEdgeErrorResponseContent extends ExtensionListener {
+class ListenerEdgeErrorResponseContent extends ExtensionListener {
     /**
      * Constructor.
      *

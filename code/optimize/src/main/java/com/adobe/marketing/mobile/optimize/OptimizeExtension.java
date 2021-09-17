@@ -48,6 +48,8 @@ class OptimizeExtension extends Extension {
      *         Listener for {@code Event} type {@value OptimizeConstants.EventType#OPTIMIZE} and source {@value OptimizeConstants.EventSource#REQUEST_CONTENT}
      *         Listener for {@code Event} type {@value OptimizeConstants.EventType#EDGE} and source {@value OptimizeConstants.EventSource#EDGE_PERSONALIZATION_DECISIONS}
      *         Listener for {@code Event} type {@value OptimizeConstants.EventType#EDGE} and source {@value OptimizeConstants.EventSource#ERROR_RESPONSE_CONTENT}
+     *         Listener for {@code Event} type {@value OptimizeConstants.EventType#OPTIMIZE} and source {@value OptimizeConstants.EventSource#REQUEST_RESET}
+     *         Listener for {@code Event} type {@value OptimizeConstants.EventType#GENERIC_IDENTITY} and source {@value OptimizeConstants.EventSource#REQUEST_RESET}
      *     </li>
      * </ul>
      *
@@ -75,6 +77,13 @@ class OptimizeExtension extends Extension {
 
         extensionApi.registerEventListener(OptimizeConstants.EventType.EDGE, OptimizeConstants.EventSource.ERROR_RESPONSE_CONTENT,
                 ListenerEdgeErrorResponseContent.class, errorCallback);
+
+        extensionApi.registerEventListener(OptimizeConstants.EventType.OPTIMIZE, OptimizeConstants.EventSource.REQUEST_RESET,
+                ListenerOptimizeRequestReset.class, errorCallback);
+
+        // Register listener - Mobile Core `resetIdentities()` API dispatches generic identity request reset event.
+        extensionApi.registerEventListener(OptimizeConstants.EventType.GENERIC_IDENTITY, OptimizeConstants.EventSource.REQUEST_RESET,
+                ListenerOptimizeRequestReset.class, errorCallback);
     }
 
     /**
@@ -339,6 +348,22 @@ class OptimizeExtension extends Extension {
                     MobileCore.log(LoggingMode.WARNING, LOG_TAG,
                             String.format("Failed to process get propositions request event due to an exception (%s)!", e.getLocalizedMessage()));
                 }
+            }
+        });
+    }
+
+    /**
+     * Handles the event with type {@value OptimizeConstants.EventType#OPTIMIZE} and source {@value OptimizeConstants.EventSource#REQUEST_RESET}.
+     * <p>
+     * This method clears previously cached propositions in the SDK.
+     *
+     * @param event incoming {@link Event} object to be processed.
+     */
+    void handleClearPropositions(final Event event) {
+        getExecutor().execute(new Runnable() {
+            @Override
+            public void run() {
+                cachedPropositions.clear();
             }
         });
     }
