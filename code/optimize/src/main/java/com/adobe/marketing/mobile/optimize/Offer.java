@@ -261,7 +261,7 @@ public class Offer {
             } else if (offerData.containsKey(OptimizeConstants.JsonKeys.PAYLOAD_ITEM_DATA_DELIVERYURL)) {
                 content = (String) offerData.get(OptimizeConstants.JsonKeys.PAYLOAD_ITEM_DATA_DELIVERYURL);
             }
-            if (OptimizeUtils.isNullOrEmpty(content)) {
+            if (content == null) {
                 MobileCore.log(LoggingMode.DEBUG, LOG_TAG, "Cannot create Offer object, provided data Map doesn't contain valid item data content.");
                 return null;
             }
