@@ -83,7 +83,7 @@ class OptimizeExtension extends Extension {
 
         // Register listener - Mobile Core `resetIdentities()` API dispatches generic identity request reset event.
         extensionApi.registerEventListener(OptimizeConstants.EventType.GENERIC_IDENTITY, OptimizeConstants.EventSource.REQUEST_RESET,
-                ListenerOptimizeRequestReset.class, errorCallback);
+                ListenerGenericIdentityRequestReset.class, errorCallback);
     }
 
     /**
