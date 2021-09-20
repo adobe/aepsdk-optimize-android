@@ -28,6 +28,7 @@ import org.powermock.modules.junit4.PowerMockRunner;
 import java.util.HashMap;
 import java.util.Map;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.powermock.api.mockito.PowerMockito.spy;
 import static org.powermock.api.mockito.PowerMockito.when;
@@ -76,7 +77,7 @@ public class ListenerEdgeResponseContentTests {
         listener.hear(null);
 
         // verify
-        verify(mockOptimizeExtension, Mockito.never()).handleEdgeResponse(Mockito.any(Event.class));
+        verify(mockOptimizeExtension, Mockito.never()).handleEdgeResponse(any(Event.class));
     }
 
     @Test
@@ -93,7 +94,7 @@ public class ListenerEdgeResponseContentTests {
         listener.hear(testEvent);
 
         // verify
-        verify(mockOptimizeExtension, Mockito.never()).handleEdgeResponse(testEvent);
+        verify(mockOptimizeExtension, Mockito.never()).handleEdgeResponse(any(Event.class));
     }
 
     @Test
@@ -110,7 +111,7 @@ public class ListenerEdgeResponseContentTests {
         listener.hear(testEvent);
 
         // verify
-        verify(mockOptimizeExtension, Mockito.never()).handleEdgeResponse(testEvent);
+        verify(mockOptimizeExtension, Mockito.never()).handleEdgeResponse(any(Event.class));
     }
 
     @Test
@@ -128,6 +129,6 @@ public class ListenerEdgeResponseContentTests {
         listener.hear(testEvent);
 
         // verify
-        verify(mockOptimizeExtension, Mockito.never()).handleEdgeResponse(testEvent);
+        verify(mockOptimizeExtension, Mockito.never()).handleEdgeResponse(any(Event.class));
     }
 }

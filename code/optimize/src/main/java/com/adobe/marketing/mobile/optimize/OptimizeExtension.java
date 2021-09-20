@@ -411,7 +411,7 @@ class OptimizeExtension extends Extension {
      * This method returns null if the given {@code decisionScopes} list is null, or empty, or if there is no valid decision scope in the
      * provided list.
      *
-     * @return {@link ExecutorService} instance for this extension.
+     * @return {@code List<DecisionScope>} instance containing valid scopes.
      * @see DecisionScope#isValid()
      */
     private List<DecisionScope> retrieveValidDecisionScopes(final List<DecisionScope> decisionScopes) {

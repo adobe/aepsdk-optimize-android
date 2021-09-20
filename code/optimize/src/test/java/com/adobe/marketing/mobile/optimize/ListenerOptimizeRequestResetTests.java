@@ -25,6 +25,7 @@ import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.util.HashMap;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.powermock.api.mockito.PowerMockito.spy;
 import static org.powermock.api.mockito.PowerMockito.when;
@@ -71,7 +72,7 @@ public class ListenerOptimizeRequestResetTests {
         listener.hear(null);
 
         // verify
-        verify(mockOptimizeExtension, Mockito.never()).handleClearPropositions(Mockito.any(Event.class));
+        verify(mockOptimizeExtension, Mockito.never()).handleClearPropositions(any(Event.class));
     }
 
     @Test
@@ -121,6 +122,6 @@ public class ListenerOptimizeRequestResetTests {
         listener.hear(testEvent);
 
         // verify
-        verify(mockOptimizeExtension, Mockito.never()).handleClearPropositions(testEvent);
+        verify(mockOptimizeExtension, Mockito.never()).handleClearPropositions(any(Event.class));
     }
 }

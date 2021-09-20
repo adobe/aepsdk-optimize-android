@@ -52,7 +52,7 @@ class ListenerGenericIdentityRequestReset extends ExtensionListener {
         final OptimizeExtension parentExtension = getOptimizeExtension();
         if (parentExtension == null) {
             MobileCore.log(LoggingMode.DEBUG, OptimizeConstants.LOG_TAG,
-                    "Ignoring the generic identity request event, parent extension for this listener is null.");
+                    "Ignoring the generic identity request reset event, parent extension for this listener is null.");
             return;
         }
 
@@ -62,7 +62,7 @@ class ListenerGenericIdentityRequestReset extends ExtensionListener {
     /**
      * Returns the parent extension for this listener.
      *
-     * @return a {@link OptimizeExtension} instance registered with the {@code EventHub}.
+     * @return an {@link OptimizeExtension} instance registered with the {@code EventHub}.
      */
     OptimizeExtension getOptimizeExtension() {
         return (OptimizeExtension) getParentExtension();

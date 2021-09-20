@@ -75,7 +75,7 @@ class ListenerOptimizeRequestContent extends ExtensionListener {
     /**
      * Returns the parent extension for this listener.
      *
-     * @return a {@link OptimizeExtension} instance registered with the {@code EventHub}.
+     * @return an {@link OptimizeExtension} instance registered with the {@code EventHub}.
      */
     OptimizeExtension getOptimizeExtension() {
         return (OptimizeExtension) getParentExtension();
