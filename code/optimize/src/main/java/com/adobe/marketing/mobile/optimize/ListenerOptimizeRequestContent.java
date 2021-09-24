@@ -39,8 +39,12 @@ class ListenerOptimizeRequestContent extends ExtensionListener {
     /**
      * This listener method listens to {@value OptimizeConstants.EventType#OPTIMIZE} and {@value OptimizeConstants.EventSource#REQUEST_CONTENT} events.
      * <p>
-     * It invokes method on the parent {@link OptimizeExtension} to handle requests for updating propositions in the extension fetched from the Edge network, or
-     * for retrieving previously fetched and cached propositions.
+     * It invokes method on the parent {@link OptimizeExtension} to handle requests for,
+     * <ul>
+     *     <li>Updating propositions in the extension by sending personalization query requests to the Experience Edge.</li>
+     *     <li>Retrieving previously fetched and cached propositions in the extension.</li>
+     *     <li>Sending proposition interactions information to the Edge network.</li>
+     * </ul>
      *
      * @param event {@link Event} to be processed.
      */
@@ -66,6 +70,8 @@ class ListenerOptimizeRequestContent extends ExtensionListener {
             parentExtension.handleUpdatePropositions(event);
         } else if (requestType.equals(OptimizeConstants.EventDataValues.REQUEST_TYPE_GET)) {
             parentExtension.handleGetPropositions(event);
+        } else if (requestType.equals(OptimizeConstants.EventDataValues.REQUEST_TYPE_TRACK)) {
+            parentExtension.handleTrackPropositions(event);
         } else {
             MobileCore.log(LoggingMode.DEBUG, OptimizeConstants.LOG_TAG,
                     String.format("Ignoring the Optimize request event, provided request type (%s) is not handled by this extension.", requestType));

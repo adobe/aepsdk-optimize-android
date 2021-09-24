@@ -1124,6 +1124,247 @@ public class OptimizeExtensionTests {
     }
 
     @Test
+    public void testHandleTrackPropositions_validPropositionInteractionsForDisplay() throws Exception {
+        // setup
+        setConfigurationSharedState(new HashMap<String, Object>() {
+            {
+                put("edge.configId", "ffffffff-ffff-ffff-ffff-ffffffffffff");
+            }
+        });
+
+        final Map<String, Object> optimizeTrackRequestData = new ObjectMapper().readValue(getClass().getClassLoader().getResource("json/EVENT_DATA_OPTIMIZE_TRACK_REQUEST_VALID_DISPLAY.json"), HashMap.class);
+        final Event testEvent = new Event.Builder("Optimize Track Propositions Request", "com.adobe.eventType.optimize", "com.adobe.eventSource.requestContent")
+                .setEventData(optimizeTrackRequestData)
+                .build();
+
+        final ArgumentCaptor<Event> eventCaptor = ArgumentCaptor.forClass(Event.class);
+
+        // test
+        extension.handleTrackPropositions(testEvent);
+
+        // verify
+        testExecutor.awaitTermination(1, TimeUnit.SECONDS);
+        PowerMockito.verifyStatic(MobileCore.class, Mockito.times(1));
+        MobileCore.dispatchEvent(eventCaptor.capture(), any(ExtensionErrorCallback.class));
+
+        final Event dispatchedEvent = eventCaptor.getValue();
+        assertEquals("com.adobe.eventType.edge".toLowerCase(), dispatchedEvent.getType());
+        assertEquals("com.adobe.eventSource.requestContent".toLowerCase(), dispatchedEvent.getSource());
+        final Map<String, Object> eventData = dispatchedEvent.getEventData();
+        assertNotNull(eventData);
+        final Map<String, Object> propositionInteractionsXdm = (Map<String, Object>)eventData.get("xdm");
+        assertNotNull(propositionInteractionsXdm);
+        assertEquals("decisioning.propositionDisplay", propositionInteractionsXdm.get("eventType"));
+        final Map<String, Object> experience = (Map<String, Object>)propositionInteractionsXdm.get("_experience");
+        assertNotNull(experience);
+        final Map<String, Object> decisioning = (Map<String, Object>)experience.get("decisioning");
+        assertNotNull(decisioning);
+        final List<Map<String, Object>> propositionInteractionDetailsList = (List<Map<String, Object>>)decisioning.get("propositions");
+        assertNotNull(propositionInteractionDetailsList);
+        assertEquals(1, propositionInteractionDetailsList.size());
+        final Map<String, Object> propositionInteractionDetailsMap = (Map<String, Object>)propositionInteractionDetailsList.get(0);
+        assertEquals("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa", propositionInteractionDetailsMap.get("id"));
+        assertEquals("eyJhY3Rpdml0eUlkIjoieGNvcmU6b2ZmZXItYWN0aXZpdHk6MTExMTExMTExMTExMTExMSIsInBsYWNlbWVudElkIjoieGNvcmU6b2ZmZXItcGxhY2VtZW50OjExMTExMTExMTExMTExMTEifQ==", propositionInteractionDetailsMap.get("scope"));
+        final Map<String, Object> scopeDetails = (Map<String, Object>)propositionInteractionDetailsMap.get("scopeDetails");
+        assertNotNull(scopeDetails);
+        assertTrue(scopeDetails.isEmpty());
+        final List<Map<String, Object>> items = (List<Map<String, Object>>)propositionInteractionDetailsMap.get("items");
+        assertNotNull(items);
+        assertEquals(1, items.size());
+        assertEquals("xcore:personalized-offer:1111111111111111", items.get(0).get("id"));
+    }
+
+    @Test
+    public void testHandleTrackPropositions_validPropositionInteractionsForTap() throws Exception {
+        // setup
+        setConfigurationSharedState(new HashMap<String, Object>() {
+            {
+                put("edge.configId", "ffffffff-ffff-ffff-ffff-ffffffffffff");
+            }
+        });
+
+        final Map<String, Object> optimizeTrackRequestData = new ObjectMapper().readValue(getClass().getClassLoader().getResource("json/EVENT_DATA_OPTIMIZE_TRACK_REQUEST_VALID_TAP.json"), HashMap.class);
+        final Event testEvent = new Event.Builder("Optimize Track Propositions Request", "com.adobe.eventType.optimize", "com.adobe.eventSource.requestContent")
+                .setEventData(optimizeTrackRequestData)
+                .build();
+
+        final ArgumentCaptor<Event> eventCaptor = ArgumentCaptor.forClass(Event.class);
+
+        // test
+        extension.handleTrackPropositions(testEvent);
+
+        // verify
+        testExecutor.awaitTermination(1, TimeUnit.SECONDS);
+        PowerMockito.verifyStatic(MobileCore.class, Mockito.times(1));
+        MobileCore.dispatchEvent(eventCaptor.capture(), any(ExtensionErrorCallback.class));
+        final Event dispatchedEvent = eventCaptor.getValue();
+        assertEquals("com.adobe.eventType.edge".toLowerCase(), dispatchedEvent.getType());
+        assertEquals("com.adobe.eventSource.requestContent".toLowerCase(), dispatchedEvent.getSource());
+        final Map<String, Object> eventData = dispatchedEvent.getEventData();
+        assertNotNull(eventData);
+        final Map<String, Object> propositionInteractionsXdm = (Map<String, Object>)eventData.get("xdm");
+        assertNotNull(propositionInteractionsXdm);
+        assertEquals("decisioning.propositionInteract", propositionInteractionsXdm.get("eventType"));
+        final Map<String, Object> experience = (Map<String, Object>)propositionInteractionsXdm.get("_experience");
+        assertNotNull(experience);
+        final Map<String, Object> decisioning = (Map<String, Object>)experience.get("decisioning");
+        assertNotNull(decisioning);
+        final List<Map<String, Object>> propositionInteractionDetailsList = (List<Map<String, Object>>)decisioning.get("propositions");
+        assertNotNull(propositionInteractionDetailsList);
+        assertEquals(1, propositionInteractionDetailsList.size());
+        final Map<String, Object> propositionInteractionDetailsMap = (Map<String, Object>)propositionInteractionDetailsList.get(0);
+        assertEquals("AT:eyJhY3Rpdml0eUlkIjoiMTI1NTg5IiwiZXhwZXJpZW5jZUlkIjoiMCJ9", propositionInteractionDetailsMap.get("id"));
+        assertEquals("myMbox", propositionInteractionDetailsMap.get("scope"));
+        final Map<String, Object> scopeDetails = (Map<String, Object>)propositionInteractionDetailsMap.get("scopeDetails");
+        assertNotNull(scopeDetails);
+        assertEquals(4, scopeDetails.size());
+        assertEquals("TGT", scopeDetails.get("decisionProvider"));
+        final Map<String, Object> sdActivity = (Map<String, Object>)scopeDetails.get("activity");
+        assertEquals("125589", sdActivity.get("id"));
+        final Map<String, Object> sdExperience = (Map<String, Object>)scopeDetails.get("experience");
+        assertEquals("0", sdExperience.get("id"));
+        final List<Map<String, Object>> sdStrategies = (List<Map<String, Object>>)scopeDetails.get("strategies");
+        assertNotNull(sdStrategies);
+        assertEquals(1, sdStrategies.size());
+        assertEquals("0", sdStrategies.get(0).get("algorithmID"));
+        assertEquals("0", sdStrategies.get(0).get("trafficType"));
+        final List<Map<String, Object>> items = (List<Map<String, Object>>)propositionInteractionDetailsMap.get("items");
+        assertNotNull(items);
+        assertEquals(1, items.size());
+        assertEquals("246315", items.get(0).get("id"));
+    }
+
+    @Test
+    public void testHandleTrackPropositions_validPropositionInteractionsWithDatasetIdInConfig() throws Exception {
+        // setup
+        setConfigurationSharedState(new HashMap<String, Object>() {
+            {
+                put("edge.configId", "ffffffff-ffff-ffff-ffff-ffffffffffff");
+                put("optimize.datasetId", "111111111111111111111111");
+            }
+        });
+
+        final Map<String, Object> optimizeTrackRequestData = new ObjectMapper().readValue(getClass().getClassLoader().getResource("json/EVENT_DATA_OPTIMIZE_TRACK_REQUEST_VALID_TAP.json"), HashMap.class);
+        final Event testEvent = new Event.Builder("Optimize Track Propositions Request", "com.adobe.eventType.optimize", "com.adobe.eventSource.requestContent")
+                .setEventData(optimizeTrackRequestData)
+                .build();
+
+        final ArgumentCaptor<Event> eventCaptor = ArgumentCaptor.forClass(Event.class);
+
+        // test
+        extension.handleTrackPropositions(testEvent);
+
+        // verify
+        testExecutor.awaitTermination(1, TimeUnit.SECONDS);
+        PowerMockito.verifyStatic(MobileCore.class, Mockito.times(1));
+        MobileCore.dispatchEvent(eventCaptor.capture(), any(ExtensionErrorCallback.class));
+        final Event dispatchedEvent = eventCaptor.getValue();
+        assertEquals("com.adobe.eventType.edge".toLowerCase(), dispatchedEvent.getType());
+        assertEquals("com.adobe.eventSource.requestContent".toLowerCase(), dispatchedEvent.getSource());
+        final Map<String, Object> eventData = dispatchedEvent.getEventData();
+        assertNotNull(eventData);
+        final String datasetId = (String)eventData.get("datasetId");
+        assertEquals("111111111111111111111111", datasetId);
+        final Map<String, Object> propositionInteractionsXdm = (Map<String, Object>)eventData.get("xdm");
+        assertNotNull(propositionInteractionsXdm);
+        assertEquals("decisioning.propositionInteract", propositionInteractionsXdm.get("eventType"));
+        final Map<String, Object> experience = (Map<String, Object>)propositionInteractionsXdm.get("_experience");
+        assertNotNull(experience);
+        final Map<String, Object> decisioning = (Map<String, Object>)experience.get("decisioning");
+        assertNotNull(decisioning);
+        final List<Map<String, Object>> propositionInteractionDetailsList = (List<Map<String, Object>>)decisioning.get("propositions");
+        assertNotNull(propositionInteractionDetailsList);
+        assertEquals(1, propositionInteractionDetailsList.size());
+        final Map<String, Object> propositionInteractionDetailsMap = (Map<String, Object>)propositionInteractionDetailsList.get(0);
+        assertEquals("AT:eyJhY3Rpdml0eUlkIjoiMTI1NTg5IiwiZXhwZXJpZW5jZUlkIjoiMCJ9", propositionInteractionDetailsMap.get("id"));
+        assertEquals("myMbox", propositionInteractionDetailsMap.get("scope"));
+        final Map<String, Object> scopeDetails = (Map<String, Object>)propositionInteractionDetailsMap.get("scopeDetails");
+        assertNotNull(scopeDetails);
+        assertEquals(4, scopeDetails.size());
+        assertEquals("TGT", scopeDetails.get("decisionProvider"));
+        final Map<String, Object> sdActivity = (Map<String, Object>)scopeDetails.get("activity");
+        assertEquals("125589", sdActivity.get("id"));
+        final Map<String, Object> sdExperience = (Map<String, Object>)scopeDetails.get("experience");
+        assertEquals("0", sdExperience.get("id"));
+        final List<Map<String, Object>> sdStrategies = (List<Map<String, Object>>)scopeDetails.get("strategies");
+        assertNotNull(sdStrategies);
+        assertEquals(1, sdStrategies.size());
+        assertEquals("0", sdStrategies.get(0).get("algorithmID"));
+        assertEquals("0", sdStrategies.get(0).get("trafficType"));
+        final List<Map<String, Object>> items = (List<Map<String, Object>>)propositionInteractionDetailsMap.get("items");
+        assertNotNull(items);
+        assertEquals(1, items.size());
+        assertEquals("246315", items.get(0).get("id"));
+    }
+
+    @Test
+    public void testHandleTrackPropositions_configurationNotAvailable() throws Exception {
+        // setup
+        final Map<String, Object> optimizeTrackRequestData = new ObjectMapper().readValue(getClass().getClassLoader().getResource("json/EVENT_DATA_OPTIMIZE_TRACK_REQUEST_VALID_DISPLAY.json"), HashMap.class);
+        final Event testEvent = new Event.Builder("Optimize Track Propositions Request", "com.adobe.eventType.optimize", "com.adobe.eventSource.requestContent")
+                .setEventData(optimizeTrackRequestData)
+                .build();
+
+        // test
+        extension.handleTrackPropositions(testEvent);
+
+        // verify
+        testExecutor.awaitTermination(1, TimeUnit.SECONDS);
+        PowerMockito.verifyStatic(MobileCore.class, Mockito.times(1));
+        MobileCore.log(any(LoggingMode.class), anyString(), anyString());
+    }
+
+    @Test
+    public void testHandleTrackPropositions_missingPropositionInteractions() throws Exception {
+        // setup
+        setConfigurationSharedState(new HashMap<String, Object>() {
+            {
+                put("edge.configId", "ffffffff-ffff-ffff-ffff-ffffffffffff");
+            }
+        });
+
+        final Map<String, Object> optimizeTrackRequestData = new ObjectMapper().readValue(getClass().getClassLoader().getResource("json/EVENT_DATA_OPTIMIZE_TRACK_REQUEST_MISSING_PROPOSITION_INTERACTIONS.json"), HashMap.class);
+        final Event testEvent = new Event.Builder("Optimize Track Propositions Request", "com.adobe.eventType.optimize", "com.adobe.eventSource.requestContent")
+                .setEventData(optimizeTrackRequestData)
+                .build();
+
+        final ArgumentCaptor<Event> eventCaptor = ArgumentCaptor.forClass(Event.class);
+
+        // test
+        extension.handleTrackPropositions(testEvent);
+
+        // verify
+        testExecutor.awaitTermination(1, TimeUnit.SECONDS);
+        PowerMockito.verifyStatic(MobileCore.class, Mockito.times(1));
+        MobileCore.log(any(LoggingMode.class), anyString(), anyString());
+    }
+
+    @Test
+    public void testHandleTrackPropositions_emptyPropositionInteractions() throws Exception {
+        // setup
+        setConfigurationSharedState(new HashMap<String, Object>() {
+            {
+                put("edge.configId", "ffffffff-ffff-ffff-ffff-ffffffffffff");
+            }
+        });
+
+        final Map<String, Object> optimizeTrackRequestData = new ObjectMapper().readValue(getClass().getClassLoader().getResource("json/EVENT_DATA_OPTIMIZE_TRACK_REQUEST_EMPTY_PROPOSITION_INTERACTIONS.json"), HashMap.class);
+        final Event testEvent = new Event.Builder("Optimize Track Propositions Request", "com.adobe.eventType.optimize", "com.adobe.eventSource.requestContent")
+                .setEventData(optimizeTrackRequestData)
+                .build();
+
+        final ArgumentCaptor<Event> eventCaptor = ArgumentCaptor.forClass(Event.class);
+
+        // test
+        extension.handleTrackPropositions(testEvent);
+
+        // verify
+        testExecutor.awaitTermination(1, TimeUnit.SECONDS);
+        PowerMockito.verifyStatic(MobileCore.class, Mockito.times(1));
+        MobileCore.log(any(LoggingMode.class), anyString(), anyString());
+    }
+
+    @Test
     public void testHandleClearPropositions() throws Exception {
         // setup
         setConfigurationSharedState(new HashMap<String, Object>() {

@@ -104,4 +104,41 @@ public class PropositionTests {
         assertNull(proposition);
     }
 
+    @Test
+    public void testGenerateReferenceXdm_validProposition() throws Exception {
+        Map<String, Object> propositionData = new ObjectMapper().readValue(getClass().getClassLoader().getResource("json/PROPOSITION_VALID.json"), HashMap.class);
+        final Proposition proposition = Proposition.fromEventData(propositionData);
+        assertNotNull(proposition);
+
+        // test
+        final Map<String, Object> propositionReferenceXdm = proposition.generateReferenceXdm();
+
+        // verify
+        assertNotNull(propositionReferenceXdm);
+        assertNull(propositionReferenceXdm.get("eventType"));
+        final Map<String, Object> experience = (Map<String, Object>)propositionReferenceXdm.get("_experience");
+        assertNotNull(experience);
+        final Map<String, Object> decisioning = (Map<String, Object>)experience.get("decisioning");
+        assertNotNull(decisioning);
+        assertEquals("de03ac85-802a-4331-a905-a57053164d35", decisioning.get("propositionID"));
+    }
+
+    @Test
+    public void testGenerateReferenceXdm_validPropositionFromTarget() throws Exception {
+        Map<String, Object> propositionData = new ObjectMapper().readValue(getClass().getClassLoader().getResource("json/PROPOSITION_VALID_TARGET.json"), HashMap.class);
+        final Proposition proposition = Proposition.fromEventData(propositionData);
+        assertNotNull(proposition);
+
+        // test
+        final Map<String, Object> propositionReferenceXdm = proposition.generateReferenceXdm();
+
+        // verify
+        assertNotNull(propositionReferenceXdm);
+        assertNull(propositionReferenceXdm.get("eventType"));
+        final Map<String, Object> experience = (Map<String, Object>)propositionReferenceXdm.get("_experience");
+        assertNotNull(experience);
+        final Map<String, Object> decisioning = (Map<String, Object>)experience.get("decisioning");
+        assertNotNull(decisioning);
+        assertEquals("AT:eyJhY3Rpdml0eUlkIjoiMTI1NTg5IiwiZXhwZXJpZW5jZUlkIjoiMCJ9", decisioning.get("propositionID"));
+    }
 }

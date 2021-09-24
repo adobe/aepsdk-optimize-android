@@ -1,0 +1,36 @@
+{
+  "requesttype": "trackpropositions",
+  "propositioninteractions": {
+    "eventType": "decisioning.propositionInteract",
+    "_experience": {
+      "decisioning": {
+        "propositions": [
+          {
+            "id": "AT:eyJhY3Rpdml0eUlkIjoiMTI1NTg5IiwiZXhwZXJpZW5jZUlkIjoiMCJ9",
+            "scope": "myMbox",
+            "scopeDetails": {
+              "decisionProvider": "TGT",
+              "activity": {
+                "id": "125589"
+              },
+              "experience": {
+                "id": "0"
+              },
+              "strategies": [
+                {
+                  "algorithmID": "0",
+                  "trafficType": "0"
+                }
+              ]
+            },
+            "items": [
+              {
+                "id": "246315"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  }
+}
