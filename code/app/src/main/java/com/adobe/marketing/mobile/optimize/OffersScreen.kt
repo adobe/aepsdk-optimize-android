@@ -2,7 +2,6 @@ package com.adobe.marketing.mobile.optimize
 
 import android.view.ViewGroup
 import android.webkit.WebView
-import androidx.annotation.DrawableRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -13,8 +12,6 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -22,11 +19,16 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
+import coil.compose.rememberImagePainter
+import com.adobe.marketing.mobile.edge.identity.AuthenticatedState
+import com.adobe.marketing.mobile.edge.identity.Identity
+import com.adobe.marketing.mobile.edge.identity.IdentityItem
+import com.adobe.marketing.mobile.edge.identity.IdentityMap
 import com.adobe.marketing.mobile.optimize.viewmodels.MainViewModel
+import com.adobe.marketing.mobile.optimize.viewmodels.toMap
 
 @Composable
 fun OffersView(viewModel: MainViewModel) {
-    val proposition by viewModel.decisionScopeLiveData.observeAsState(initial = emptyMap())
     Column(
         modifier = Modifier
             .fillMaxHeight()
@@ -39,15 +41,15 @@ fun OffersView(viewModel: MainViewModel) {
                 .verticalScroll(state = rememberScrollState())
         ) {
             OffersSectionText(sectionName = "Text Offers")
-            TextOffers(text = "Placeholder Text.")
+            TextOffers(offers = viewModel.propositionStateMap[viewModel.textDecisionScope]?.offers)
             OffersSectionText(sectionName = "Image Offers")
-            ImageOffers(R.drawable.adobe)
+            ImageOffers(offers = viewModel.propositionStateMap[viewModel.textDecisionScope]?.offers)
             OffersSectionText(sectionName = "HTML Offers")
-            HTMLOffers(html = "<html><body><p>HTML Placeholder!!</p></body></html>")
+            HTMLOffers(offers = viewModel.propositionStateMap[viewModel.htmlDecisionScope]?.offers)
             OffersSectionText(sectionName = "JSON Offers")
-            TextOffers(text = "{\"JSON Offers Key\":\"JSON Offers value\"}")
+            TextOffers(offers = viewModel.propositionStateMap[viewModel.textDecisionScope]?.offers)
             OffersSectionText(sectionName = "Target Offers")
-            TextOffers(text = "Target Offers Placeholder.")
+            TargetOffersView(offers = viewModel.propositionStateMap[viewModel.targetMboxDecisionScope]?.offers)
         }
 
         Spacer(
@@ -65,7 +67,52 @@ fun OffersView(viewModel: MainViewModel) {
                 .fillMaxHeight()
                 .padding(horizontal = 10.dp)) {
                 Button(modifier = Modifier.align(Alignment.CenterStart), onClick = {
-//                    viewModel.updatePropositions()
+                    viewModel.updateDecisionScopes()
+                    var decisionScopeList = arrayListOf<DecisionScope>()
+                    viewModel.textDecisionScope?.also { decisionScopeList.add(it) }
+                    viewModel.imageDecisionScope?.also { decisionScopeList.add(it) }
+                    viewModel.htmlDecisionScope?.also { decisionScopeList.add(it) }
+                    viewModel.jsonDecisionScope?.also { decisionScopeList.add(it) }
+                    viewModel.targetMboxDecisionScope?.also { decisionScopeList.add(it) }
+
+                    // Send a custom Identity in IdentityMap as primary identifier to Edge network in personalization query request.
+                    val identityMap = IdentityMap()
+                    identityMap.addItem(IdentityItem("1111", AuthenticatedState.AUTHENTICATED, true), "userCRMID")
+                    Identity.updateIdentities(identityMap)
+
+                    val data = mutableMapOf<String, Any>()
+                    val targetParams = mutableMapOf<String, String>()
+
+                    if(viewModel.targetMboxDecisionScope?.name?.isNotEmpty() == true) {
+                        if (viewModel.targetParamsMbox.isNotEmpty()) {
+                            targetParams.putAll(viewModel.targetParamsMbox.toMap())
+                        }
+
+                        if (viewModel.targetParamsProfile.isNotEmpty()) {
+                            targetParams.putAll(viewModel.targetParamsProfile.toMap())
+                        }
+
+                        if(viewModel.isValidOrder){
+                            targetParams["orderId"] = viewModel.textTargetOrderId
+                            targetParams["orderTotal"] = viewModel.textTargetOrderTotal
+                            targetParams["purchasedProductIds"] = viewModel.textTargetPurchaseId
+                        }
+
+                        if(viewModel.isValidProduct){
+                            targetParams["productId"] = viewModel.textTargetProductId
+                        targetParams["categoryId"] = viewModel.textTargetProductCategoryId
+                        }
+
+                        if (targetParams.isNotEmpty()) {
+                            data["__adobe"] = mapOf<String, Any>(Pair("target", targetParams))
+                        }
+                    }
+                    data["dataKey"] = "5678"
+                    viewModel.updatePropositions(
+                        decisionScopes = decisionScopeList,
+                        xdm = mapOf(Pair("xdmKey", "1234")),
+                        data = data
+                    )
                 }) {
                     Text(
                         text = "Update \n Propositions",
@@ -75,14 +122,15 @@ fun OffersView(viewModel: MainViewModel) {
                 }
 
                 Button(modifier = Modifier.align(Alignment.Center), onClick = {
-                    val listDecisionScopes = arrayListOf(
-                        DecisionScope(viewModel.textOdeText),
-                        DecisionScope(viewModel.textOdeImage),
-                        DecisionScope(viewModel.textOdeHtml),
-                        DecisionScope(viewModel.textOdeJson),
-                        DecisionScope(viewModel.textTargetMbox)
-                    )
-                    viewModel.getPropositions(listDecisionScopes)
+                    viewModel.updateDecisionScopes()
+                    var decisionScopeList = arrayListOf<DecisionScope>()
+                    viewModel.textDecisionScope?.also { decisionScopeList.add(it) }
+                    viewModel.imageDecisionScope?.also { decisionScopeList.add(it) }
+                    viewModel.htmlDecisionScope?.also { decisionScopeList.add(it) }
+                    viewModel.jsonDecisionScope?.also { decisionScopeList.add(it) }
+                    viewModel.targetMboxDecisionScope?.also { decisionScopeList.add(it) }
+
+                    viewModel.getPropositions(decisionScopes = decisionScopeList)
                 }) {
                     Text(
                         text = "Get \n Propositions",
@@ -120,14 +168,21 @@ fun OffersSectionText(sectionName: String) {
 }
 
 @Composable
-fun TextOffers(text: String) {
+fun TextOffers(offers: List<Offer>?, placeHolder: String = "Placeholder Text") {
     Box(
         modifier = Modifier
             .fillMaxWidth()
             .height(height = 200.dp)
     ) {
+        var content = offers?.let {
+            var offersContent = ""
+            it.forEach {offer ->
+                offersContent += offer.content + "\n"
+            }
+            return@let offersContent
+        } ?: placeHolder
     Text(
-        text = text,
+        text = content,
         modifier = Modifier.align(Alignment.Center),
         style = MaterialTheme.typography.body1
     )
@@ -135,14 +190,20 @@ fun TextOffers(text: String) {
 }
 
 @Composable
-fun ImageOffers(@DrawableRes imageResId: Int) {
+fun ImageOffers(offers: List<Offer>?) {
     Surface(
         modifier = Modifier
             .fillMaxWidth()
             .height(200.dp)
     ) {
-        Image(
-            painter = painterResource(id = imageResId),
+        offers?.onEach { offer ->
+            Image(
+                painter = rememberImagePainter(data = offer.content),
+                contentDescription = null,
+                modifier = Modifier.padding(all = 20.dp)
+            )
+        } ?: Image(
+            painter = painterResource(id = R.drawable.adobe),
             contentDescription = null,
             modifier = Modifier.padding(all = 20.dp)
         )
@@ -150,25 +211,38 @@ fun ImageOffers(@DrawableRes imageResId: Int) {
 }
 
 @Composable
-fun HTMLOffers(html: String) {
-    Surface(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(200.dp), elevation = 1.dp
-    ) {
-
-        AndroidView(factory = { context ->
-            WebView(context).apply {
-                layoutParams = ViewGroup.LayoutParams(
-                    ViewGroup.LayoutParams.MATCH_PARENT,
-                    ViewGroup.LayoutParams.MATCH_PARENT
-                )
-            }
-        },
-            update = {
-                it.loadData(html, "text/html", "UTF-8")
-            }
-        )
-
+fun HTMLOffers(offers: List<Offer>?, placeHolderHtml: String = "<html><body><p>HTML Placeholder!!</p></body></html>") {
+    Surface(modifier = Modifier.fillMaxWidth()) {
+        Column(modifier = Modifier.fillMaxWidth()) {
+            offers?.onEach {
+                HtmlOfferWebView(html = it.content)
+            } ?: HtmlOfferWebView(html = "")
+        }
     }
+}
+
+@Composable
+fun HtmlOfferWebView(html: String){
+    AndroidView(factory = { context ->
+        WebView(context).apply {
+            layoutParams = ViewGroup.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+            )
+        }
+    },
+        update = {
+            it.loadData(html, "text/html", "UTF-8")
+        }
+    )
+}
+
+@Composable
+fun TargetOffersView(offers: List<Offer>?){
+    offers?.onEach {
+        when (it.type) {
+            OfferType.HTML -> HTMLOffers(offers = null, placeHolderHtml = it.content)
+            else -> TextOffers(offers = null, placeHolder = it.content)
+        }
+    } ?: TextOffers(offers = null, placeHolder = "Placeholder Target Text")
 }
