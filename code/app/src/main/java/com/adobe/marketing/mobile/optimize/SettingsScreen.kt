@@ -3,25 +3,25 @@ package com.adobe.marketing.mobile.optimize
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
-import androidx.compose.material.TextField
-import androidx.compose.material.TextFieldDefaults
+import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
+import com.adobe.marketing.mobile.Assurance
 import com.adobe.marketing.mobile.optimize.models.OptimizePair
 import com.adobe.marketing.mobile.optimize.viewmodels.MainViewModel
+import okhttp3.internal.Version
 
 @Composable
 fun SettingsView(viewModel: MainViewModel) {
-    Column(
+    Surface(
         modifier = Modifier
             .fillMaxWidth()
             .fillMaxHeight()
@@ -40,9 +40,12 @@ fun SettingsView(viewModel: MainViewModel) {
             }
 
             // AEP Assurance Start URL
-            SettingsLabel(text = "AEP Assurance Start URL", align = TextAlign.Start, textStyle = MaterialTheme.typography.subtitle1)
-            SettingTextField(value = viewModel.textAssuranceUrl, placeholder = "Enter Assurance start URL") {
+            SettingsLabel(text = "AEPAssurance Start URL", align = TextAlign.Start, textStyle = MaterialTheme.typography.subtitle1)
+            SettingTextField(value = viewModel.textAssuranceUrl, placeholder = "Enter Assurance session URL") {
                 viewModel.textAssuranceUrl = it
+            }
+            Button(modifier = Modifier.padding(vertical = 20.dp, horizontal = 20.dp), onClick = { Assurance.startSession(viewModel.textAssuranceUrl)  }) {
+                Text(text = "Start Assurance\nSession", textAlign = TextAlign.Start, style = MaterialTheme.typography.button)
             }
 
             // AEP Optimize ODE
@@ -67,30 +70,13 @@ fun SettingsView(viewModel: MainViewModel) {
             SettingTextField(value = viewModel.textTargetProductId, placeholder = "Enter Product Id") { viewModel.textTargetProductId = it }
             SettingTextField(value = viewModel.textTargetProductCategoryId, placeholder = "Enter Product Category id") { viewModel.textTargetProductCategoryId = it }
             SettingsLabel(text = "About", align = TextAlign.Start, textStyle = MaterialTheme.typography.subtitle1)
-            Box(
-                modifier = Modifier
-                    .absolutePadding(left = 20.dp, right = 20.dp, top = 10.dp, bottom = 20.dp)
-                    .background(color = Color.White, shape = RoundedCornerShape(15.dp))
-                    .fillMaxWidth()
-            ) {
-                Text(
-                    text = "Version",
-                    modifier = Modifier
-                        .padding(10.dp)
-                        .align(Alignment.CenterStart)
-                )
-                Text(
-                    text = "${viewModel.getOptimizeExtensionVersion()}", modifier = Modifier
-                        .padding(10.dp)
-                        .align(Alignment.CenterEnd)
-                )
-            }
+            VersionLabel(viewModel.getOptimizeExtensionVersion())
         }
     }
 }
 
 @Composable
-private fun SettingsLabel(text: String, align: TextAlign, textStyle: androidx.compose.ui.text.TextStyle){
+private fun SettingsLabel(text: String, align: TextAlign, textStyle: TextStyle){
     Text(text = text, modifier = Modifier
         .absolutePadding(top = 20.dp, left = 20.dp, right = 20.dp)
         .fillMaxWidth(), textAlign = align, style = textStyle)
@@ -172,9 +158,32 @@ private fun KeyValuePairRow(pair: OptimizePair, isLastRow: Boolean, onclick: (is
                 .constrainAs(value) {
                     start.linkTo(colon.end)
                     end.linkTo(button.start)
-                }.width(150.dp)
+                }
+                .width(150.dp)
                 ,shape = RoundedCornerShape(size = 15.dp),
             colors = TextFieldDefaults.textFieldColors(backgroundColor = Color.White, focusedIndicatorColor = Color.Transparent, unfocusedIndicatorColor = Color.Transparent)
+        )
+    }
+}
+
+@Composable
+private fun VersionLabel(version: String){
+    Box(
+        modifier = Modifier
+            .absolutePadding(left = 20.dp, right = 20.dp, top = 10.dp, bottom = 20.dp)
+            .background(color = Color.White, shape = RoundedCornerShape(15.dp))
+            .fillMaxWidth()
+    ) {
+        Text(
+            text = "Version",
+            modifier = Modifier
+                .padding(10.dp)
+                .align(Alignment.CenterStart)
+        )
+        Text(
+            text = version, modifier = Modifier
+                .padding(10.dp)
+                .align(Alignment.CenterEnd)
         )
     }
 }

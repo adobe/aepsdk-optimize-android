@@ -1,5 +1,6 @@
 package com.adobe.marketing.mobile.optimize
 
+import android.graphics.Paint
 import android.view.ViewGroup
 import android.webkit.WebView
 import androidx.compose.foundation.Image
@@ -15,6 +16,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -43,11 +45,11 @@ fun OffersView(viewModel: MainViewModel) {
             OffersSectionText(sectionName = "Text Offers")
             TextOffers(offers = viewModel.propositionStateMap[viewModel.textDecisionScope]?.offers)
             OffersSectionText(sectionName = "Image Offers")
-            ImageOffers(offers = viewModel.propositionStateMap[viewModel.textDecisionScope]?.offers)
+            ImageOffers(offers = viewModel.propositionStateMap[viewModel.imageDecisionScope]?.offers)
             OffersSectionText(sectionName = "HTML Offers")
             HTMLOffers(offers = viewModel.propositionStateMap[viewModel.htmlDecisionScope]?.offers)
             OffersSectionText(sectionName = "JSON Offers")
-            TextOffers(offers = viewModel.propositionStateMap[viewModel.textDecisionScope]?.offers)
+            TextOffers(offers = viewModel.propositionStateMap[viewModel.jsonDecisionScope]?.offers, placeHolder = """{"PlaceHolder": true}}""")
             OffersSectionText(sectionName = "Target Offers")
             TargetOffersView(offers = viewModel.propositionStateMap[viewModel.targetMboxDecisionScope]?.offers)
         }
@@ -172,7 +174,7 @@ fun TextOffers(offers: List<Offer>?, placeHolder: String = "Placeholder Text") {
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .height(height = 200.dp)
+            .wrapContentHeight()
     ) {
         var content = offers?.let {
             var offersContent = ""
@@ -183,66 +185,81 @@ fun TextOffers(offers: List<Offer>?, placeHolder: String = "Placeholder Text") {
         } ?: placeHolder
     Text(
         text = content,
-        modifier = Modifier.align(Alignment.Center),
-        style = MaterialTheme.typography.body1
+        modifier = Modifier
+            .padding(vertical = 20.dp)
+            .height(100.dp)
+            .align(Alignment.Center),
+        style = MaterialTheme.typography.body1,
+        textAlign = TextAlign.Center
     )
 }
 }
 
 @Composable
 fun ImageOffers(offers: List<Offer>?) {
-    Surface(
+    Column(
         modifier = Modifier
             .fillMaxWidth()
-            .height(200.dp)
+            .wrapContentHeight(), horizontalAlignment = Alignment.CenterHorizontally
     ) {
         offers?.onEach { offer ->
             Image(
-                painter = rememberImagePainter(data = offer.content),
+                painter = rememberImagePainter(offer.content),
                 contentDescription = null,
-                modifier = Modifier.padding(all = 20.dp)
+                contentScale = ContentScale.Fit,
+                modifier = Modifier.padding(all = 20.dp).width(100.dp).height(100.dp)
             )
         } ?: Image(
             painter = painterResource(id = R.drawable.adobe),
             contentDescription = null,
-            modifier = Modifier.padding(all = 20.dp)
+            contentScale = ContentScale.Fit,
+            modifier = Modifier
+                .padding(all = 20.dp)
+                .width(100.dp)
+                .height(100.dp)
         )
     }
 }
 
 @Composable
 fun HTMLOffers(offers: List<Offer>?, placeHolderHtml: String = "<html><body><p>HTML Placeholder!!</p></body></html>") {
-    Surface(modifier = Modifier.fillMaxWidth()) {
-        Column(modifier = Modifier.fillMaxWidth()) {
+        Column(modifier = Modifier
+            .fillMaxWidth()
+            .wrapContentHeight(), verticalArrangement = Arrangement.Center, horizontalAlignment = Alignment.CenterHorizontally) {
             offers?.onEach {
                 HtmlOfferWebView(html = it.content)
-            } ?: HtmlOfferWebView(html = "")
+            } ?: HtmlOfferWebView(html = placeHolderHtml)
         }
-    }
 }
 
 @Composable
-fun HtmlOfferWebView(html: String){
-    AndroidView(factory = { context ->
+fun HtmlOfferWebView(html: String) {
+    AndroidView(modifier = Modifier
+        .padding(vertical = 20.dp)
+        .fillMaxWidth()
+        .wrapContentHeight(), factory = { context ->
         WebView(context).apply {
             layoutParams = ViewGroup.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT
             )
         }
-    },
-        update = {
+    }, update = {
             it.loadData(html, "text/html", "UTF-8")
         }
     )
 }
 
 @Composable
-fun TargetOffersView(offers: List<Offer>?){
-    offers?.onEach {
-        when (it.type) {
-            OfferType.HTML -> HTMLOffers(offers = null, placeHolderHtml = it.content)
-            else -> TextOffers(offers = null, placeHolder = it.content)
-        }
-    } ?: TextOffers(offers = null, placeHolder = "Placeholder Target Text")
+fun TargetOffersView(offers: List<Offer>?) {
+    Column(modifier = Modifier
+        .fillMaxWidth()
+        .wrapContentHeight()) {
+        offers?.onEach {
+            when (it.type) {
+                OfferType.HTML -> HtmlOfferWebView(html = it.content)
+                else -> Text(text = it.content, modifier = Modifier.padding(vertical = 20.dp).fillMaxWidth().wrapContentHeight(), textAlign = TextAlign.Center)
+            }
+        } ?: TextOffers(offers = null, placeHolder = "Placeholder Target Text")
+    }
 }

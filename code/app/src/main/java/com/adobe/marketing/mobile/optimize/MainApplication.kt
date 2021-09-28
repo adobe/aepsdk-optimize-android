@@ -6,7 +6,7 @@ import com.adobe.marketing.mobile.*
 class MainApplication : Application() {
 
     companion object {
-        const val LAUNCH_ENVIRONMENT_FILE_ID = "3149c49c3910/6d2dbda51f67/launch-960e4c1812e3-development"
+        const val LAUNCH_ENVIRONMENT_FILE_ID = ""
     }
 
     override fun onCreate() {
@@ -22,7 +22,6 @@ class MainApplication : Application() {
             Edge.registerExtension()
             Optimize.registerExtension()
             Assurance.registerExtension()
-
             MobileCore.configureWithAppID(LAUNCH_ENVIRONMENT_FILE_ID)
             MobileCore.start(null)
         } catch (e: InvalidInitException) {
