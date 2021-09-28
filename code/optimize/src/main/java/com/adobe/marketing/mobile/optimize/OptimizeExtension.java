@@ -131,9 +131,9 @@ class OptimizeExtension extends Extension {
                 }
 
                 try {
-                    final List<DecisionScope> decisionScopes = (List<DecisionScope>) eventData.get(OptimizeConstants.EventDataKeys.DECISION_SCOPES);
-                    final List<DecisionScope> validScopes = retrieveValidDecisionScopes(decisionScopes);
-                    if (OptimizeUtils.isNullOrEmpty(validScopes)) {
+                    final List<Map<String, Object>> decisionScopesData = (List<Map<String, Object>>) eventData.get(OptimizeConstants.EventDataKeys.DECISION_SCOPES);
+                    final List<String> validScopeNames = retrieveValidDecisionScopes(decisionScopesData);
+                    if (OptimizeUtils.isNullOrEmpty(validScopeNames)) {
                         MobileCore.log(LoggingMode.DEBUG, LOG_TAG, "Cannot process the update propositions request event, provided list of decision scopes has no valid scope.");
                         return;
                     }
@@ -142,7 +142,7 @@ class OptimizeExtension extends Extension {
 
                     // Add query
                     final Map<String, Object> queryPersonalization = new HashMap<>();
-                    queryPersonalization.put(OptimizeConstants.JsonKeys.DECISION_SCOPES, validScopes);
+                    queryPersonalization.put(OptimizeConstants.JsonKeys.DECISION_SCOPES, validScopeNames);
                     final Map<String, Object> query = new HashMap<>();
                     query.put(OptimizeConstants.JsonKeys.QUERY_PERSONALIZATION, queryPersonalization);
                     edgeEventData.put(OptimizeConstants.JsonKeys.QUERY, query);
@@ -319,15 +319,16 @@ class OptimizeExtension extends Extension {
                 final Map<String, Object> eventData = event.getEventData();
 
                 try {
-                    final List<DecisionScope> decisionScopes = (List<DecisionScope>) eventData.get(OptimizeConstants.EventDataKeys.DECISION_SCOPES);
-                    final List<DecisionScope> validScopes = retrieveValidDecisionScopes(decisionScopes);
-                    if (OptimizeUtils.isNullOrEmpty(validScopes)) {
+                    final List<Map<String, Object>> decisionScopesData = (List<Map<String, Object>>) eventData.get(OptimizeConstants.EventDataKeys.DECISION_SCOPES);
+                    final List<String> validScopeNames = retrieveValidDecisionScopes(decisionScopesData);
+                    if (OptimizeUtils.isNullOrEmpty(validScopeNames)) {
                         MobileCore.log(LoggingMode.DEBUG, LOG_TAG, "Cannot process the get propositions request event, provided list of decision scopes has no valid scope.");
                         MobileCore.dispatchResponseEvent(createResponseEventWithError(AdobeError.UNEXPECTED_ERROR), event, callback);
                     }
 
                     final List<Map<String, Object>> propositionsList = new ArrayList<>();
-                    for (final DecisionScope scope : validScopes) {
+                    for (final String scopeName : validScopeNames) {
+                        final DecisionScope scope = new DecisionScope(scopeName);
                         if (cachedPropositions.containsKey(scope)) {
                             final Proposition proposition = cachedPropositions.get(scope);
                             propositionsList.add(proposition.toEventData());
@@ -406,34 +407,36 @@ class OptimizeExtension extends Extension {
     }
 
     /**
-     * Retrieves the {@code List<DecisionScope>} containing valid scopes.
+     * Retrieves the {@code List<String>} containing valid scope names.
      * <p>
-     * This method returns null if the given {@code decisionScopes} list is null, or empty, or if there is no valid decision scope in the
+     * This method returns null if the given {@code decisionScopesData} list is null, or empty, or if there is no valid decision scope in the
      * provided list.
      *
-     * @return {@code List<DecisionScope>} instance containing valid scopes.
+     * @param decisionScopesData input {@List<Map<String, Object>>} containing scope data.
+     * @return {@code List<String>} containing valid scope names.
      * @see DecisionScope#isValid()
      */
-    private List<DecisionScope> retrieveValidDecisionScopes(final List<DecisionScope> decisionScopes) {
-        if (OptimizeUtils.isNullOrEmpty(decisionScopes)) {
+    private List<String> retrieveValidDecisionScopes(final List<Map<String, Object>> decisionScopesData) {
+        if (OptimizeUtils.isNullOrEmpty(decisionScopesData)) {
             MobileCore.log(LoggingMode.DEBUG, LOG_TAG, "No valid decision scopes are retrieved, provided decision scopes list is null or empty.");
             return null;
         }
 
-        final List<DecisionScope> validScopes = new ArrayList<>();
-        for (final DecisionScope scope: decisionScopes) {
-            if (!scope.isValid()) {
+        final List<String> validScopeNames = new ArrayList<>();
+        for (final Map<String, Object> scopeData: decisionScopesData) {
+            final DecisionScope scope = DecisionScope.fromEventData(scopeData);
+            if (scope == null || !scope.isValid()) {
                 continue;
             }
-            validScopes.add(scope);
+            validScopeNames.add(scope.getName());
         }
 
-        if (validScopes.size() == 0) {
+        if (validScopeNames.size() == 0) {
             MobileCore.log(LoggingMode.WARNING, LOG_TAG, "No valid decision scopes are retrieved, provided list of decision scopes has no valid scope.");
             return null;
         }
 
-        return validScopes;
+        return validScopeNames;
     }
 
     /**
