@@ -215,9 +215,9 @@ public class OptimizeExtensionTests {
         final DecisionScope testScope = new DecisionScope("eyJhY3Rpdml0eUlkIjoieGNvcmU6b2ZmZXItYWN0aXZpdHk6MTExMTExMTExMTExMTExMSIsInBsYWNlbWVudElkIjoieGNvcmU6b2ZmZXItcGxhY2VtZW50OjExMTExMTExMTExMTExMTEifQ==");
         final Map<String, Object> testEventData = new HashMap<String, Object>();
         testEventData.put("requesttype", "updatepropositions");
-        testEventData.put("decisionscopes", new ArrayList<DecisionScope>() {
+        testEventData.put("decisionscopes", new ArrayList<Map<String, Object>>() {
             {
-                add(testScope);
+                add(testScope.toEventData());
             }
         });
         final ArgumentCaptor<Event> eventCaptor = ArgumentCaptor.forClass(Event.class);
@@ -243,10 +243,10 @@ public class OptimizeExtensionTests {
         assertNotNull(query);
         final Map<String, Object> queryPersonalization = (Map<String, Object>) query.get("personalization");
         assertNotNull(queryPersonalization);
-        final List<DecisionScope> scopes = (List<DecisionScope>) queryPersonalization.get("decisionScopes");
+        final List<String> scopes = (List<String>) queryPersonalization.get("decisionScopes");
         assertNotNull(scopes);
         assertEquals(1, scopes.size());
-        assertEquals(testScope, scopes.get(0));
+        assertEquals(testScope.getName(), scopes.get(0));
 
         final Map<String, Object> xdm = (Map<String, Object>) dispatchedEvent.getEventData().get("xdm");
         assertNotNull(xdm);
@@ -273,9 +273,9 @@ public class OptimizeExtensionTests {
         final DecisionScope testScope = new DecisionScope("eyJhY3Rpdml0eUlkIjoieGNvcmU6b2ZmZXItYWN0aXZpdHk6MTExMTExMTExMTExMTExMSIsInBsYWNlbWVudElkIjoieGNvcmU6b2ZmZXItcGxhY2VtZW50OjExMTExMTExMTExMTExMTEifQ==");
         final Map<String, Object> testEventData = new HashMap<String, Object>();
         testEventData.put("requesttype", "updatepropositions");
-        testEventData.put("decisionscopes", new ArrayList<DecisionScope>() {
+        testEventData.put("decisionscopes", new ArrayList<Map<String, Object>>() {
             {
-                add(testScope);
+                add(testScope.toEventData());
             }
         });
         testEventData.put("xdm", new HashMap<String, Object>(){
@@ -310,10 +310,10 @@ public class OptimizeExtensionTests {
         assertNotNull(query);
         final Map<String, Object> queryPersonalization = (Map<String, Object>) query.get("personalization");
         assertNotNull(queryPersonalization);
-        final List<DecisionScope> scopes = (List<DecisionScope>) queryPersonalization.get("decisionScopes");
+        final List<String> scopes = (List<String>) queryPersonalization.get("decisionScopes");
         assertNotNull(scopes);
         assertEquals(1, scopes.size());
-        assertEquals(testScope, scopes.get(0));
+        assertEquals(testScope.getName(), scopes.get(0));
 
         final Map<String, Object> xdm = (Map<String, Object>) dispatchedEvent.getEventData().get("xdm");
         assertNotNull(xdm);
@@ -342,9 +342,9 @@ public class OptimizeExtensionTests {
         final DecisionScope testScope = new DecisionScope("eyJhY3Rpdml0eUlkIjoieGNvcmU6b2ZmZXItYWN0aXZpdHk6MTExMTExMTExMTExMTExMSIsInBsYWNlbWVudElkIjoieGNvcmU6b2ZmZXItcGxhY2VtZW50OjExMTExMTExMTExMTExMTEifQ==");
         final Map<String, Object> testEventData = new HashMap<String, Object>();
         testEventData.put("requesttype", "updatepropositions");
-        testEventData.put("decisionscopes", new ArrayList<DecisionScope>() {
+        testEventData.put("decisionscopes", new ArrayList<Map<String, Object>>() {
             {
-                add(testScope);
+                add(testScope.toEventData());
             }
         });
         testEventData.put("xdm", new HashMap<String, Object>(){
@@ -379,10 +379,10 @@ public class OptimizeExtensionTests {
         assertNotNull(query);
         final Map<String, Object> queryPersonalization = (Map<String, Object>) query.get("personalization");
         assertNotNull(queryPersonalization);
-        final List<DecisionScope> scopes = (List<DecisionScope>) queryPersonalization.get("decisionScopes");
+        final List<String> scopes = (List<String>) queryPersonalization.get("decisionScopes");
         assertNotNull(scopes);
         assertEquals(1, scopes.size());
-        assertEquals(testScope, scopes.get(0));
+        assertEquals(testScope.getName(), scopes.get(0));
 
         final Map<String, Object> xdm = (Map<String, Object>) dispatchedEvent.getEventData().get("xdm");
         assertNotNull(xdm);
@@ -412,10 +412,10 @@ public class OptimizeExtensionTests {
         final DecisionScope testScope2 = new DecisionScope("myMbox");
         final Map<String, Object> testEventData = new HashMap<String, Object>();
         testEventData.put("requesttype", "updatepropositions");
-        testEventData.put("decisionscopes", new ArrayList<DecisionScope>() {
+        testEventData.put("decisionscopes", new ArrayList<Map<String, Object>>() {
             {
-                add(testScope1);
-                add(testScope2);
+                add(testScope1.toEventData());
+                add(testScope2.toEventData());
             }
         });
         final ArgumentCaptor<Event> eventCaptor = ArgumentCaptor.forClass(Event.class);
@@ -441,11 +441,11 @@ public class OptimizeExtensionTests {
         assertNotNull(query);
         final Map<String, Object> queryPersonalization = (Map<String, Object>) query.get("personalization");
         assertNotNull(queryPersonalization);
-        final List<DecisionScope> scopes = (List<DecisionScope>) queryPersonalization.get("decisionScopes");
+        final List<String> scopes = (List<String>) queryPersonalization.get("decisionScopes");
         assertNotNull(scopes);
         assertEquals(2, scopes.size());
-        assertEquals(testScope1, scopes.get(0));
-        assertEquals(testScope2, scopes.get(1));
+        assertEquals(testScope1.getName(), scopes.get(0));
+        assertEquals(testScope2.getName(), scopes.get(1));
 
         final Map<String, Object> xdm = (Map<String, Object>) dispatchedEvent.getEventData().get("xdm");
         assertNotNull(xdm);
@@ -522,9 +522,9 @@ public class OptimizeExtensionTests {
         final DecisionScope testScope = new DecisionScope("eyJhY3Rpdml0eUlkIjoieGNvcmU6b2ZmZXItYWN0aXZpdHk6MTExMTExMTExMTExMTExMSIsInBsYWNlbWVudElkIjoiIn0=");
         final Map<String, Object> testEventData = new HashMap<String, Object>();
         testEventData.put("requesttype", "updatepropositions");
-        testEventData.put("decisionscopes", new ArrayList<DecisionScope>() {
+        testEventData.put("decisionscopes", new ArrayList<Map<String, Object>>() {
             {
-                add(testScope);
+                add(testScope.toEventData());
             }
         });
 
@@ -554,10 +554,10 @@ public class OptimizeExtensionTests {
         final DecisionScope testScope2 = new DecisionScope("myMbox");
         final Map<String, Object> testEventData = new HashMap<String, Object>();
         testEventData.put("requesttype", "updatepropositions");
-        testEventData.put("decisionscopes", new ArrayList<DecisionScope>() {
+        testEventData.put("decisionscopes", new ArrayList<Map<String, Object>>() {
             {
-                add(testScope1);
-                add(testScope2);
+                add(testScope1.toEventData());
+                add(testScope2.toEventData());
             }
         });
         final ArgumentCaptor<Event> eventCaptor = ArgumentCaptor.forClass(Event.class);
@@ -583,10 +583,10 @@ public class OptimizeExtensionTests {
         assertNotNull(query);
         final Map<String, Object> queryPersonalization = (Map<String, Object>) query.get("personalization");
         assertNotNull(queryPersonalization);
-        final List<DecisionScope> scopes = (List<DecisionScope>) queryPersonalization.get("decisionScopes");
+        final List<String> scopes = (List<String>) queryPersonalization.get("decisionScopes");
         assertNotNull(scopes);
         assertEquals(1, scopes.size());
-        assertEquals(testScope2, scopes.get(0));
+        assertEquals(testScope2.getName(), scopes.get(0));
 
         final Map<String, Object> xdm = (Map<String, Object>) dispatchedEvent.getEventData().get("xdm");
         assertNotNull(xdm);
@@ -854,9 +854,9 @@ public class OptimizeExtensionTests {
         final DecisionScope testScope = new DecisionScope("eydhY3Rpdml0eUlkIjoieGNvcmU6b2ZmZXItYWN0aXZpdHk6MTExMTExMTExMTExMTExMSIsInBsYWNlbWVudElkIjoieGNvcmU6b2ZmZXItcGxhY2VtZW50OjExMTExMTExMTExMTExMTEifQ==");
         final Map<String, Object> testEventData = new HashMap<String, Object>();
         testEventData.put("requesttype", "getpropositions");
-        testEventData.put("decisionscopes", new ArrayList<DecisionScope>() {
+        testEventData.put("decisionscopes", new ArrayList<Map<String, Object>>() {
             {
-                add(testScope);
+                add(testScope.toEventData());
             }
         });
         final ArgumentCaptor<Event> eventCaptor = ArgumentCaptor.forClass(Event.class);
@@ -924,10 +924,10 @@ public class OptimizeExtensionTests {
         final DecisionScope testScope2 = new DecisionScope("myMbox");
         final Map<String, Object> testEventData = new HashMap<String, Object>();
         testEventData.put("requesttype", "getpropositions");
-        testEventData.put("decisionscopes", new ArrayList<DecisionScope>() {
+        testEventData.put("decisionscopes", new ArrayList<Map<String, Object>>() {
             {
-                add(testScope1);
-                add(testScope2);
+                add(testScope1.toEventData());
+                add(testScope2.toEventData());
             }
         });
         final ArgumentCaptor<Event> eventCaptor = ArgumentCaptor.forClass(Event.class);
@@ -995,10 +995,10 @@ public class OptimizeExtensionTests {
         final DecisionScope testScope2 = new DecisionScope("myMbox2");
         final Map<String, Object> testEventData = new HashMap<String, Object>();
         testEventData.put("requesttype", "getpropositions");
-        testEventData.put("decisionscopes", new ArrayList<DecisionScope>() {
+        testEventData.put("decisionscopes", new ArrayList<Map<String, Object>>() {
             {
-                add(testScope1);
-                add(testScope2);
+                add(testScope1.toEventData());
+                add(testScope2.toEventData());
             }
         });
         final ArgumentCaptor<Event> eventCaptor = ArgumentCaptor.forClass(Event.class);
@@ -1091,9 +1091,9 @@ public class OptimizeExtensionTests {
         final DecisionScope testScope = new DecisionScope("eydhY3Rpdml0eUlkIjoieGNvcmU6b2ZmZXItYWN0aXZpdHk6MTExMTExMTExMTExMTExMSIsInBsYWNlbWVudElkIjoieGNvcmU6b2ZmZXItcGxhY2VtZW50OjExMTExMTExMTExMTExMTEifQ==");
         final Map<String, Object> testEventData = new HashMap<String, Object>();
         testEventData.put("requesttype", "getpropositions");
-        testEventData.put("decisionscopes", new ArrayList<DecisionScope>() {
+        testEventData.put("decisionscopes", new ArrayList<Map<String, Object>>() {
             {
-                add(testScope);
+                add(testScope.toEventData());
             }
         });
         final ArgumentCaptor<Event> eventCaptor = ArgumentCaptor.forClass(Event.class);
