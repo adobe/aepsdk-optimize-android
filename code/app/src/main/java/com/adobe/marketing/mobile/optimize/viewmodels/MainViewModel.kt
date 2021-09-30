@@ -53,6 +53,7 @@ class MainViewModel: ViewModel() {
     fun getOptimizeExtensionVersion(): String = Optimize.extensionVersion()
 
     fun getPropositions(decisionScopes: List<DecisionScope>) {
+        propositionStateMap.clear()
         Optimize.getPropositions(decisionScopes, object: AdobeCallbackWithError<Map<DecisionScope, Proposition>>{
             override fun call(propositions: Map<DecisionScope, Proposition>?) {
                 propositions?.forEach {
@@ -68,10 +69,12 @@ class MainViewModel: ViewModel() {
     }
 
     fun updatePropositions(decisionScopes: List<DecisionScope> , xdm: Map<String, String> , data: Map<String, Any>) {
+        propositionStateMap.clear()
         Optimize.updatePropositions(decisionScopes, xdm, data)
     }
 
     fun clearCachedPropositions() {
+        propositionStateMap.clear()
         Optimize.clearCachedPropositions()
     }
 
