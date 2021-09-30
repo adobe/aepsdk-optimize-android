@@ -32,12 +32,13 @@ class MainViewModel: ViewModel() {
     var targetParamsMbox = mutableStateListOf(OptimizePair("",""))
     var targetParamsProfile = mutableStateListOf(OptimizePair("",""))
 
-    var propositionStateMap = mutableStateMapOf<DecisionScope, Proposition>()
+    var propositionStateMap = mutableStateMapOf<String, Proposition>()
 
     private val propositionUpdateCallback = object : AdobeCallbackWithError<Map<DecisionScope, Proposition>> {
         override fun call(propositions: Map<DecisionScope, Proposition>?) {
-            propositionStateMap.clear()
-            propositionStateMap.putAll(propositions ?: mapOf())
+            propositions?.forEach {
+                propositionStateMap[it.key.name] = it.value
+            }
         }
 
         override fun fail(error: AdobeError?) {
@@ -53,9 +54,10 @@ class MainViewModel: ViewModel() {
 
     fun getPropositions(decisionScopes: List<DecisionScope>) {
         Optimize.getPropositions(decisionScopes, object: AdobeCallbackWithError<Map<DecisionScope, Proposition>>{
-            override fun call(propositionMap: Map<DecisionScope, Proposition>?) {
-                propositionStateMap.clear()
-                propositionStateMap.putAll(propositionMap ?: emptyMap())
+            override fun call(propositions: Map<DecisionScope, Proposition>?) {
+                propositions?.forEach {
+                    propositionStateMap[it.key.name] = it.value
+                }
             }
 
             override fun fail(error: AdobeError?) {

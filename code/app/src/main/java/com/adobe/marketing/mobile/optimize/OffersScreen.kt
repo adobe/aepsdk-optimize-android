@@ -43,15 +43,15 @@ fun OffersView(viewModel: MainViewModel) {
                 .verticalScroll(state = rememberScrollState())
         ) {
             OffersSectionText(sectionName = "Text Offers")
-            TextOffers(offers = viewModel.propositionStateMap[viewModel.textDecisionScope]?.offers)
+            TextOffers(offers = viewModel.propositionStateMap[viewModel.textDecisionScope?.name]?.offers)
             OffersSectionText(sectionName = "Image Offers")
-            ImageOffers(offers = viewModel.propositionStateMap[viewModel.imageDecisionScope]?.offers)
+            ImageOffers(offers = viewModel.propositionStateMap[viewModel.imageDecisionScope?.name]?.offers)
             OffersSectionText(sectionName = "HTML Offers")
-            HTMLOffers(offers = viewModel.propositionStateMap[viewModel.htmlDecisionScope]?.offers)
+            HTMLOffers(offers = viewModel.propositionStateMap[viewModel.htmlDecisionScope?.name]?.offers)
             OffersSectionText(sectionName = "JSON Offers")
-            TextOffers(offers = viewModel.propositionStateMap[viewModel.jsonDecisionScope]?.offers, placeHolder = """{"PlaceHolder": true}}""")
+            TextOffers(offers = viewModel.propositionStateMap[viewModel.jsonDecisionScope?.name]?.offers, placeHolder = """{"PlaceHolder": true}}""")
             OffersSectionText(sectionName = "Target Offers")
-            TargetOffersView(offers = viewModel.propositionStateMap[viewModel.targetMboxDecisionScope]?.offers)
+            TargetOffersView(offers = viewModel.propositionStateMap[viewModel.targetMboxDecisionScope?.name]?.offers)
         }
 
         Spacer(
@@ -86,12 +86,16 @@ fun OffersView(viewModel: MainViewModel) {
                     val targetParams = mutableMapOf<String, String>()
 
                     if(viewModel.targetMboxDecisionScope?.name?.isNotEmpty() == true) {
-                        if (viewModel.targetParamsMbox.isNotEmpty()) {
-                            targetParams.putAll(viewModel.targetParamsMbox.toMap())
+                        viewModel.targetParamsMbox.forEach {
+                            if (!it.key.isNullOrEmpty() && !it.value.isNullOrEmpty()) {
+                                targetParams[it.key] = it.value
+                            }
                         }
 
-                        if (viewModel.targetParamsProfile.isNotEmpty()) {
-                            targetParams.putAll(viewModel.targetParamsProfile.toMap())
+                        viewModel.targetParamsProfile.forEach {
+                            if(!it.key.isNullOrEmpty() && !it.value.isNullOrEmpty()){
+                                targetParams[it.key] = it.value
+                            }
                         }
 
                         if(viewModel.isValidOrder){
@@ -207,7 +211,10 @@ fun ImageOffers(offers: List<Offer>?) {
                 painter = rememberImagePainter(offer.content),
                 contentDescription = null,
                 contentScale = ContentScale.Fit,
-                modifier = Modifier.padding(all = 20.dp).width(100.dp).height(100.dp)
+                modifier = Modifier
+                    .padding(all = 20.dp)
+                    .width(100.dp)
+                    .height(100.dp)
             )
         } ?: Image(
             painter = painterResource(id = R.drawable.adobe),
@@ -258,7 +265,10 @@ fun TargetOffersView(offers: List<Offer>?) {
         offers?.onEach {
             when (it.type) {
                 OfferType.HTML -> HtmlOfferWebView(html = it.content)
-                else -> Text(text = it.content, modifier = Modifier.padding(vertical = 20.dp).fillMaxWidth().wrapContentHeight(), textAlign = TextAlign.Center)
+                else -> Text(text = it.content, modifier = Modifier
+                    .padding(vertical = 20.dp)
+                    .fillMaxWidth()
+                    .wrapContentHeight(), textAlign = TextAlign.Center)
             }
         } ?: TextOffers(offers = null, placeHolder = "Placeholder Target Text")
     }
