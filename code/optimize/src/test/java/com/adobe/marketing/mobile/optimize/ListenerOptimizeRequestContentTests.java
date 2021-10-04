@@ -118,7 +118,7 @@ public class ListenerOptimizeRequestContentTests {
         // verify
         verify(mockOptimizeExtension, Mockito.times(1)).handleTrackPropositions(testEvent);
         verify(mockOptimizeExtension, Mockito.never()).handleUpdatePropositions(any(Event.class));
-        verify(mockOptimizeExtension, Mockito.never()).handleUpdatePropositions(any(Event.class));
+        verify(mockOptimizeExtension, Mockito.never()).handleGetPropositions(any(Event.class));
     }
 
     @Test

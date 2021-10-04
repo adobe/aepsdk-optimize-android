@@ -12,8 +12,6 @@
 
 package com.adobe.marketing.mobile.optimize;
 
-import android.graphics.Path;
-
 import com.adobe.marketing.mobile.Event;
 import com.adobe.marketing.mobile.ExtensionError;
 import com.adobe.marketing.mobile.ExtensionErrorCallback;
@@ -293,29 +291,27 @@ public class Offer {
         propositionsData.put(OptimizeConstants.JsonKeys.DECISIONING_PROPOSITIONS_ID, proposition.getId());
         propositionsData.put(OptimizeConstants.JsonKeys.DECISIONING_PROPOSITIONS_SCOPE, proposition.getScope());
         propositionsData.put(OptimizeConstants.JsonKeys.DECISIONING_PROPOSITIONS_SCOPEDETAILS, proposition.getScopeDetails());
-        propositionsData.put(OptimizeConstants.JsonKeys.DECISIONING_PROPOSITIONS_ITEMS, new ArrayList<Map<String, Object>>() {
-            {
-                add(new HashMap<String, Object>() {
-                    {
-                        put(OptimizeConstants.JsonKeys.DECISIONING_PROPOSITIONS_ITEMS_ID, id);
-                    }
-                });
-            }
-        });
+
+        final Map<String, Object> propositionItem = new HashMap<>();
+        propositionItem.put(OptimizeConstants.JsonKeys.DECISIONING_PROPOSITIONS_ITEMS_ID, id);
+
+        final List<Map<String, Object>> propositionItemsList = new ArrayList<>();
+        propositionItemsList.add(propositionItem);
+
+        // Add list containing proposition item ids.
+        propositionsData.put(OptimizeConstants.JsonKeys.DECISIONING_PROPOSITIONS_ITEMS, propositionItemsList);
+
+        final List<Map<String, Object>> decisioningPropositions = new ArrayList<>();
+        decisioningPropositions.add(propositionsData);
 
         final Map<String, Object> experienceDecisioning = new HashMap<>();
-        experienceDecisioning.put(OptimizeConstants.JsonKeys.DECISIONING_PROPOSITIONS, new ArrayList<Map<String, Object>>() {
-            {
-                add(propositionsData);
-            }
-        });
+        experienceDecisioning.put(OptimizeConstants.JsonKeys.DECISIONING_PROPOSITIONS, decisioningPropositions);
+
+        final Map<String, Object> experience = new HashMap<>();
+        experience.put(OptimizeConstants.JsonKeys.EXPERIENCE_DECISIONING, experienceDecisioning);
 
         final Map<String, Object> xdm = new HashMap<>();
-        xdm.put(OptimizeConstants.JsonKeys.EXPERIENCE, new HashMap<String, Object>() {
-            {
-                put(OptimizeConstants.JsonKeys.EXPERIENCE_DECISIONING, experienceDecisioning);
-            }
-        });
+        xdm.put(OptimizeConstants.JsonKeys.EXPERIENCE, experience);
         xdm.put(OptimizeConstants.JsonKeys.EXPERIENCE_EVENT_TYPE, experienceEventType);
 
         return xdm;

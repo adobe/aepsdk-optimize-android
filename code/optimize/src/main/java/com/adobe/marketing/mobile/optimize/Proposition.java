@@ -96,18 +96,14 @@ public class Proposition {
      * @return {@code Map<String, Object>} containing the XDM data for the proposition reference.
      */
     public Map<String, Object> generateReferenceXdm() {
-        final Map<String, Object> experienceDecisioning = new HashMap<String, Object>() {
-            {
-                put(OptimizeConstants.JsonKeys.DECISIONING_PROPOSITION_ID, id);
-            }
-        };
+        final Map<String, Object> experienceDecisioning = new HashMap<>();
+        experienceDecisioning.put(OptimizeConstants.JsonKeys.DECISIONING_PROPOSITION_ID, id);
+
+        final Map<String, Object> experience = new HashMap<>();
+        experience.put(OptimizeConstants.JsonKeys.EXPERIENCE_DECISIONING, experienceDecisioning);
 
         final Map<String, Object> xdm = new HashMap<>();
-        xdm.put(OptimizeConstants.JsonKeys.EXPERIENCE, new HashMap<String, Object>() {
-            {
-                put(OptimizeConstants.JsonKeys.EXPERIENCE_DECISIONING, experienceDecisioning);
-            }
-        });
+        xdm.put(OptimizeConstants.JsonKeys.EXPERIENCE, experience);
 
         return xdm;
     }
