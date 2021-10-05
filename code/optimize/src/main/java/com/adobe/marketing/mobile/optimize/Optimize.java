@@ -133,9 +133,7 @@ public class Optimize {
     public static void getPropositions(final List<DecisionScope> decisionScopes, final AdobeCallback<Map<DecisionScope, Proposition>> callback) {
         if (OptimizeUtils.isNullOrEmpty(decisionScopes)) {
             MobileCore.log(LoggingMode.WARNING, LOG_TAG, "Cannot get propositions, provided list of decision scopes is null or empty.");
-            if (callback instanceof AdobeCallbackWithError) {
-                ((AdobeCallbackWithError<?>)callback).fail(AdobeError.UNEXPECTED_ERROR);
-            }
+            failWithError(callback, AdobeError.UNEXPECTED_ERROR);
             return;
         }
 
@@ -149,9 +147,7 @@ public class Optimize {
 
         if (validScopes.size() == 0) {
             MobileCore.log(LoggingMode.WARNING, LOG_TAG, "Cannot update propositions, provided list of decision scopes has no valid scope.");
-            if (callback instanceof AdobeCallbackWithError) {
-                ((AdobeCallbackWithError<?>)callback).fail(AdobeError.UNEXPECTED_ERROR);
-            }
+            failWithError(callback, AdobeError.UNEXPECTED_ERROR);
             return;
         }
 
@@ -180,22 +176,23 @@ public class Optimize {
                 .setEventData(eventData)
                 .build();
 
-        MobileCore.dispatchEventWithResponseCallback(event, new AdobeCallback<Event>() {
+        MobileCore.dispatchEventWithResponseCallback(event, new AdobeCallbackWithError<Event>() {
+            @Override
+            public void fail(final AdobeError adobeError) {
+                failWithError(callback, adobeError);
+            }
+
             @Override
             public void call(final Event event) {
                 final Map<String, Object> eventData = event.getEventData();
                 if (OptimizeUtils.isNullOrEmpty(eventData)) {
-                    if (callback instanceof AdobeCallbackWithError) {
-                        ((AdobeCallbackWithError<?>)callback).fail(AdobeError.UNEXPECTED_ERROR);
-                    }
+                    failWithError(callback, AdobeError.UNEXPECTED_ERROR);
                     return;
                 }
 
                 if (eventData.containsKey(OptimizeConstants.EventDataKeys.RESPONSE_ERROR)) {
                     final AdobeError error = (AdobeError) eventData.get(OptimizeConstants.EventDataKeys.RESPONSE_ERROR);
-                    if (callback instanceof AdobeCallbackWithError) {
-                        ((AdobeCallbackWithError<?>)callback).fail(AdobeError.UNEXPECTED_ERROR);
-                    }
+                    failWithError(callback, error);
                     return;
                 }
 
@@ -225,9 +222,7 @@ public class Optimize {
         MobileCore.registerEventListener(OptimizeConstants.EventType.OPTIMIZE, OptimizeConstants.EventSource.NOTIFICATION, new AdobeCallbackWithError<Event>() {
             @Override
             public void fail(final AdobeError error) {
-                if (callback instanceof AdobeCallbackWithError) {
-                    ((AdobeCallbackWithError<?>)callback).fail(AdobeError.UNEXPECTED_ERROR);
-                }
+                failWithError(callback, error);
             }
 
             @Override
@@ -273,5 +268,21 @@ public class Optimize {
                                             OptimizeConstants.EventType.OPTIMIZE,
                                             OptimizeConstants.EventSource.REQUEST_RESET).build();
         MobileCore.dispatchEvent(event, errorCallback);
+    }
+
+    /**
+     * Invokes fail method with the provided {@code error}, if the callback is an instance of {@code AdobeCallbackWithError}.
+     *
+     * @param callback can be an instance of {@link AdobeCallback} or {@link AdobeCallbackWithError}.
+     * @param error {@link AdobeError} indicating the error name and code.
+     */
+    private static <T> void failWithError(final AdobeCallback<T> callback, final AdobeError error) {
+
+        final AdobeCallbackWithError<T> callbackWithError = callback instanceof AdobeCallbackWithError ?
+                (AdobeCallbackWithError<T>) callback : null;
+
+        if (callbackWithError != null) {
+            callbackWithError.fail(error);
+        }
     }
 }
