@@ -12,6 +12,7 @@
 
 package com.adobe.marketing.mobile.optimize;
 
+import com.adobe.marketing.mobile.AdobeCallback;
 import com.adobe.marketing.mobile.AdobeCallbackWithError;
 import com.adobe.marketing.mobile.AdobeError;
 import com.adobe.marketing.mobile.Event;
@@ -60,7 +61,7 @@ public class Optimize {
     /**
      * This API dispatches an Event for the Edge network extension to fetch decision propositions, for the provided decision scopes list, from the decisioning services enabled in the Experience Edge network.
      * <p>
-     * The returned decision propositions are cached in-memory in the Optimize SDK extension and can be retrieved using {@link #getPropositions(List, AdobeCallbackWithError)} API.
+     * The returned decision propositions are cached in-memory in the Optimize SDK extension and can be retrieved using {@link #getPropositions(List, AdobeCallback)} API.
      *
      * @param decisionScopes {@code List<DecisionScope>} containing scopes for which offers need to be updated.
      * @param xdm {@code Map<String, Object>} containing additional XDM-formatted data to be sent in the personalization query request.
@@ -124,16 +125,16 @@ public class Optimize {
     /**
      * This API retrieves the previously fetched propositions, for the provided decision scopes, from the in-memory extension propositions cache.
      * <p>
-     * The returned decision propositions are cached in-memory in the Optimize SDK extension and can be retrieved using {@link #getPropositions(List, AdobeCallbackWithError)} API.
+     * The returned decision propositions are cached in-memory in the Optimize SDK extension and can be retrieved using {@link #getPropositions(List, AdobeCallback)} API.
      *
      * @param decisionScopes {@code List<DecisionScope>} containing scopes for which offers need to be requested.
      * @param callback {@code AdobeCallbackWithError<Map<DecisionScope, Proposition>>} which will be invoked when decision propositions are retrieved from the local cache.
      */
-    public static void getPropositions(final List<DecisionScope> decisionScopes, final AdobeCallbackWithError<Map<DecisionScope, Proposition>> callback) {
+    public static void getPropositions(final List<DecisionScope> decisionScopes, final AdobeCallback<Map<DecisionScope, Proposition>> callback) {
         if (OptimizeUtils.isNullOrEmpty(decisionScopes)) {
             MobileCore.log(LoggingMode.WARNING, LOG_TAG, "Cannot get propositions, provided list of decision scopes is null or empty.");
-            if (callback != null) {
-                callback.fail(AdobeError.UNEXPECTED_ERROR);
+            if (callback instanceof AdobeCallbackWithError) {
+                ((AdobeCallbackWithError<?>)callback).fail(AdobeError.UNEXPECTED_ERROR);
             }
             return;
         }
@@ -148,8 +149,8 @@ public class Optimize {
 
         if (validScopes.size() == 0) {
             MobileCore.log(LoggingMode.WARNING, LOG_TAG, "Cannot update propositions, provided list of decision scopes has no valid scope.");
-            if (callback != null) {
-                callback.fail(AdobeError.UNEXPECTED_ERROR);
+            if (callback instanceof AdobeCallbackWithError) {
+                ((AdobeCallbackWithError<?>)callback).fail(AdobeError.UNEXPECTED_ERROR);
             }
             return;
         }
@@ -179,23 +180,22 @@ public class Optimize {
                 .setEventData(eventData)
                 .build();
 
-        MobileCore.dispatchEventWithResponseCallback(event, new AdobeCallbackWithError<Event>() {
-            @Override
-            public void fail(final AdobeError adobeError) {
-                callback.fail(adobeError);
-            }
-
+        MobileCore.dispatchEventWithResponseCallback(event, new AdobeCallback<Event>() {
             @Override
             public void call(final Event event) {
                 final Map<String, Object> eventData = event.getEventData();
                 if (OptimizeUtils.isNullOrEmpty(eventData)) {
-                    callback.fail(AdobeError.UNEXPECTED_ERROR);
+                    if (callback instanceof AdobeCallbackWithError) {
+                        ((AdobeCallbackWithError<?>)callback).fail(AdobeError.UNEXPECTED_ERROR);
+                    }
                     return;
                 }
 
                 if (eventData.containsKey(OptimizeConstants.EventDataKeys.RESPONSE_ERROR)) {
                     final AdobeError error = (AdobeError) eventData.get(OptimizeConstants.EventDataKeys.RESPONSE_ERROR);
-                    callback.fail(error);
+                    if (callback instanceof AdobeCallbackWithError) {
+                        ((AdobeCallbackWithError<?>)callback).fail(AdobeError.UNEXPECTED_ERROR);
+                    }
                     return;
                 }
 
@@ -221,37 +221,38 @@ public class Optimize {
      *
      * @param callback {@code AdobeCallbackWithError<Map<DecisionScope, Proposition>>} which will be invoked when decision propositions are received from the Edge network.
      */
-    public static void onPropositionsUpdate(final AdobeCallbackWithError<Map<DecisionScope, Proposition>> callback) {
-        MobileCore.registerEventListener(OptimizeConstants.EventType.OPTIMIZE,
-                OptimizeConstants.EventSource.NOTIFICATION,
-                new AdobeCallbackWithError<Event>() {
-                    @Override
-                    public void fail(final AdobeError adobeError) {}
+    public static void onPropositionsUpdate(final AdobeCallback<Map<DecisionScope, Proposition>> callback) {
+        MobileCore.registerEventListener(OptimizeConstants.EventType.OPTIMIZE, OptimizeConstants.EventSource.NOTIFICATION, new AdobeCallbackWithError<Event>() {
+            @Override
+            public void fail(final AdobeError error) {
+                if (callback instanceof AdobeCallbackWithError) {
+                    ((AdobeCallbackWithError<?>)callback).fail(AdobeError.UNEXPECTED_ERROR);
+                }
+            }
 
-                    @Override
-                    public void call(final Event event) {
-                        final Map<String, Object> eventData = event.getEventData();
-                        if (OptimizeUtils.isNullOrEmpty(eventData)) {
-                            return;
-                        }
+            @Override
+            public void call(final Event event) {
+                final Map<String, Object> eventData = event.getEventData();
+                if (OptimizeUtils.isNullOrEmpty(eventData)) {
+                    return;
+                }
 
-                        final List<Map<String, Object>> propositionsList = (List<Map<String, Object>>)eventData.get(OptimizeConstants.EventDataKeys.PROPOSITIONS);
+                final List<Map<String, Object>> propositionsList = (List<Map<String, Object>>)eventData.get(OptimizeConstants.EventDataKeys.PROPOSITIONS);
 
-                        final Map<DecisionScope, Proposition> propositionsMap = new HashMap<>();
-                        for (final Map<String, Object> propositionData : propositionsList) {
-                            final Proposition proposition = Proposition.fromEventData(propositionData);
-                            if (proposition != null && !OptimizeUtils.isNullOrEmpty(proposition.getScope())) {
-                                final DecisionScope scope = new DecisionScope(proposition.getScope());
-                                propositionsMap.put(scope, proposition);
-                            }
-                        }
-
-                        if (!propositionsMap.isEmpty()) {
-                            callback.call(propositionsMap);
-                        }
+                final Map<DecisionScope, Proposition> propositionsMap = new HashMap<>();
+                for (final Map<String, Object> propositionData : propositionsList) {
+                    final Proposition proposition = Proposition.fromEventData(propositionData);
+                    if (proposition != null && !OptimizeUtils.isNullOrEmpty(proposition.getScope())) {
+                        final DecisionScope scope = new DecisionScope(proposition.getScope());
+                        propositionsMap.put(scope, proposition);
                     }
                 }
-        );
+
+                if (!propositionsMap.isEmpty()) {
+                    callback.call(propositionsMap);
+                }
+            }
+        });
     }
 
     /**
