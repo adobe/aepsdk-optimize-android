@@ -354,6 +354,75 @@ class OptimizeExtension extends Extension {
     }
 
     /**
+     * Handles the event with type {@value OptimizeConstants.EventType#OPTIMIZE} and source {@value OptimizeConstants.EventSource#REQUEST_CONTENT}.
+     * <p>
+     * This method dispatches an event to the Edge network extension to send proposition interactions information to the Experience Edge network.
+     * The dispatched event may contain an override {@code datasetId} indicating the dataset which will be used for storing the Experience Events
+     * sent to the Edge network.
+     *
+     * @param event incoming {@link Event} object to be processed.
+     */
+    void handleTrackPropositions(final Event event) {
+        getExecutor().execute(new Runnable() {
+            @Override
+            public void run() {
+                if (event == null || OptimizeUtils.isNullOrEmpty(event.getEventData())) {
+                    MobileCore.log(LoggingMode.DEBUG, LOG_TAG, "Cannot process the track propositions request event, event is null or event data is null/ empty.");
+                    return;
+                }
+                final Map<String, Object> eventData = event.getEventData();
+
+                final Map<String, Object> configData = retrieveConfigurationSharedState(event);
+                if (OptimizeUtils.isNullOrEmpty(configData)) {
+                    MobileCore.log(LoggingMode.DEBUG, LOG_TAG, "Cannot process the track propositions request event, Configuration shared state is not available.");
+                    return;
+                }
+
+                try {
+                    final Map<String, Object> propositionInteractionsXdm = (Map<String, Object>) eventData.get(OptimizeConstants.EventDataKeys.PROPOSITION_INTERACTIONS);
+                    if (OptimizeUtils.isNullOrEmpty(propositionInteractionsXdm)) {
+                        MobileCore.log(LoggingMode.DEBUG, LOG_TAG, "Cannot process the track propositions request event, provided proposition interactions map is null or empty.");
+                        return;
+                    }
+
+                    final Map<String, Object> edgeEventData = new HashMap<>();
+
+                    // Add xdm
+                    final Map<String, Object> xdm = new HashMap<>();
+                    xdm.putAll(propositionInteractionsXdm);
+                    edgeEventData.put(OptimizeConstants.JsonKeys.XDM, xdm);
+
+                    // Add override datasetId
+                    if (configData.containsKey(OptimizeConstants.Configuration.OPTIMIZE_OVERRIDE_DATASET_ID)) {
+                        final String overrideDatasetId = (String) configData.get(OptimizeConstants.Configuration.OPTIMIZE_OVERRIDE_DATASET_ID);
+                        if (!OptimizeUtils.isNullOrEmpty(overrideDatasetId)) {
+                            edgeEventData.put(OptimizeConstants.JsonKeys.DATASET_ID, overrideDatasetId);
+                        }
+                    }
+
+                    final Event edgeEvent = new Event.Builder(OptimizeConstants.EventNames.EDGE_PROPOSITION_INTERACTION_REQUEST,
+                            OptimizeConstants.EventType.EDGE,
+                            OptimizeConstants.EventSource.REQUEST_CONTENT)
+                            .setEventData(edgeEventData)
+                            .build();
+
+                    MobileCore.dispatchEvent(edgeEvent, new ExtensionErrorCallback<ExtensionError>() {
+                        @Override
+                        public void error(final ExtensionError extensionError) {
+                            MobileCore.log(LoggingMode.WARNING, LOG_TAG,
+                                    String.format("Failed to dispatch proposition interactions event to the Edge network due to an error (%s)!", extensionError.getErrorName()));
+                        }
+                    });
+
+                } catch (final Exception e) {
+                    MobileCore.log(LoggingMode.WARNING, LOG_TAG,
+                            String.format("Failed to process track propositions request event due to an exception (%s)!", e.getLocalizedMessage()));
+                }
+            }
+        });
+    }
+
+    /**
      * Handles the event with type {@value OptimizeConstants.EventType#OPTIMIZE} and source {@value OptimizeConstants.EventSource#REQUEST_RESET}.
      * <p>
      * This method clears previously cached propositions in the SDK.

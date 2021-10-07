@@ -15,6 +15,7 @@ package com.adobe.marketing.mobile.optimize;
 import com.adobe.marketing.mobile.LoggingMode;
 import com.adobe.marketing.mobile.MobileCore;
 
+import java.lang.ref.SoftReference;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -39,9 +40,16 @@ public class Proposition {
      */
     Proposition(final String id, final List<Offer> offers, final String scope, final Map<String, Object> scopeDetails) {
         this.id = id != null ? id : "";
-        this.offers = offers != null ? offers : new ArrayList<Offer>();
         this.scope = scope != null ? scope : "";
         this.scopeDetails = scopeDetails != null ? scopeDetails : new HashMap<String, Object>();
+
+        this.offers = offers != null ? offers : new ArrayList<Offer>();
+        // Setting a soft reference to Proposition in each Offer
+        for (final Offer o: this.offers) {
+            if (o.propositionReference == null) {
+                o.propositionReference = new SoftReference<>(this);
+            }
+        }
     }
 
     /**
@@ -78,6 +86,26 @@ public class Proposition {
      */
     public Map<String, Object> getScopeDetails() {
         return scopeDetails;
+    }
+
+    /**
+     * Generates a map containing XDM formatted data for {@code Experience Event - Proposition Reference} field group from this {@code Proposition}.
+     * <p>
+     * The returned XDM data does not contain {@code eventType} for the Experience Event.
+     *
+     * @return {@code Map<String, Object>} containing the XDM data for the proposition reference.
+     */
+    public Map<String, Object> generateReferenceXdm() {
+        final Map<String, Object> experienceDecisioning = new HashMap<>();
+        experienceDecisioning.put(OptimizeConstants.JsonKeys.DECISIONING_PROPOSITION_ID, id);
+
+        final Map<String, Object> experience = new HashMap<>();
+        experience.put(OptimizeConstants.JsonKeys.EXPERIENCE_DECISIONING, experienceDecisioning);
+
+        final Map<String, Object> xdm = new HashMap<>();
+        xdm.put(OptimizeConstants.JsonKeys.EXPERIENCE, experience);
+
+        return xdm;
     }
 
     /**

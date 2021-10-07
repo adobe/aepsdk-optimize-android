@@ -1,0 +1,22 @@
+{
+  "requesttype": "trackpropositions",
+  "propositioninteractions": {
+    "eventType": "decisioning.propositionDisplay",
+    "_experience": {
+      "decisioning": {
+        "propositions": [
+          {
+            "id": "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+            "scope": "eyJhY3Rpdml0eUlkIjoieGNvcmU6b2ZmZXItYWN0aXZpdHk6MTExMTExMTExMTExMTExMSIsInBsYWNlbWVudElkIjoieGNvcmU6b2ZmZXItcGxhY2VtZW50OjExMTExMTExMTExMTExMTEifQ==",
+            "scopeDetails": {},
+            "items": [
+              {
+                "id": "xcore:personalized-offer:1111111111111111"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  }
+}

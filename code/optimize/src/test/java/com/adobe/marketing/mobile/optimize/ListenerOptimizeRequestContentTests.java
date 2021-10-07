@@ -70,6 +70,7 @@ public class ListenerOptimizeRequestContentTests {
         // verify
         verify(mockOptimizeExtension, Mockito.times(1)).handleUpdatePropositions(testEvent);
         verify(mockOptimizeExtension, Mockito.never()).handleGetPropositions(any(Event.class));
+        verify(mockOptimizeExtension, Mockito.never()).handleTrackPropositions(any(Event.class));
     }
 
     @Test
@@ -93,6 +94,31 @@ public class ListenerOptimizeRequestContentTests {
         // verify
         verify(mockOptimizeExtension, Mockito.times(1)).handleGetPropositions(testEvent);
         verify(mockOptimizeExtension, Mockito.never()).handleUpdatePropositions(any(Event.class));
+        verify(mockOptimizeExtension, Mockito.never()).handleTrackPropositions(any(Event.class));
+    }
+
+    @Test
+    public void testHear_requestTypeTrackPropositions() throws Exception {
+        // setup
+        when(listener.getOptimizeExtension()).thenReturn(mockOptimizeExtension);
+        Map<String, Object> eventData = new HashMap<String, Object>() {
+            {
+                put("requesttype", "trackpropositions");
+            }
+        };
+        Event testEvent = new Event.Builder("Optimize Track Propositions Request",
+                "com.adobe.eventType.optimize",
+                "com.adobe.eventSource.requestContent")
+                .setEventData(eventData)
+                .build();
+
+        // test
+        listener.hear(testEvent);
+
+        // verify
+        verify(mockOptimizeExtension, Mockito.times(1)).handleTrackPropositions(testEvent);
+        verify(mockOptimizeExtension, Mockito.never()).handleUpdatePropositions(any(Event.class));
+        verify(mockOptimizeExtension, Mockito.never()).handleGetPropositions(any(Event.class));
     }
 
     @Test
@@ -116,6 +142,7 @@ public class ListenerOptimizeRequestContentTests {
         // verify
         verify(mockOptimizeExtension, Mockito.never()).handleUpdatePropositions(any(Event.class));
         verify(mockOptimizeExtension, Mockito.never()).handleGetPropositions(any(Event.class));
+        verify(mockOptimizeExtension, Mockito.never()).handleTrackPropositions(any(Event.class));
     }
 
     @Test
@@ -129,6 +156,7 @@ public class ListenerOptimizeRequestContentTests {
         // verify
         verify(mockOptimizeExtension, Mockito.never()).handleUpdatePropositions(any(Event.class));
         verify(mockOptimizeExtension, Mockito.never()).handleGetPropositions(any(Event.class));
+        verify(mockOptimizeExtension, Mockito.never()).handleTrackPropositions(any(Event.class));
     }
 
     @Test
@@ -147,6 +175,7 @@ public class ListenerOptimizeRequestContentTests {
         // verify
         verify(mockOptimizeExtension, Mockito.never()).handleUpdatePropositions(any(Event.class));
         verify(mockOptimizeExtension, Mockito.never()).handleGetPropositions(any(Event.class));
+        verify(mockOptimizeExtension, Mockito.never()).handleTrackPropositions(any(Event.class));
     }
 
     @Test
@@ -165,6 +194,7 @@ public class ListenerOptimizeRequestContentTests {
         // verify
         verify(mockOptimizeExtension, Mockito.never()).handleUpdatePropositions(any(Event.class));
         verify(mockOptimizeExtension, Mockito.never()).handleGetPropositions(any(Event.class));
+        verify(mockOptimizeExtension, Mockito.never()).handleTrackPropositions(any(Event.class));
     }
 
     @Test
@@ -189,5 +219,6 @@ public class ListenerOptimizeRequestContentTests {
         // verify
         verify(mockOptimizeExtension, Mockito.never()).handleUpdatePropositions(any(Event.class));
         verify(mockOptimizeExtension, Mockito.never()).handleGetPropositions(any(Event.class));
+        verify(mockOptimizeExtension, Mockito.never()).handleTrackPropositions(any(Event.class));
     }
 }

@@ -34,6 +34,7 @@ class OptimizeConstants {
         static final String CLEAR_PROPOSITIONS_REQUEST = "Optimize Clear Propositions Request";
         static final String OPTIMIZE_NOTIFICATION = "Optimize Notification";
         static final String EDGE_PERSONALIZATION_REQUEST = "Edge Optimize Personalization Request";
+        static final String EDGE_PROPOSITION_INTERACTION_REQUEST = "Edge Optimize Proposition Interaction Request";
         static final String OPTIMIZE_RESPONSE = "Optimize Response";
 
         private EventNames() {}
@@ -67,6 +68,7 @@ class OptimizeConstants {
         static final String DATA = "data";
         static final String PROPOSITIONS = "propositions";
         static final String RESPONSE_ERROR = "responseerror";
+        static final String PROPOSITION_INTERACTIONS = "propositioninteractions";
 
         private EventDataKeys() {}
     }
@@ -125,12 +127,23 @@ class OptimizeConstants {
         static final String DATA = "data";
         static final String DATASET_ID = "datasetId";
         static final String EXPERIENCE_EVENT_TYPE = "eventType";
+        static final String EXPERIENCE = "_experience";
+        static final String EXPERIENCE_DECISIONING = "decisioning";
+        static final String DECISIONING_PROPOSITION_ID = "propositionID";
+        static final String DECISIONING_PROPOSITIONS = "propositions";
+        static final String DECISIONING_PROPOSITIONS_ID = "id";
+        static final String DECISIONING_PROPOSITIONS_SCOPE = "scope";
+        static final String DECISIONING_PROPOSITIONS_SCOPEDETAILS = "scopeDetails";
+        static final String DECISIONING_PROPOSITIONS_ITEMS = "items";
+        static final String DECISIONING_PROPOSITIONS_ITEMS_ID = "id";
 
         private JsonKeys() {}
     }
 
     static final class JsonValues {
         static final String EE_EVENT_TYPE_PERSONALIZATION = "personalization.request";
+        static final String EE_EVENT_TYPE_PROPOSITION_DISPLAY = "decisioning.propositionDisplay";
+        static final String EE_EVENT_TYPE_PROPOSITION_INTERACT = "decisioning.propositionInteract";
 
         private JsonValues() {}
     }
