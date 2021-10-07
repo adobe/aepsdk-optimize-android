@@ -276,10 +276,10 @@ public class Optimize {
      * @param callback can be an instance of {@link AdobeCallback} or {@link AdobeCallbackWithError}.
      * @param error {@link AdobeError} indicating the error name and code.
      */
-    private static <T> void failWithError(final AdobeCallback<T> callback, final AdobeError error) {
+    private static void failWithError(final AdobeCallback<?> callback, final AdobeError error) {
 
-        final AdobeCallbackWithError<T> callbackWithError = callback instanceof AdobeCallbackWithError ?
-                (AdobeCallbackWithError<T>) callback : null;
+        final AdobeCallbackWithError<?> callbackWithError = callback instanceof AdobeCallbackWithError ?
+                (AdobeCallbackWithError<?>) callback : null;
 
         if (callbackWithError != null) {
             callbackWithError.fail(error);
