@@ -1,22 +1,20 @@
 package com.adobe.marketing.mobile.optimize
 
-import android.graphics.Paint
+import android.view.MotionEvent
+import android.view.View
 import android.view.ViewGroup
 import android.webkit.WebView
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
+import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.Button
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Surface
-import androidx.compose.material.Text
+import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.composed
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -27,7 +25,6 @@ import com.adobe.marketing.mobile.edge.identity.Identity
 import com.adobe.marketing.mobile.edge.identity.IdentityItem
 import com.adobe.marketing.mobile.edge.identity.IdentityMap
 import com.adobe.marketing.mobile.optimize.viewmodels.MainViewModel
-import com.adobe.marketing.mobile.optimize.viewmodels.toMap
 
 @Composable
 fun OffersView(viewModel: MainViewModel) {
@@ -43,15 +40,15 @@ fun OffersView(viewModel: MainViewModel) {
                 .verticalScroll(state = rememberScrollState())
         ) {
             OffersSectionText(sectionName = "Text Offers")
-            TextOffers(offers = viewModel.propositionStateMap[viewModel.textDecisionScope?.name]?.offers)
+            TextOffers(offers = viewModel.propositionStateMap[viewModel.textDecisionScope?.name]?.offers, viewModel = viewModel)
             OffersSectionText(sectionName = "Image Offers")
-            ImageOffers(offers = viewModel.propositionStateMap[viewModel.imageDecisionScope?.name]?.offers)
+            ImageOffers(offers = viewModel.propositionStateMap[viewModel.imageDecisionScope?.name]?.offers, viewModel = viewModel)
             OffersSectionText(sectionName = "HTML Offers")
-            HTMLOffers(offers = viewModel.propositionStateMap[viewModel.htmlDecisionScope?.name]?.offers)
+            HTMLOffers(offers = viewModel.propositionStateMap[viewModel.htmlDecisionScope?.name]?.offers, viewModel = viewModel)
             OffersSectionText(sectionName = "JSON Offers")
-            TextOffers(offers = viewModel.propositionStateMap[viewModel.jsonDecisionScope?.name]?.offers, placeHolder = """{"PlaceHolder": true}}""")
+            TextOffers(offers = viewModel.propositionStateMap[viewModel.jsonDecisionScope?.name]?.offers, placeHolder = """{"PlaceHolder": true}}""", viewModel = viewModel)
             OffersSectionText(sectionName = "Target Offers")
-            TargetOffersView(offers = viewModel.propositionStateMap[viewModel.targetMboxDecisionScope?.name]?.offers)
+            TargetOffersView(offers = viewModel.propositionStateMap[viewModel.targetMboxDecisionScope?.name]?.offers, viewModel = viewModel)
         }
 
         Spacer(
@@ -174,33 +171,50 @@ fun OffersSectionText(sectionName: String) {
 }
 
 @Composable
-fun TextOffers(offers: List<Offer>?, placeHolder: String = "Placeholder Text") {
+fun TextOffers(offers: List<Offer>?, placeHolder: String = "Placeholder Text", viewModel: MainViewModel) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
             .wrapContentHeight()
     ) {
-        var content = offers?.let {
-            var offersContent = ""
-            it.forEach {offer ->
-                offersContent += offer.content + "\n"
-            }
-            return@let offersContent
-        } ?: placeHolder
-    Text(
-        text = content,
-        modifier = Modifier
-            .padding(vertical = 20.dp)
-            .height(100.dp)
-            .align(Alignment.Center),
-        style = MaterialTheme.typography.body1,
-        textAlign = TextAlign.Center
-    )
-}
+
+        offers?.let {offersList ->
+            Column(
+                modifier = Modifier
+                    .padding(vertical = 10.dp)
+                    .wrapContentHeight()
+                    .align(Alignment.Center),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center,
+            ) {
+                offersList.forEach { offer ->
+                    Text(
+                        text = offer.content,
+                        modifier = Modifier
+                            .absolutePadding(top = 5.dp)
+                            .height(100.dp)
+                            .clickable {
+                                viewModel.trackOfferTapped(offer = offer)
+                            },
+                        style = MaterialTheme.typography.body1,
+                        textAlign = TextAlign.Center)
+                }
+
+                }
+        } ?: Text(
+            text = placeHolder,
+            modifier = Modifier
+                .padding(vertical = 20.dp)
+                .height(100.dp)
+                .align(Alignment.Center),
+            style = MaterialTheme.typography.body1,
+            textAlign = TextAlign.Center
+        )
+    }
 }
 
 @Composable
-fun ImageOffers(offers: List<Offer>?) {
+fun ImageOffers(offers: List<Offer>?, viewModel: MainViewModel) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -215,6 +229,7 @@ fun ImageOffers(offers: List<Offer>?) {
                     .padding(all = 20.dp)
                     .width(100.dp)
                     .height(100.dp)
+                    .clickable { viewModel.trackOfferTapped(offer = offer) }
             )
         } ?: Image(
             painter = painterResource(id = R.drawable.adobe),
@@ -229,18 +244,21 @@ fun ImageOffers(offers: List<Offer>?) {
 }
 
 @Composable
-fun HTMLOffers(offers: List<Offer>?, placeHolderHtml: String = "<html><body><p>HTML Placeholder!!</p></body></html>") {
+fun HTMLOffers(offers: List<Offer>?, placeHolderHtml: String = "<html><body><p>HTML Placeholder!!</p></body></html>", viewModel: MainViewModel) {
         Column(modifier = Modifier
             .fillMaxWidth()
-            .wrapContentHeight(), verticalArrangement = Arrangement.Center, horizontalAlignment = Alignment.CenterHorizontally) {
+            .wrapContentHeight(),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
             offers?.onEach {
-                HtmlOfferWebView(html = it.content)
+                HtmlOfferWebView(html = it.content, onclick = {viewModel.trackOfferTapped(offer = it)})
             } ?: HtmlOfferWebView(html = placeHolderHtml)
         }
 }
 
 @Composable
-fun HtmlOfferWebView(html: String) {
+fun HtmlOfferWebView(html: String, onclick: (() -> Unit)? = null) {
     AndroidView(modifier = Modifier
         .padding(vertical = 20.dp)
         .fillMaxWidth()
@@ -250,6 +268,11 @@ fun HtmlOfferWebView(html: String) {
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT
             )
+
+            setOnTouchListener { _, _ ->
+                onclick?.invoke()
+                true
+            }
         }
     }, update = {
             it.loadData(html, "text/html", "UTF-8")
@@ -258,18 +281,19 @@ fun HtmlOfferWebView(html: String) {
 }
 
 @Composable
-fun TargetOffersView(offers: List<Offer>?) {
+fun TargetOffersView(offers: List<Offer>?, viewModel: MainViewModel) {
     Column(modifier = Modifier
         .fillMaxWidth()
         .wrapContentHeight()) {
         offers?.onEach {
             when (it.type) {
-                OfferType.HTML -> HtmlOfferWebView(html = it.content)
+                OfferType.HTML -> HtmlOfferWebView(html = it.content, onclick = {viewModel.trackOfferTapped(it)})
                 else -> Text(text = it.content, modifier = Modifier
                     .padding(vertical = 20.dp)
                     .fillMaxWidth()
-                    .wrapContentHeight(), textAlign = TextAlign.Center)
+                    .wrapContentHeight()
+                    .clickable { viewModel.trackOfferTapped(it) }, textAlign = TextAlign.Center)
             }
-        } ?: TextOffers(offers = null, placeHolder = "Placeholder Target Text")
+        } ?: TextOffers(offers = null, placeHolder = "Placeholder Target Text", viewModel = viewModel)
     }
 }

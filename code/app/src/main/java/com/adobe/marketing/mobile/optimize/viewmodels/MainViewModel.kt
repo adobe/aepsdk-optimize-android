@@ -8,6 +8,7 @@ import androidx.lifecycle.ViewModel
 import com.adobe.marketing.mobile.AdobeCallbackWithError
 import com.adobe.marketing.mobile.AdobeError
 import com.adobe.marketing.mobile.optimize.DecisionScope
+import com.adobe.marketing.mobile.optimize.Offer
 import com.adobe.marketing.mobile.optimize.Optimize
 import com.adobe.marketing.mobile.optimize.Proposition
 import com.adobe.marketing.mobile.optimize.models.OptimizePair
@@ -38,6 +39,7 @@ class MainViewModel: ViewModel() {
         override fun call(propositions: Map<DecisionScope, Proposition>?) {
             propositions?.forEach {
                 propositionStateMap[it.key.name] = it.value
+                it.value.offers.onEach { offer -> trackOfferDisplayed(offer = offer) }
             }
         }
 
@@ -50,14 +52,25 @@ class MainViewModel: ViewModel() {
         Optimize.onPropositionsUpdate(propositionUpdateCallback)
     }
 
+    //Begin: Calls to Optimize SDK API's
+
+    /**
+     * Calls the Optimize SDK API to get the extension version see [Optimize.extensionVersion]
+     */
     fun getOptimizeExtensionVersion(): String = Optimize.extensionVersion()
 
+    /**
+     * Calls the Optimize SDK API to get the Propositions see [Optimize.getPropositions]
+     *
+     * @param [decisionScopes] a [List] of [DecisionScope]
+     */
     fun getPropositions(decisionScopes: List<DecisionScope>) {
         propositionStateMap.clear()
         Optimize.getPropositions(decisionScopes, object: AdobeCallbackWithError<Map<DecisionScope, Proposition>>{
             override fun call(propositions: Map<DecisionScope, Proposition>?) {
                 propositions?.forEach {
                     propositionStateMap[it.key.name] = it.value
+                    it.value.offers.onEach { offer -> trackOfferDisplayed(offer = offer) }
                 }
             }
 
@@ -68,15 +81,41 @@ class MainViewModel: ViewModel() {
         })
     }
 
+    /**
+     * Calls the Optimize SDK API to update Propositions see [Optimize.updatePropositions]
+     *
+     * @param decisionScopes a [List] of [DecisionScope]
+     * @param xdm a [Map] of xdm params
+     * @param data a [Map] of data
+     */
     fun updatePropositions(decisionScopes: List<DecisionScope> , xdm: Map<String, String> , data: Map<String, Any>) {
         propositionStateMap.clear()
         Optimize.updatePropositions(decisionScopes, xdm, data)
     }
 
+    /**
+     * Calls the Optimize SDK API to clear the cached Propositions [Optimize.clearCachedPropositions]
+     */
     fun clearCachedPropositions() {
         propositionStateMap.clear()
         Optimize.clearCachedPropositions()
     }
+
+    /**
+     * Calls the Optimize SDK API to track [Offer] displayed.
+     */
+    fun trackOfferDisplayed(offer: Offer?) {
+        offer?.displayed()
+    }
+
+    /**
+     * Calls the Optimize SDK API to track [Offer] tapped.
+     */
+    fun trackOfferTapped(offer: Offer?) {
+        offer?.tapped()
+    }
+
+    //End: Calls to Optimize SDK API's
 
 
     var textDecisionScope: DecisionScope? = null
@@ -98,12 +137,4 @@ class MainViewModel: ViewModel() {
 
     val isValidProduct: Boolean
         get() = !textTargetProductId.isNullOrEmpty() && !textTargetProductCategoryId.isNullOrEmpty()
-}
-
-fun SnapshotStateList<OptimizePair>.toMap(): Map<String, String> {
-    val map = mutableMapOf<String, String>()
-    forEach { optimizePair ->
-        map[optimizePair.key] = optimizePair.value
-    }
-    return map
 }
