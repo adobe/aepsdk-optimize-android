@@ -1,5 +1,5 @@
 <resources>
     <string name="app_name">AEPOptimize Test app</string>
-    <string name="offers">Offers</string>
     <string name="settings">Settings</string>
+    <string name="offers">Offers</string>
 </resources>
