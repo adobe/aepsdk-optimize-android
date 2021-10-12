@@ -48,7 +48,7 @@ public class ListenerGenericIdentityRequestResetTests {
     }
 
     @Test
-    public void testHear() throws Exception {
+    public void testHear() {
         // setup
         when(listener.getOptimizeExtension()).thenReturn(mockOptimizeExtension);
         final Event testEvent = new Event.Builder("Reset Identities Request",
@@ -64,7 +64,7 @@ public class ListenerGenericIdentityRequestResetTests {
     }
 
     @Test
-    public void testHear_nullEvent() throws Exception {
+    public void testHear_nullEvent() {
         // setup
         when(listener.getOptimizeExtension()).thenReturn(mockOptimizeExtension);
 
@@ -76,7 +76,7 @@ public class ListenerGenericIdentityRequestResetTests {
     }
 
     @Test
-    public void testHear_nullEventData() throws Exception {
+    public void testHear_nullEventData() {
         // setup
         when(listener.getOptimizeExtension()).thenReturn(mockOptimizeExtension);
         final Event testEvent = new Event.Builder("Reset Identities Request",
@@ -93,7 +93,7 @@ public class ListenerGenericIdentityRequestResetTests {
     }
 
     @Test
-    public void testHear_emptyEventData() throws Exception {
+    public void testHear_emptyEventData() {
         // setup
         when(listener.getOptimizeExtension()).thenReturn(mockOptimizeExtension);
         final Event testEvent = new Event.Builder("Reset Identities Request",
@@ -110,7 +110,7 @@ public class ListenerGenericIdentityRequestResetTests {
     }
 
     @Test
-    public void testHear_nullParentExtension() throws Exception {
+    public void testHear_nullParentExtension() {
         // setup
         when(listener.getOptimizeExtension()).thenReturn(null);
         final Event testEvent = new Event.Builder("Reset Identities Request",

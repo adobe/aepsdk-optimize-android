@@ -96,7 +96,7 @@ public class Optimize {
             }
         };
 
-        final List<Map<String, Object>> flattenedDecisionScopes = new ArrayList<Map<String, Object>>();
+        final List<Map<String, Object>> flattenedDecisionScopes = new ArrayList<>();
         for (final DecisionScope scope: validScopes) {
             flattenedDecisionScopes.add(scope.toEventData());
         }
@@ -161,7 +161,7 @@ public class Optimize {
             }
         };
 
-        final List<Map<String, Object>> flattenedDecisionScopes = new ArrayList<Map<String, Object>>();
+        final List<Map<String, Object>> flattenedDecisionScopes = new ArrayList<>();
         for (final DecisionScope scope : validScopes) {
             flattenedDecisionScopes.add(scope.toEventData());
         }
@@ -221,9 +221,7 @@ public class Optimize {
     public static void onPropositionsUpdate(final AdobeCallback<Map<DecisionScope, Proposition>> callback) {
         MobileCore.registerEventListener(OptimizeConstants.EventType.OPTIMIZE, OptimizeConstants.EventSource.NOTIFICATION, new AdobeCallbackWithError<Event>() {
             @Override
-            public void fail(final AdobeError error) {
-                failWithError(callback, error);
-            }
+            public void fail(final AdobeError error) {}
 
             @Override
             public void call(final Event event) {
