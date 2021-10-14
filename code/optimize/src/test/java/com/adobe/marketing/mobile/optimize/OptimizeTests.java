@@ -386,7 +386,7 @@ public class OptimizeTests {
         });
 
         // verify
-        PowerMockito.verifyStatic(MobileCore.class, Mockito.times(1));
+        PowerMockito.verifyStatic(MobileCore.class, Mockito.times(2));
         MobileCore.log(any(LoggingMode.class), anyString(), anyString());
         assertEquals(AdobeError.UNEXPECTED_ERROR, responseError);
     }
