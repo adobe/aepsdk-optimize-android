@@ -10,7 +10,7 @@
  governing permissions and limitations under the License.
  */
 
-package com.adobe.marketing.mobile.optimizeapp;
+package com.adobe.marketing.mobile.optimize;
 
 import com.adobe.marketing.mobile.AdobeError;
 import com.adobe.marketing.mobile.Event;
@@ -28,9 +28,9 @@ import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import static com.adobe.marketing.mobile.optimizeapp.OptimizeConstants.EXTENSION_NAME;
-import static com.adobe.marketing.mobile.optimizeapp.OptimizeConstants.EXTENSION_VERSION;
-import static com.adobe.marketing.mobile.optimizeapp.OptimizeConstants.LOG_TAG;
+import static com.adobe.marketing.mobile.optimize.OptimizeConstants.EXTENSION_NAME;
+import static com.adobe.marketing.mobile.optimize.OptimizeConstants.EXTENSION_VERSION;
+import static com.adobe.marketing.mobile.optimize.OptimizeConstants.LOG_TAG;
 
 class OptimizeExtension extends Extension {
     private final Object executorMutex = new Object();

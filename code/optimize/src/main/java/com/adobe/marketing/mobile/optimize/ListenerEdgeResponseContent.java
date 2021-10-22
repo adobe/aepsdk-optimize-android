@@ -10,7 +10,7 @@
  governing permissions and limitations under the License.
  */
 
-package com.adobe.marketing.mobile.optimizeapp;
+package com.adobe.marketing.mobile.optimize;
 
 import com.adobe.marketing.mobile.Event;
 import com.adobe.marketing.mobile.ExtensionApi;
@@ -18,13 +18,11 @@ import com.adobe.marketing.mobile.ExtensionListener;
 import com.adobe.marketing.mobile.LoggingMode;
 import com.adobe.marketing.mobile.MobileCore;
 
-import java.util.Map;
-
 /**
- * Listens for {@code EventType.Optimize}, {@code EventSource.REQUEST_CONTENT} events and invokes method on the
+ * Listens for {@code EventType.Edge}, {@code EventSource.EDGE_PERSONALIZATION_DECISIONS} events and invokes method on the
  * parent {@code OptimizeExtension} for handling the requests.
  */
-class ListenerOptimizeRequestContent extends ExtensionListener {
+class ListenerEdgeResponseContent extends ExtensionListener {
     /**
      * Constructor.
      *
@@ -32,19 +30,14 @@ class ListenerOptimizeRequestContent extends ExtensionListener {
      * @param type {@link String} containing event type this listener is registered to handle.
      * @param source {@code String} event source this listener is registered to handle.
      */
-    ListenerOptimizeRequestContent(final ExtensionApi extensionApi, final String type, final String source) {
+    ListenerEdgeResponseContent(final ExtensionApi extensionApi, final String type, final String source) {
         super(extensionApi, type, source);
     }
 
     /**
-     * This listener method listens to {@value OptimizeConstants.EventType#OPTIMIZE} and {@value OptimizeConstants.EventSource#REQUEST_CONTENT} events.
+     * This listener method listens to {@value OptimizeConstants.EventType#EDGE} and {@value OptimizeConstants.EventSource#EDGE_PERSONALIZATION_DECISIONS} events.
      * <p>
-     * It invokes method on the parent {@link OptimizeExtension} to handle requests for,
-     * <ul>
-     *     <li>Updating propositions in the extension by sending personalization query requests to the Experience Edge.</li>
-     *     <li>Retrieving previously fetched and cached propositions in the extension.</li>
-     *     <li>Sending proposition interactions information to the Edge network.</li>
-     * </ul>
+     * It invokes method on the parent {@link OptimizeExtension} to handle Edge response containing propositions for requested decision scopes.
      *
      * @param event {@link Event} to be processed.
      */
@@ -52,30 +45,18 @@ class ListenerOptimizeRequestContent extends ExtensionListener {
     public void hear(final Event event) {
         if (event == null || event.getEventData() == null || event.getEventData().isEmpty()) {
             MobileCore.log(LoggingMode.DEBUG, OptimizeConstants.LOG_TAG,
-                    "Ignoring the Optimize request event, either event is null or event data is null/ empty.");
+                    "Ignoring the Edge personalization:decisions event, either event is null or event data is null/ empty.");
             return;
         }
 
         final OptimizeExtension parentExtension = getOptimizeExtension();
         if (parentExtension == null) {
             MobileCore.log(LoggingMode.DEBUG, OptimizeConstants.LOG_TAG,
-                    "Ignoring the Optimize request event, parent extension for this listener is null.");
+                    "Ignoring the Edge personalization:decisions event, parent extension for this listener is null.");
             return;
         }
 
-        final Map<String, Object> eventData = event.getEventData();
-        final String requestType = (String) eventData.get(OptimizeConstants.EventDataKeys.REQUEST_TYPE);
-
-        if (requestType.equals(OptimizeConstants.EventDataValues.REQUEST_TYPE_UPDATE)) {
-            parentExtension.handleUpdatePropositions(event);
-        } else if (requestType.equals(OptimizeConstants.EventDataValues.REQUEST_TYPE_GET)) {
-            parentExtension.handleGetPropositions(event);
-        } else if (requestType.equals(OptimizeConstants.EventDataValues.REQUEST_TYPE_TRACK)) {
-            parentExtension.handleTrackPropositions(event);
-        } else {
-            MobileCore.log(LoggingMode.DEBUG, OptimizeConstants.LOG_TAG,
-                    String.format("Ignoring the Optimize request event, provided request type (%s) is not handled by this extension.", requestType));
-        }
+        parentExtension.handleEdgeResponse(event);
     }
 
     /**

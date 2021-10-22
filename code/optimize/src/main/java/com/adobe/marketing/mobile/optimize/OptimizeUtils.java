@@ -10,7 +10,7 @@
  governing permissions and limitations under the License.
  */
 
-package com.adobe.marketing.mobile.optimizeapp;
+package com.adobe.marketing.mobile.optimize;
 
 import android.util.Base64;
 
@@ -20,7 +20,7 @@ import com.adobe.marketing.mobile.MobileCore;
 import java.util.Collection;
 import java.util.Map;
 
-import static com.adobe.marketing.mobile.optimizeapp.OptimizeConstants.LOG_TAG;
+import static com.adobe.marketing.mobile.optimize.OptimizeConstants.LOG_TAG;
 
 class OptimizeUtils {
     /**

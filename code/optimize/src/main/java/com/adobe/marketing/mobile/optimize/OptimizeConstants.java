@@ -10,7 +10,7 @@
  governing permissions and limitations under the License.
  */
 
-package com.adobe.marketing.mobile.optimizeapp;
+package com.adobe.marketing.mobile.optimize;
 
 class OptimizeConstants {
     static final String LOG_TAG = "Optimize";

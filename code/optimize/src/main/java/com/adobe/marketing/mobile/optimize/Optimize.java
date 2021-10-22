@@ -10,7 +10,7 @@
  governing permissions and limitations under the License.
  */
 
-package com.adobe.marketing.mobile.optimizeapp;
+package com.adobe.marketing.mobile.optimize;
 
 import com.adobe.marketing.mobile.AdobeCallbackWithError;
 import com.adobe.marketing.mobile.AdobeError;
@@ -25,7 +25,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.adobe.marketing.mobile.optimizeapp.OptimizeConstants.LOG_TAG;
+import static com.adobe.marketing.mobile.optimize.OptimizeConstants.LOG_TAG;
 
 /**
  * Public class containing APIs for the Optimize extension.

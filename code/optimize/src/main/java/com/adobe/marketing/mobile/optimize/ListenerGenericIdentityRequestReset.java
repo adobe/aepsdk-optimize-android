@@ -10,7 +10,7 @@
  governing permissions and limitations under the License.
  */
 
-package com.adobe.marketing.mobile.optimizeapp;
+package com.adobe.marketing.mobile.optimize;
 
 import com.adobe.marketing.mobile.Event;
 import com.adobe.marketing.mobile.ExtensionApi;
@@ -19,10 +19,10 @@ import com.adobe.marketing.mobile.LoggingMode;
 import com.adobe.marketing.mobile.MobileCore;
 
 /**
- * Listens for {@code EventType.Edge}, {@code EventSource.EDGE_PERSONALIZATION_DECISIONS} events and invokes method on the
+ * Listens for {@code EventType.GENERIC_IDENTITY}, {@code EventSource.REQUEST_RESET} events and invokes method on the
  * parent {@code OptimizeExtension} for handling the requests.
  */
-class ListenerEdgeResponseContent extends ExtensionListener {
+class ListenerGenericIdentityRequestReset extends ExtensionListener {
     /**
      * Constructor.
      *
@@ -30,33 +30,33 @@ class ListenerEdgeResponseContent extends ExtensionListener {
      * @param type {@link String} containing event type this listener is registered to handle.
      * @param source {@code String} event source this listener is registered to handle.
      */
-    ListenerEdgeResponseContent(final ExtensionApi extensionApi, final String type, final String source) {
+    ListenerGenericIdentityRequestReset(final ExtensionApi extensionApi, final String type, final String source) {
         super(extensionApi, type, source);
     }
 
     /**
-     * This listener method listens to {@value OptimizeConstants.EventType#EDGE} and {@value OptimizeConstants.EventSource#EDGE_PERSONALIZATION_DECISIONS} events.
+     * This listener method listens to {@value OptimizeConstants.EventType#GENERIC_IDENTITY} and {@value OptimizeConstants.EventSource#REQUEST_RESET} events.
      * <p>
-     * It invokes method on the parent {@link OptimizeExtension} to handle Edge response containing propositions for requested decision scopes.
+     * It invokes method on the parent {@link OptimizeExtension} to handle requests for clearing previously cached propositions.
      *
      * @param event {@link Event} to be processed.
      */
     @Override
     public void hear(final Event event) {
-        if (event == null || event.getEventData() == null || event.getEventData().isEmpty()) {
+        if (event == null) {
             MobileCore.log(LoggingMode.DEBUG, OptimizeConstants.LOG_TAG,
-                    "Ignoring the Edge personalization:decisions event, either event is null or event data is null/ empty.");
+                    "Cannot process generic identity reset request, event is null.");
             return;
         }
 
         final OptimizeExtension parentExtension = getOptimizeExtension();
         if (parentExtension == null) {
             MobileCore.log(LoggingMode.DEBUG, OptimizeConstants.LOG_TAG,
-                    "Ignoring the Edge personalization:decisions event, parent extension for this listener is null.");
+                    "Ignoring the generic identity request reset event, parent extension for this listener is null.");
             return;
         }
 
-        parentExtension.handleEdgeResponse(event);
+        parentExtension.handleClearPropositions(event);
     }
 
     /**

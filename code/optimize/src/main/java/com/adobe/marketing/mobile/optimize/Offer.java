@@ -10,7 +10,7 @@
  governing permissions and limitations under the License.
  */
 
-package com.adobe.marketing.mobile.optimizeapp;
+package com.adobe.marketing.mobile.optimize;
 
 import com.adobe.marketing.mobile.Event;
 import com.adobe.marketing.mobile.ExtensionError;
@@ -27,7 +27,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-import static com.adobe.marketing.mobile.optimizeapp.OptimizeConstants.LOG_TAG;
+import static com.adobe.marketing.mobile.optimize.OptimizeConstants.LOG_TAG;
 
 public class Offer {
     private String id;

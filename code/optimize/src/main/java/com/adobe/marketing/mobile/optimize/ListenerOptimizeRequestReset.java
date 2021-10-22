@@ -10,7 +10,7 @@
  governing permissions and limitations under the License.
  */
 
-package com.adobe.marketing.mobile.optimizeapp;
+package com.adobe.marketing.mobile.optimize;
 
 import com.adobe.marketing.mobile.Event;
 import com.adobe.marketing.mobile.ExtensionApi;
@@ -19,10 +19,10 @@ import com.adobe.marketing.mobile.LoggingMode;
 import com.adobe.marketing.mobile.MobileCore;
 
 /**
- * Listens for {@code EventType.Edge}, {@code EventSource.ERROR_RESPONSE_CONTENT} events and invokes method on the
+ * Listens for {@code EventType.Optimize}, {@code EventSource.REQUEST_RESET} events and invokes method on the
  * parent {@code OptimizeExtension} for handling the requests.
  */
-class ListenerEdgeErrorResponseContent extends ExtensionListener {
+class ListenerOptimizeRequestReset extends ExtensionListener {
     /**
      * Constructor.
      *
@@ -30,34 +30,33 @@ class ListenerEdgeErrorResponseContent extends ExtensionListener {
      * @param type {@link String} containing event type this listener is registered to handle.
      * @param source {@code String} event source this listener is registered to handle.
      */
-    ListenerEdgeErrorResponseContent(final ExtensionApi extensionApi, final String type, final String source) {
+    ListenerOptimizeRequestReset(final ExtensionApi extensionApi, final String type, final String source) {
         super(extensionApi, type, source);
     }
 
     /**
-     * This listener method listens to {@value OptimizeConstants.EventType#EDGE} and {@value OptimizeConstants.EventSource#ERROR_RESPONSE_CONTENT} events.
+     * This listener method listens to {@value OptimizeConstants.EventType#OPTIMIZE} and {@value OptimizeConstants.EventSource#REQUEST_RESET} events.
      * <p>
-     * It invokes method on the parent {@link OptimizeExtension} to handle Edge response containing error information when fetching propositions
-     * for requested decision scopes.
+     * It invokes method on the parent {@link OptimizeExtension} to handle requests for clearing previously cached propositions.
      *
      * @param event {@link Event} to be processed.
      */
     @Override
     public void hear(final Event event) {
-        if (event == null || event.getEventData() == null || event.getEventData().isEmpty()) {
+        if (event == null) {
             MobileCore.log(LoggingMode.DEBUG, OptimizeConstants.LOG_TAG,
-                    "Ignoring the Edge error response event, either event is null or event data is null/ empty.");
+                    "Cannot process Optimize reset request, event is null.");
             return;
         }
 
         final OptimizeExtension parentExtension = getOptimizeExtension();
         if (parentExtension == null) {
             MobileCore.log(LoggingMode.DEBUG, OptimizeConstants.LOG_TAG,
-                    "Ignoring the Edge error response event, parent extension for this listener is null.");
+                    "Ignoring the Optimize request reset event, parent extension for this listener is null.");
             return;
         }
 
-        parentExtension.handleEdgeErrorResponse(event);
+        parentExtension.handleClearPropositions(event);
     }
 
     /**
