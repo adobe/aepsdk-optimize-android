@@ -49,7 +49,7 @@ public class OfferTests {
     }
 
     @Test
-    public void testBuilder_validOffer() throws Exception {
+    public void testBuilder_validOffer() {
         final Offer offer = new Offer.Builder("xcore:personalized-offer:2222222222222222", OfferType.TEXT, "This is a plain text content!")
                     .setEtag("7")
                     .setSchema("https://ns.adobe.com/experience/offer-management/content-component-text")
@@ -80,6 +80,7 @@ public class OfferTests {
     public void testFromEventData_validJsonOffer() throws Exception {
         Map<String, Object> offerData = new ObjectMapper().readValue(getClass().getClassLoader().getResource("json/OFFER_VALID_JSON.json"), HashMap.class);
         final Offer offer = Offer.fromEventData(offerData);
+        assertNotNull(offer);
 
         assertEquals("xcore:personalized-offer:1111111111111111", offer.getId());
         assertEquals("8", offer.getEtag());
@@ -96,6 +97,7 @@ public class OfferTests {
     public void testFromEventData_validTextOffer() throws Exception {
         Map<String, Object> offerData = new ObjectMapper().readValue(getClass().getClassLoader().getResource("json/OFFER_VALID_TEXT.json"), HashMap.class);
         final Offer offer = Offer.fromEventData(offerData);
+        assertNotNull(offer);
 
         assertEquals("xcore:personalized-offer:2222222222222222", offer.getId());
         assertEquals("7", offer.getEtag());
@@ -112,6 +114,7 @@ public class OfferTests {
     public void testFromEventData_validHtmlOffer() throws Exception {
         Map<String, Object> offerData = new ObjectMapper().readValue(getClass().getClassLoader().getResource("json/OFFER_VALID_HTML.json"), HashMap.class);
         final Offer offer = Offer.fromEventData(offerData);
+        assertNotNull(offer);
 
         assertEquals("xcore:personalized-offer:3333333333333333", offer.getId());
         assertEquals("8", offer.getEtag());
@@ -128,6 +131,7 @@ public class OfferTests {
     public void testFromEventData_validImageOffer() throws Exception {
         Map<String, Object> offerData = new ObjectMapper().readValue(getClass().getClassLoader().getResource("json/OFFER_VALID_IMAGE.json"), HashMap.class);
         final Offer offer = Offer.fromEventData(offerData);
+        assertNotNull(offer);
 
         assertEquals("xcore:personalized-offer:4444444444444444", offer.getId());
         assertEquals("8", offer.getEtag());
@@ -144,6 +148,7 @@ public class OfferTests {
     public void testFromEventData_validJsonOfferFromTarget() throws Exception {
         Map<String, Object> offerData = new ObjectMapper().readValue(getClass().getClassLoader().getResource("json/OFFER_VALID_JSON_TARGET.json"), HashMap.class);
         final Offer offer = Offer.fromEventData(offerData);
+        assertNotNull(offer);
 
         assertEquals("222429", offer.getId());
         assertNull(offer.getEtag());
@@ -158,6 +163,7 @@ public class OfferTests {
     public void testFromEventData_validHtmlOfferFromTarget() throws Exception {
         Map<String, Object> offerData = new ObjectMapper().readValue(getClass().getClassLoader().getResource("json/OFFER_VALID_HTML_TARGET.json"), HashMap.class);
         final Offer offer = Offer.fromEventData(offerData);
+        assertNotNull(offer);
 
         assertEquals("222428", offer.getId());
         assertNull(offer.getEtag());
@@ -211,13 +217,13 @@ public class OfferTests {
     }
 
     @Test
-    public void testFromEventData_nullData() throws Exception {
+    public void testFromEventData_nullData() {
         final Offer offer = Offer.fromEventData(null);
         assertNull(offer);
     }
 
     @Test
-    public void testFromEventData_emptyData() throws Exception {
+    public void testFromEventData_emptyData() {
         final Offer offer = Offer.fromEventData(new HashMap<String, Object>());
         assertNull(offer);
     }
@@ -228,6 +234,7 @@ public class OfferTests {
         Map<String, Object> propositionData = new ObjectMapper().readValue(getClass().getClassLoader().getResource("json/PROPOSITION_VALID.json"), HashMap.class);
         final Proposition proposition = Proposition.fromEventData(propositionData);
 
+        assertNotNull(proposition);
         assertEquals(1, proposition.getOffers().size());
         Offer offer = proposition.getOffers().get(0);
         assertNotNull(offer);
@@ -245,7 +252,7 @@ public class OfferTests {
         final List<Map<String, Object>> propositionInteractionDetailsList = (List<Map<String, Object>>)decisioning.get("propositions");
         assertNotNull(propositionInteractionDetailsList);
         assertEquals(1, propositionInteractionDetailsList.size());
-        final Map<String, Object> propositionInteractionDetailsMap = (Map<String, Object>)propositionInteractionDetailsList.get(0);
+        final Map<String, Object> propositionInteractionDetailsMap = propositionInteractionDetailsList.get(0);
         assertEquals("de03ac85-802a-4331-a905-a57053164d35", propositionInteractionDetailsMap.get("id"));
         assertEquals("eydhY3Rpdml0eUlkIjoieGNvcmU6b2ZmZXItYWN0aXZpdHk6MTExMTExMTExMTExMTExMSIsInBsYWNlbWVudElkIjoieGNvcmU6b2ZmZXItcGxhY2VtZW50OjExMTExMTExMTExMTExMTEifQ==", propositionInteractionDetailsMap.get("scope"));
         final Map<String, Object> scopeDetails = (Map<String, Object>)propositionInteractionDetailsMap.get("scopeDetails");
@@ -262,7 +269,8 @@ public class OfferTests {
         // setup
         Map<String, Object> propositionData = new ObjectMapper().readValue(getClass().getClassLoader().getResource("json/PROPOSITION_VALID_TARGET.json"), HashMap.class);
         final Proposition proposition = Proposition.fromEventData(propositionData);
-
+        assertNotNull(proposition);
+        assertNotNull(proposition.getOffers());
         assertEquals(1, proposition.getOffers().size());
         Offer offer = proposition.getOffers().get(0);
         assertNotNull(offer);
@@ -280,7 +288,7 @@ public class OfferTests {
         final List<Map<String, Object>> propositionInteractionDetailsList = (List<Map<String, Object>>)decisioning.get("propositions");
         assertNotNull(propositionInteractionDetailsList);
         assertEquals(1, propositionInteractionDetailsList.size());
-        final Map<String, Object> propositionInteractionDetailsMap = (Map<String, Object>)propositionInteractionDetailsList.get(0);
+        final Map<String, Object> propositionInteractionDetailsMap = propositionInteractionDetailsList.get(0);
         assertEquals("AT:eyJhY3Rpdml0eUlkIjoiMTI1NTg5IiwiZXhwZXJpZW5jZUlkIjoiMCJ9", propositionInteractionDetailsMap.get("id"));
         assertEquals("myMbox", propositionInteractionDetailsMap.get("scope"));
         final Map<String, Object> scopeDetails = (Map<String, Object>)propositionInteractionDetailsMap.get("scopeDetails");
@@ -307,7 +315,8 @@ public class OfferTests {
         // setup
         Map<String, Object> propositionData = new ObjectMapper().readValue(getClass().getClassLoader().getResource("json/PROPOSITION_VALID_TARGET.json"), HashMap.class);
         final Proposition proposition = Proposition.fromEventData(propositionData);
-
+        assertNotNull(proposition);
+        assertNotNull(proposition.getOffers());
         assertEquals(1, proposition.getOffers().size());
         Offer offer = proposition.getOffers().get(0);
         assertNotNull(offer);
@@ -325,7 +334,8 @@ public class OfferTests {
         // setup
         Map<String, Object> propositionData = new ObjectMapper().readValue(getClass().getClassLoader().getResource("json/PROPOSITION_VALID.json"), HashMap.class);
         final Proposition proposition = Proposition.fromEventData(propositionData);
-
+        assertNotNull(proposition);
+        assertNotNull(proposition.getOffers());
         assertEquals(1, proposition.getOffers().size());
         Offer offer = proposition.getOffers().get(0);
         assertNotNull(offer);
@@ -343,7 +353,7 @@ public class OfferTests {
         final List<Map<String, Object>> propositionInteractionDetailsList = (List<Map<String, Object>>)decisioning.get("propositions");
         assertNotNull(propositionInteractionDetailsList);
         assertEquals(1, propositionInteractionDetailsList.size());
-        final Map<String, Object> propositionInteractionDetailsMap = (Map<String, Object>)propositionInteractionDetailsList.get(0);
+        final Map<String, Object> propositionInteractionDetailsMap = propositionInteractionDetailsList.get(0);
         assertEquals("de03ac85-802a-4331-a905-a57053164d35", propositionInteractionDetailsMap.get("id"));
         assertEquals("eydhY3Rpdml0eUlkIjoieGNvcmU6b2ZmZXItYWN0aXZpdHk6MTExMTExMTExMTExMTExMSIsInBsYWNlbWVudElkIjoieGNvcmU6b2ZmZXItcGxhY2VtZW50OjExMTExMTExMTExMTExMTEifQ==", propositionInteractionDetailsMap.get("scope"));
         final Map<String, Object> scopeDetails = (Map<String, Object>)propositionInteractionDetailsMap.get("scopeDetails");
@@ -360,7 +370,8 @@ public class OfferTests {
         // setup
         Map<String, Object> propositionData = new ObjectMapper().readValue(getClass().getClassLoader().getResource("json/PROPOSITION_VALID_TARGET.json"), HashMap.class);
         final Proposition proposition = Proposition.fromEventData(propositionData);
-
+        assertNotNull(proposition);
+        assertNotNull(proposition.getOffers());
         assertEquals(1, proposition.getOffers().size());
         Offer offer = proposition.getOffers().get(0);
         assertNotNull(offer);
@@ -378,7 +389,7 @@ public class OfferTests {
         final List<Map<String, Object>> propositionInteractionDetailsList = (List<Map<String, Object>>)decisioning.get("propositions");
         assertNotNull(propositionInteractionDetailsList);
         assertEquals(1, propositionInteractionDetailsList.size());
-        final Map<String, Object> propositionInteractionDetailsMap = (Map<String, Object>)propositionInteractionDetailsList.get(0);
+        final Map<String, Object> propositionInteractionDetailsMap = propositionInteractionDetailsList.get(0);
         assertEquals("AT:eyJhY3Rpdml0eUlkIjoiMTI1NTg5IiwiZXhwZXJpZW5jZUlkIjoiMCJ9", propositionInteractionDetailsMap.get("id"));
         assertEquals("myMbox", propositionInteractionDetailsMap.get("scope"));
         final Map<String, Object> scopeDetails = (Map<String, Object>)propositionInteractionDetailsMap.get("scopeDetails");
@@ -405,7 +416,8 @@ public class OfferTests {
         // setup
         Map<String, Object> propositionData = new ObjectMapper().readValue(getClass().getClassLoader().getResource("json/PROPOSITION_VALID_TARGET.json"), HashMap.class);
         final Proposition proposition = Proposition.fromEventData(propositionData);
-
+        assertNotNull(proposition);
+        assertNotNull(proposition.getOffers());
         assertEquals(1, proposition.getOffers().size());
         Offer offer = proposition.getOffers().get(0);
         assertNotNull(offer);
@@ -423,6 +435,7 @@ public class OfferTests {
         // setup
         Map<String, Object> propositionData = new ObjectMapper().readValue(getClass().getClassLoader().getResource("json/PROPOSITION_VALID.json"), HashMap.class);
         final Proposition proposition = Proposition.fromEventData(propositionData);
+        assertNotNull(proposition);
 
         assertEquals(1, proposition.getOffers().size());
         Offer offer = proposition.getOffers().get(0);
@@ -452,7 +465,7 @@ public class OfferTests {
         final List<Map<String, Object>> propositionInteractionDetailsList = (List<Map<String, Object>>)decisioning.get("propositions");
         assertNotNull(propositionInteractionDetailsList);
         assertEquals(1, propositionInteractionDetailsList.size());
-        final Map<String, Object> propositionInteractionDetailsMap = (Map<String, Object>)propositionInteractionDetailsList.get(0);
+        final Map<String, Object> propositionInteractionDetailsMap = propositionInteractionDetailsList.get(0);
         assertEquals("de03ac85-802a-4331-a905-a57053164d35", propositionInteractionDetailsMap.get("id"));
         assertEquals("eydhY3Rpdml0eUlkIjoieGNvcmU6b2ZmZXItYWN0aXZpdHk6MTExMTExMTExMTExMTExMSIsInBsYWNlbWVudElkIjoieGNvcmU6b2ZmZXItcGxhY2VtZW50OjExMTExMTExMTExMTExMTEifQ==", propositionInteractionDetailsMap.get("scope"));
         final Map<String, Object> scopeDetails = (Map<String, Object>)propositionInteractionDetailsMap.get("scopeDetails");
@@ -469,7 +482,8 @@ public class OfferTests {
         // setup
         Map<String, Object> propositionData = new ObjectMapper().readValue(getClass().getClassLoader().getResource("json/PROPOSITION_VALID_TARGET.json"), HashMap.class);
         final Proposition proposition = Proposition.fromEventData(propositionData);
-
+        assertNotNull(proposition);
+        assertNotNull(proposition.getOffers());
         assertEquals(1, proposition.getOffers().size());
         Offer offer = proposition.getOffers().get(0);
         assertNotNull(offer);
@@ -498,7 +512,7 @@ public class OfferTests {
         final List<Map<String, Object>> propositionInteractionDetailsList = (List<Map<String, Object>>)decisioning.get("propositions");
         assertNotNull(propositionInteractionDetailsList);
         assertEquals(1, propositionInteractionDetailsList.size());
-        final Map<String, Object> propositionInteractionDetailsMap = (Map<String, Object>)propositionInteractionDetailsList.get(0);
+        final Map<String, Object> propositionInteractionDetailsMap = propositionInteractionDetailsList.get(0);
         assertEquals("AT:eyJhY3Rpdml0eUlkIjoiMTI1NTg5IiwiZXhwZXJpZW5jZUlkIjoiMCJ9", propositionInteractionDetailsMap.get("id"));
         assertEquals("myMbox", propositionInteractionDetailsMap.get("scope"));
         final Map<String, Object> scopeDetails = (Map<String, Object>)propositionInteractionDetailsMap.get("scopeDetails");
@@ -525,7 +539,8 @@ public class OfferTests {
         // setup
         Map<String, Object> propositionData = new ObjectMapper().readValue(getClass().getClassLoader().getResource("json/PROPOSITION_VALID.json"), HashMap.class);
         final Proposition proposition = Proposition.fromEventData(propositionData);
-
+        assertNotNull(proposition);
+        assertNotNull(proposition.getOffers());
         assertEquals(1, proposition.getOffers().size());
         Offer offer = proposition.getOffers().get(0);
         assertNotNull(offer);
@@ -544,7 +559,8 @@ public class OfferTests {
         // setup
         Map<String, Object> propositionData = new ObjectMapper().readValue(getClass().getClassLoader().getResource("json/PROPOSITION_VALID.json"), HashMap.class);
         final Proposition proposition = Proposition.fromEventData(propositionData);
-
+        assertNotNull(proposition);
+        assertNotNull(proposition.getOffers());
         assertEquals(1, proposition.getOffers().size());
         Offer offer = proposition.getOffers().get(0);
         assertNotNull(offer);
@@ -573,7 +589,7 @@ public class OfferTests {
         final List<Map<String, Object>> propositionInteractionDetailsList = (List<Map<String, Object>>)decisioning.get("propositions");
         assertNotNull(propositionInteractionDetailsList);
         assertEquals(1, propositionInteractionDetailsList.size());
-        final Map<String, Object> propositionInteractionDetailsMap = (Map<String, Object>)propositionInteractionDetailsList.get(0);
+        final Map<String, Object> propositionInteractionDetailsMap = propositionInteractionDetailsList.get(0);
         assertEquals("de03ac85-802a-4331-a905-a57053164d35", propositionInteractionDetailsMap.get("id"));
         assertEquals("eydhY3Rpdml0eUlkIjoieGNvcmU6b2ZmZXItYWN0aXZpdHk6MTExMTExMTExMTExMTExMSIsInBsYWNlbWVudElkIjoieGNvcmU6b2ZmZXItcGxhY2VtZW50OjExMTExMTExMTExMTExMTEifQ==", propositionInteractionDetailsMap.get("scope"));
         final Map<String, Object> scopeDetails = (Map<String, Object>)propositionInteractionDetailsMap.get("scopeDetails");
@@ -590,7 +606,8 @@ public class OfferTests {
         // setup
         Map<String, Object> propositionData = new ObjectMapper().readValue(getClass().getClassLoader().getResource("json/PROPOSITION_VALID_TARGET.json"), HashMap.class);
         final Proposition proposition = Proposition.fromEventData(propositionData);
-
+        assertNotNull(proposition);
+        assertNotNull(proposition.getOffers());
         assertEquals(1, proposition.getOffers().size());
         Offer offer = proposition.getOffers().get(0);
         assertNotNull(offer);
@@ -619,7 +636,7 @@ public class OfferTests {
         final List<Map<String, Object>> propositionInteractionDetailsList = (List<Map<String, Object>>)decisioning.get("propositions");
         assertNotNull(propositionInteractionDetailsList);
         assertEquals(1, propositionInteractionDetailsList.size());
-        final Map<String, Object> propositionInteractionDetailsMap = (Map<String, Object>)propositionInteractionDetailsList.get(0);
+        final Map<String, Object> propositionInteractionDetailsMap = propositionInteractionDetailsList.get(0);
         assertEquals("AT:eyJhY3Rpdml0eUlkIjoiMTI1NTg5IiwiZXhwZXJpZW5jZUlkIjoiMCJ9", propositionInteractionDetailsMap.get("id"));
         assertEquals("myMbox", propositionInteractionDetailsMap.get("scope"));
         final Map<String, Object> scopeDetails = (Map<String, Object>)propositionInteractionDetailsMap.get("scopeDetails");
@@ -646,7 +663,8 @@ public class OfferTests {
         // setup
         Map<String, Object> propositionData = new ObjectMapper().readValue(getClass().getClassLoader().getResource("json/PROPOSITION_VALID.json"), HashMap.class);
         final Proposition proposition = Proposition.fromEventData(propositionData);
-
+        assertNotNull(proposition);
+        assertNotNull(proposition.getOffers());
         assertEquals(1, proposition.getOffers().size());
         Offer offer = proposition.getOffers().get(0);
         assertNotNull(offer);

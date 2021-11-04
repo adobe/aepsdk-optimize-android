@@ -19,6 +19,7 @@ import android.util.Base64;
 import com.adobe.marketing.mobile.AdobeError;
 import com.adobe.marketing.mobile.Event;
 import com.adobe.marketing.mobile.ExtensionApi;
+import com.adobe.marketing.mobile.ExtensionError;
 import com.adobe.marketing.mobile.ExtensionErrorCallback;
 import com.adobe.marketing.mobile.LoggingMode;
 import com.adobe.marketing.mobile.MobileCore;
@@ -125,7 +126,7 @@ public class OptimizeExtensionTests {
     @Test
     public void test_registration() {
         // setup
-        final ArgumentCaptor<ExtensionErrorCallback> callbackCaptor = ArgumentCaptor.forClass(ExtensionErrorCallback.class);
+        final ArgumentCaptor<ExtensionErrorCallback<ExtensionError>> callbackCaptor = ArgumentCaptor.forClass(ExtensionErrorCallback.class);
         clearInvocations(mockExtensionApi);
 
         // test
@@ -136,7 +137,7 @@ public class OptimizeExtensionTests {
                 eq("com.adobe.eventSource.requestContent"), eq(ListenerOptimizeRequestContent.class),
                 callbackCaptor.capture());
 
-        final ExtensionErrorCallback errorCallback = callbackCaptor.getValue();
+        final ExtensionErrorCallback<ExtensionError> errorCallback = callbackCaptor.getValue();
         assertNotNull(errorCallback);
     }
 
@@ -213,7 +214,7 @@ public class OptimizeExtensionTests {
         });
 
         final DecisionScope testScope = new DecisionScope("eyJhY3Rpdml0eUlkIjoieGNvcmU6b2ZmZXItYWN0aXZpdHk6MTExMTExMTExMTExMTExMSIsInBsYWNlbWVudElkIjoieGNvcmU6b2ZmZXItcGxhY2VtZW50OjExMTExMTExMTExMTExMTEifQ==");
-        final Map<String, Object> testEventData = new HashMap<String, Object>();
+        final Map<String, Object> testEventData = new HashMap<>();
         testEventData.put("requesttype", "updatepropositions");
         testEventData.put("decisionscopes", new ArrayList<Map<String, Object>>() {
             {
@@ -271,7 +272,7 @@ public class OptimizeExtensionTests {
         });
 
         final DecisionScope testScope = new DecisionScope("eyJhY3Rpdml0eUlkIjoieGNvcmU6b2ZmZXItYWN0aXZpdHk6MTExMTExMTExMTExMTExMSIsInBsYWNlbWVudElkIjoieGNvcmU6b2ZmZXItcGxhY2VtZW50OjExMTExMTExMTExMTExMTEifQ==");
-        final Map<String, Object> testEventData = new HashMap<String, Object>();
+        final Map<String, Object> testEventData = new HashMap<>();
         testEventData.put("requesttype", "updatepropositions");
         testEventData.put("decisionscopes", new ArrayList<Map<String, Object>>() {
             {
@@ -340,7 +341,7 @@ public class OptimizeExtensionTests {
         });
 
         final DecisionScope testScope = new DecisionScope("eyJhY3Rpdml0eUlkIjoieGNvcmU6b2ZmZXItYWN0aXZpdHk6MTExMTExMTExMTExMTExMSIsInBsYWNlbWVudElkIjoieGNvcmU6b2ZmZXItcGxhY2VtZW50OjExMTExMTExMTExMTExMTEifQ==");
-        final Map<String, Object> testEventData = new HashMap<String, Object>();
+        final Map<String, Object> testEventData = new HashMap<>();
         testEventData.put("requesttype", "updatepropositions");
         testEventData.put("decisionscopes", new ArrayList<Map<String, Object>>() {
             {
@@ -410,7 +411,7 @@ public class OptimizeExtensionTests {
 
         final DecisionScope testScope1 = new DecisionScope("eyJhY3Rpdml0eUlkIjoieGNvcmU6b2ZmZXItYWN0aXZpdHk6MTExMTExMTExMTExMTExMSIsInBsYWNlbWVudElkIjoieGNvcmU6b2ZmZXItcGxhY2VtZW50OjExMTExMTExMTExMTExMTEifQ==");
         final DecisionScope testScope2 = new DecisionScope("myMbox");
-        final Map<String, Object> testEventData = new HashMap<String, Object>();
+        final Map<String, Object> testEventData = new HashMap<>();
         testEventData.put("requesttype", "updatepropositions");
         testEventData.put("decisionscopes", new ArrayList<Map<String, Object>>() {
             {
@@ -463,7 +464,7 @@ public class OptimizeExtensionTests {
     public void testHandleUpdatePropositions_configurationNotAvailable() throws Exception {
         // setup
         final DecisionScope testScope = new DecisionScope("eyJhY3Rpdml0eUlkIjoieGNvcmU6b2ZmZXItYWN0aXZpdHk6MTExMTExMTExMTExMTExMSIsInBsYWNlbWVudElkIjoieGNvcmU6b2ZmZXItcGxhY2VtZW50OjExMTExMTExMTExMTExMTEifQ==");
-        final Map<String, Object> testEventData = new HashMap<String, Object>();
+        final Map<String, Object> testEventData = new HashMap<>();
         testEventData.put("requesttype", "updatepropositions");
         testEventData.put("decisionscopes", new ArrayList<DecisionScope>() {
             {
@@ -493,7 +494,7 @@ public class OptimizeExtensionTests {
             }
         });
 
-        final Map<String, Object> testEventData = new HashMap<String, Object>();
+        final Map<String, Object> testEventData = new HashMap<>();
         testEventData.put("requesttype", "updatepropositions");
         testEventData.put("decisionscopes", new ArrayList<DecisionScope>());
 
@@ -520,7 +521,7 @@ public class OptimizeExtensionTests {
         });
 
         final DecisionScope testScope = new DecisionScope("eyJhY3Rpdml0eUlkIjoieGNvcmU6b2ZmZXItYWN0aXZpdHk6MTExMTExMTExMTExMTExMSIsInBsYWNlbWVudElkIjoiIn0=");
-        final Map<String, Object> testEventData = new HashMap<String, Object>();
+        final Map<String, Object> testEventData = new HashMap<>();
         testEventData.put("requesttype", "updatepropositions");
         testEventData.put("decisionscopes", new ArrayList<Map<String, Object>>() {
             {
@@ -552,7 +553,7 @@ public class OptimizeExtensionTests {
 
         final DecisionScope testScope1 = new DecisionScope("eyJhY3Rpdml0eUlkIjoiIiwicGxhY2VtZW50SWQiOiJ4Y29yZTpvZmZlci1wbGFjZW1lbnQ6MTExMTExMTExMTExMTExMSJ9");
         final DecisionScope testScope2 = new DecisionScope("myMbox");
-        final Map<String, Object> testEventData = new HashMap<String, Object>();
+        final Map<String, Object> testEventData = new HashMap<>();
         testEventData.put("requesttype", "updatepropositions");
         testEventData.put("decisionscopes", new ArrayList<Map<String, Object>>() {
             {
@@ -847,12 +848,13 @@ public class OptimizeExtensionTests {
 
         final Map<String, Object> testPropositionData = new ObjectMapper().readValue(getClass().getClassLoader().getResource("json/PROPOSITION_VALID.json"), HashMap.class);
         final Proposition testProposition = Proposition.fromEventData(testPropositionData);
+        assertNotNull(testProposition);
         final Map<DecisionScope, Proposition> cachedPropositions = new HashMap<>();
         cachedPropositions.put(new DecisionScope(testProposition.getScope()), testProposition);
         Whitebox.setInternalState(extension, "cachedPropositions", cachedPropositions);
 
         final DecisionScope testScope = new DecisionScope("eydhY3Rpdml0eUlkIjoieGNvcmU6b2ZmZXItYWN0aXZpdHk6MTExMTExMTExMTExMTExMSIsInBsYWNlbWVudElkIjoieGNvcmU6b2ZmZXItcGxhY2VtZW50OjExMTExMTExMTExMTExMTEifQ==");
-        final Map<String, Object> testEventData = new HashMap<String, Object>();
+        final Map<String, Object> testEventData = new HashMap<>();
         testEventData.put("requesttype", "getpropositions");
         testEventData.put("decisionscopes", new ArrayList<Map<String, Object>>() {
             {
@@ -916,13 +918,14 @@ public class OptimizeExtensionTests {
 
         final Map<String, Object> testPropositionData = new ObjectMapper().readValue(getClass().getClassLoader().getResource("json/PROPOSITION_VALID.json"), HashMap.class);
         final Proposition testProposition = Proposition.fromEventData(testPropositionData);
+        assertNotNull(testProposition);
         final Map<DecisionScope, Proposition> cachedPropositions = new HashMap<>();
         cachedPropositions.put(new DecisionScope(testProposition.getScope()), testProposition);
         Whitebox.setInternalState(extension, "cachedPropositions", cachedPropositions);
 
         final DecisionScope testScope1 = new DecisionScope("eydhY3Rpdml0eUlkIjoieGNvcmU6b2ZmZXItYWN0aXZpdHk6MTExMTExMTExMTExMTExMSIsInBsYWNlbWVudElkIjoieGNvcmU6b2ZmZXItcGxhY2VtZW50OjExMTExMTExMTExMTExMTEifQ==");
         final DecisionScope testScope2 = new DecisionScope("myMbox");
-        final Map<String, Object> testEventData = new HashMap<String, Object>();
+        final Map<String, Object> testEventData = new HashMap<>();
         testEventData.put("requesttype", "getpropositions");
         testEventData.put("decisionscopes", new ArrayList<Map<String, Object>>() {
             {
@@ -987,13 +990,14 @@ public class OptimizeExtensionTests {
 
         final Map<String, Object> testPropositionData = new ObjectMapper().readValue(getClass().getClassLoader().getResource("json/PROPOSITION_VALID.json"), HashMap.class);
         final Proposition testProposition = Proposition.fromEventData(testPropositionData);
+        assertNotNull(testProposition);
         final Map<DecisionScope, Proposition> cachedPropositions = new HashMap<>();
         cachedPropositions.put(new DecisionScope(testProposition.getScope()), testProposition);
         Whitebox.setInternalState(extension, "cachedPropositions", cachedPropositions);
 
         final DecisionScope testScope1 = new DecisionScope("myMbox1");
         final DecisionScope testScope2 = new DecisionScope("myMbox2");
-        final Map<String, Object> testEventData = new HashMap<String, Object>();
+        final Map<String, Object> testEventData = new HashMap<>();
         testEventData.put("requesttype", "getpropositions");
         testEventData.put("decisionscopes", new ArrayList<Map<String, Object>>() {
             {
@@ -1039,11 +1043,12 @@ public class OptimizeExtensionTests {
 
         final Map<String, Object> testPropositionData = new ObjectMapper().readValue(getClass().getClassLoader().getResource("json/PROPOSITION_VALID.json"), HashMap.class);
         final Proposition testProposition = Proposition.fromEventData(testPropositionData);
+        assertNotNull(testProposition);
         final Map<DecisionScope, Proposition> cachedPropositions = new HashMap<>();
         cachedPropositions.put(new DecisionScope(testProposition.getScope()), testProposition);
         Whitebox.setInternalState(extension, "cachedPropositions", cachedPropositions);
 
-        final Map<String, Object> testEventData = new HashMap<String, Object>();
+        final Map<String, Object> testEventData = new HashMap<>();
         testEventData.put("requesttype", "getpropositions");
 
         final ArgumentCaptor<Event> eventCaptor = ArgumentCaptor.forClass(Event.class);
@@ -1089,7 +1094,7 @@ public class OptimizeExtensionTests {
         Whitebox.setInternalState(extension, "cachedPropositions", cachedPropositions);
 
         final DecisionScope testScope = new DecisionScope("eydhY3Rpdml0eUlkIjoieGNvcmU6b2ZmZXItYWN0aXZpdHk6MTExMTExMTExMTExMTExMSIsInBsYWNlbWVudElkIjoieGNvcmU6b2ZmZXItcGxhY2VtZW50OjExMTExMTExMTExMTExMTEifQ==");
-        final Map<String, Object> testEventData = new HashMap<String, Object>();
+        final Map<String, Object> testEventData = new HashMap<>();
         testEventData.put("requesttype", "getpropositions");
         testEventData.put("decisionscopes", new ArrayList<Map<String, Object>>() {
             {
@@ -1162,7 +1167,7 @@ public class OptimizeExtensionTests {
         final List<Map<String, Object>> propositionInteractionDetailsList = (List<Map<String, Object>>)decisioning.get("propositions");
         assertNotNull(propositionInteractionDetailsList);
         assertEquals(1, propositionInteractionDetailsList.size());
-        final Map<String, Object> propositionInteractionDetailsMap = (Map<String, Object>)propositionInteractionDetailsList.get(0);
+        final Map<String, Object> propositionInteractionDetailsMap = propositionInteractionDetailsList.get(0);
         assertEquals("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa", propositionInteractionDetailsMap.get("id"));
         assertEquals("eyJhY3Rpdml0eUlkIjoieGNvcmU6b2ZmZXItYWN0aXZpdHk6MTExMTExMTExMTExMTExMSIsInBsYWNlbWVudElkIjoieGNvcmU6b2ZmZXItcGxhY2VtZW50OjExMTExMTExMTExMTExMTEifQ==", propositionInteractionDetailsMap.get("scope"));
         final Map<String, Object> scopeDetails = (Map<String, Object>)propositionInteractionDetailsMap.get("scopeDetails");
@@ -1212,7 +1217,7 @@ public class OptimizeExtensionTests {
         final List<Map<String, Object>> propositionInteractionDetailsList = (List<Map<String, Object>>)decisioning.get("propositions");
         assertNotNull(propositionInteractionDetailsList);
         assertEquals(1, propositionInteractionDetailsList.size());
-        final Map<String, Object> propositionInteractionDetailsMap = (Map<String, Object>)propositionInteractionDetailsList.get(0);
+        final Map<String, Object> propositionInteractionDetailsMap = propositionInteractionDetailsList.get(0);
         assertEquals("AT:eyJhY3Rpdml0eUlkIjoiMTI1NTg5IiwiZXhwZXJpZW5jZUlkIjoiMCJ9", propositionInteractionDetailsMap.get("id"));
         assertEquals("myMbox", propositionInteractionDetailsMap.get("scope"));
         final Map<String, Object> scopeDetails = (Map<String, Object>)propositionInteractionDetailsMap.get("scopeDetails");
@@ -1275,7 +1280,7 @@ public class OptimizeExtensionTests {
         final List<Map<String, Object>> propositionInteractionDetailsList = (List<Map<String, Object>>)decisioning.get("propositions");
         assertNotNull(propositionInteractionDetailsList);
         assertEquals(1, propositionInteractionDetailsList.size());
-        final Map<String, Object> propositionInteractionDetailsMap = (Map<String, Object>)propositionInteractionDetailsList.get(0);
+        final Map<String, Object> propositionInteractionDetailsMap = propositionInteractionDetailsList.get(0);
         assertEquals("AT:eyJhY3Rpdml0eUlkIjoiMTI1NTg5IiwiZXhwZXJpZW5jZUlkIjoiMCJ9", propositionInteractionDetailsMap.get("id"));
         assertEquals("myMbox", propositionInteractionDetailsMap.get("scope"));
         final Map<String, Object> scopeDetails = (Map<String, Object>)propositionInteractionDetailsMap.get("scopeDetails");
@@ -1328,8 +1333,6 @@ public class OptimizeExtensionTests {
                 .setEventData(optimizeTrackRequestData)
                 .build();
 
-        final ArgumentCaptor<Event> eventCaptor = ArgumentCaptor.forClass(Event.class);
-
         // test
         extension.handleTrackPropositions(testEvent);
 
@@ -1353,8 +1356,6 @@ public class OptimizeExtensionTests {
                 .setEventData(optimizeTrackRequestData)
                 .build();
 
-        final ArgumentCaptor<Event> eventCaptor = ArgumentCaptor.forClass(Event.class);
-
         // test
         extension.handleTrackPropositions(testEvent);
 
@@ -1375,6 +1376,7 @@ public class OptimizeExtensionTests {
 
         final Map<String, Object> testPropositionData = new ObjectMapper().readValue(getClass().getClassLoader().getResource("json/PROPOSITION_VALID.json"), HashMap.class);
         final Proposition testProposition = Proposition.fromEventData(testPropositionData);
+        assertNotNull(testProposition);
         final Map<DecisionScope, Proposition> cachedPropositions = new HashMap<>();
         cachedPropositions.put(new DecisionScope(testProposition.getScope()), testProposition);
         Whitebox.setInternalState(extension, "cachedPropositions", cachedPropositions);
@@ -1402,6 +1404,7 @@ public class OptimizeExtensionTests {
 
         final Map<String, Object> testPropositionData = new ObjectMapper().readValue(getClass().getClassLoader().getResource("json/PROPOSITION_VALID.json"), HashMap.class);
         final Proposition testProposition = Proposition.fromEventData(testPropositionData);
+        assertNotNull(testProposition);
         final Map<DecisionScope, Proposition> cachedPropositions = new HashMap<>();
         cachedPropositions.put(new DecisionScope(testProposition.getScope()), testProposition);
         Whitebox.setInternalState(extension, "cachedPropositions", cachedPropositions);

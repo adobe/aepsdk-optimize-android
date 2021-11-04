@@ -50,7 +50,7 @@ public class ListenerOptimizeRequestContentTests {
     }
 
     @Test
-    public void testHear_requestTypeUpdatePropositions() throws Exception {
+    public void testHear_requestTypeUpdatePropositions() {
         // setup
         when(listener.getOptimizeExtension()).thenReturn(mockOptimizeExtension);
         Map<String, Object> eventData = new HashMap<String, Object>() {
@@ -74,7 +74,7 @@ public class ListenerOptimizeRequestContentTests {
     }
 
     @Test
-    public void testHear_requestTypeGetPropositions() throws Exception {
+    public void testHear_requestTypeGetPropositions() {
         // setup
         when(listener.getOptimizeExtension()).thenReturn(mockOptimizeExtension);
         Map<String, Object> eventData = new HashMap<String, Object>() {
@@ -98,7 +98,7 @@ public class ListenerOptimizeRequestContentTests {
     }
 
     @Test
-    public void testHear_requestTypeTrackPropositions() throws Exception {
+    public void testHear_requestTypeTrackPropositions() {
         // setup
         when(listener.getOptimizeExtension()).thenReturn(mockOptimizeExtension);
         Map<String, Object> eventData = new HashMap<String, Object>() {
@@ -122,7 +122,7 @@ public class ListenerOptimizeRequestContentTests {
     }
 
     @Test
-    public void testHear_unsupportedRequestType() throws Exception {
+    public void testHear_unsupportedRequestType() {
         // setup
         when(listener.getOptimizeExtension()).thenReturn(mockOptimizeExtension);
         Map<String, Object> eventData = new HashMap<String, Object>() {
@@ -146,7 +146,7 @@ public class ListenerOptimizeRequestContentTests {
     }
 
     @Test
-    public void testHear_nullEvent() throws Exception {
+    public void testHear_nullEvent() {
         // setup
         when(listener.getOptimizeExtension()).thenReturn(mockOptimizeExtension);
 
@@ -160,7 +160,7 @@ public class ListenerOptimizeRequestContentTests {
     }
 
     @Test
-    public void testHear_nullEventData() throws Exception {
+    public void testHear_nullEventData() {
         // setup
         when(listener.getOptimizeExtension()).thenReturn(mockOptimizeExtension);
         Event testEvent = new Event.Builder("Optimize Request Event",
@@ -179,7 +179,7 @@ public class ListenerOptimizeRequestContentTests {
     }
 
     @Test
-    public void testHear_emptyEventData() throws Exception {
+    public void testHear_emptyEventData() {
         // setup
         when(listener.getOptimizeExtension()).thenReturn(mockOptimizeExtension);
         Event testEvent = new Event.Builder("Optimize Request Event",
@@ -198,7 +198,7 @@ public class ListenerOptimizeRequestContentTests {
     }
 
     @Test
-    public void testHear_nullParentExtension() throws Exception {
+    public void testHear_nullParentExtension() {
         // setup
         when(listener.getOptimizeExtension()).thenReturn(null);
 

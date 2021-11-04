@@ -31,7 +31,7 @@ public class Proposition {
     final private Map<String, Object> scopeDetails;
 
     /**
-     * Constructor creates a {@code Proposition} using the provided propostion {@code id}, {@code offers}, {@code scope} and {@code scopeDetails}.
+     * Constructor creates a {@code Proposition} using the provided proposition {@code id}, {@code offers}, {@code scope} and {@code scopeDetails}.
      *
      * @param id {@link String} containing proposition identifier.
      * @param offers {@code List<Offer>} containing proposition items.
@@ -138,7 +138,7 @@ public class Proposition {
             final Map<String, Object> scopeDetails = (Map<String, Object>) data.get(OptimizeConstants.JsonKeys.PAYLOAD_SCOPEDETAILS);
 
             final List<Map<String, Object>> items = (List<Map<String, Object>>) data.get(OptimizeConstants.JsonKeys.PAYLOAD_ITEMS);
-            List<Offer> offers = new ArrayList<Offer>();
+            List<Offer> offers = new ArrayList<>();
             for (Map<String, Object> item : items) {
                 final Offer offer = Offer.fromEventData(item);
                 if (offer != null) {

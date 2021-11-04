@@ -14,6 +14,7 @@ package com.adobe.marketing.mobile.optimize;
 
 import com.adobe.marketing.mobile.Event;
 import com.adobe.marketing.mobile.ExtensionApi;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import org.junit.Before;
@@ -52,7 +53,7 @@ public class ListenerEdgeResponseContentTests {
     @Test
     public void testHear() throws Exception {
         // setup
-        final Map<String, Object> edgeResponseData = new ObjectMapper().readValue(getClass().getClassLoader().getResource("json/EVENT_DATA_EDGE_RESPONSE_VALID.json"), HashMap.class);
+        final Map<String, Object> edgeResponseData = new ObjectMapper().readValue(getClass().getClassLoader().getResource("json/EVENT_DATA_EDGE_RESPONSE_VALID.json"), new TypeReference<Map<String, Object>>(){});
         when(listener.getOptimizeExtension()).thenReturn(mockOptimizeExtension);
         final Event testEvent = new Event.Builder("AEP Response Event Handle",
                 "com.adobe.eventType.edge",
@@ -68,7 +69,7 @@ public class ListenerEdgeResponseContentTests {
     }
 
     @Test
-    public void testHear_nullEvent() throws Exception {
+    public void testHear_nullEvent() {
         // setup
         when(listener.getOptimizeExtension()).thenReturn(mockOptimizeExtension);
 
@@ -80,7 +81,7 @@ public class ListenerEdgeResponseContentTests {
     }
 
     @Test
-    public void testHear_nullEventData() throws Exception {
+    public void testHear_nullEventData() {
         // setup
         when(listener.getOptimizeExtension()).thenReturn(mockOptimizeExtension);
         final Event testEvent = new Event.Builder("AEP Response Event Handle",
@@ -97,7 +98,7 @@ public class ListenerEdgeResponseContentTests {
     }
 
     @Test
-    public void testHear_emptyEventData() throws Exception {
+    public void testHear_emptyEventData() {
         // setup
         when(listener.getOptimizeExtension()).thenReturn(mockOptimizeExtension);
         final Event testEvent = new Event.Builder("AEP Response Event Handle",
@@ -116,7 +117,7 @@ public class ListenerEdgeResponseContentTests {
     @Test
     public void testHear_nullParentExtension() throws Exception {
         // setup
-        final Map<String, Object> edgeResponseData = new ObjectMapper().readValue(getClass().getClassLoader().getResource("json/EVENT_DATA_EDGE_RESPONSE_VALID.json"), HashMap.class);
+        final Map<String, Object> edgeResponseData = new ObjectMapper().readValue(getClass().getClassLoader().getResource("json/EVENT_DATA_EDGE_RESPONSE_VALID.json"), new TypeReference<Map<String, Object>>(){});
         when(listener.getOptimizeExtension()).thenReturn(null);
         final Event testEvent = new Event.Builder("AEP Response Event Handle",
                 "com.adobe.eventType.edge",

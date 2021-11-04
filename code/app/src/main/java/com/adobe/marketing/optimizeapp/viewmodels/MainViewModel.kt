@@ -15,10 +15,10 @@ import androidx.compose.runtime.*
 import androidx.lifecycle.ViewModel
 import com.adobe.marketing.mobile.AdobeCallbackWithError
 import com.adobe.marketing.mobile.AdobeError
-import com.adobe.marketing.mobile.optimizeapp.DecisionScope
-import com.adobe.marketing.mobile.optimizeapp.Offer
-import com.adobe.marketing.mobile.optimizeapp.Optimize
-import com.adobe.marketing.mobile.optimizeapp.Proposition
+import com.adobe.marketing.mobile.optimize.DecisionScope
+import com.adobe.marketing.mobile.optimize.Offer
+import com.adobe.marketing.mobile.optimize.Optimize
+import com.adobe.marketing.mobile.optimize.Proposition
 import com.adobe.marketing.optimizeapp.models.OptimizePair
 
 class MainViewModel: ViewModel() {
@@ -141,8 +141,8 @@ class MainViewModel: ViewModel() {
     }
 
     val isValidOrder: Boolean
-        get() = !textTargetOrderId.isNullOrEmpty() && (!textTargetOrderTotal.isNullOrEmpty() && textTargetOrderTotal.toDouble() != null) && !textTargetPurchaseId.isNullOrEmpty()
+        get() = textTargetOrderId.isNotEmpty() && (textTargetOrderTotal.isNotEmpty() && textTargetOrderTotal.toDouble() != null) && textTargetPurchaseId.isNotEmpty()
 
     val isValidProduct: Boolean
-        get() = !textTargetProductId.isNullOrEmpty() && !textTargetProductCategoryId.isNullOrEmpty()
+        get() = textTargetProductId.isNotEmpty() && textTargetProductCategoryId.isNotEmpty()
 }

@@ -1,8 +1,6 @@
+apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android'
 
-plugins {
-    id 'com.android.application'
-    id 'kotlin-android'
-}
 
 def compose_version = '1.0.0'
 
@@ -12,6 +10,7 @@ android {
     defaultConfig {
         applicationId "com.adobe.marketing.optimizeapp"
         minSdkVersion 21
+        buildToolsVersion '30.0.2'
         targetSdkVersion 31
         versionCode 1
         versionName "1.0"
@@ -33,16 +32,18 @@ android {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
+
     kotlinOptions {
         jvmTarget = '1.8'
         useIR = true
     }
+
     buildFeatures {
         compose true
     }
+
     composeOptions {
         kotlinCompilerExtensionVersion compose_version
-        kotlinCompilerVersion '1.5.10'
     }
     packagingOptions {
         resources {

@@ -31,6 +31,7 @@ public class PropositionTests {
     public void testFromEventData_validProposition() throws Exception {
         Map<String, Object> propositionData = new ObjectMapper().readValue(getClass().getClassLoader().getResource("json/PROPOSITION_VALID.json"), HashMap.class);
         final Proposition proposition = Proposition.fromEventData(propositionData);
+        assertNotNull(proposition);
 
         assertEquals("de03ac85-802a-4331-a905-a57053164d35", proposition.getId());
         assertEquals("eydhY3Rpdml0eUlkIjoieGNvcmU6b2ZmZXItYWN0aXZpdHk6MTExMTExMTExMTExMTExMSIsInBsYWNlbWVudElkIjoieGNvcmU6b2ZmZXItcGxhY2VtZW50OjExMTExMTExMTExMTExMTEifQ==", proposition.getScope());
@@ -51,6 +52,7 @@ public class PropositionTests {
     public void testFromEventData_validPropositionFromTarget() throws Exception {
         Map<String, Object> propositionData = new ObjectMapper().readValue(getClass().getClassLoader().getResource("json/PROPOSITION_VALID_TARGET.json"), HashMap.class);
         final Proposition proposition = Proposition.fromEventData(propositionData);
+        assertNotNull(proposition);
 
         assertEquals("AT:eyJhY3Rpdml0eUlkIjoiMTI1NTg5IiwiZXhwZXJpZW5jZUlkIjoiMCJ9", proposition.getId());
         assertEquals("myMbox", proposition.getScope());

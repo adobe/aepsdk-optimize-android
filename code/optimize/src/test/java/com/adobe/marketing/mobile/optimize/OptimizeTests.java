@@ -91,14 +91,14 @@ public class OptimizeTests {
     public void test_registerExtension() {
         // test
         Optimize.registerExtension();
-        final ArgumentCaptor<ExtensionErrorCallback> callbackCaptor = ArgumentCaptor.forClass(ExtensionErrorCallback.class);
+        final ArgumentCaptor<ExtensionErrorCallback<ExtensionError>> callbackCaptor = ArgumentCaptor.forClass(ExtensionErrorCallback.class);
 
         // The Optimize extension should successfully register with Mobile Core
         PowerMockito.verifyStatic(MobileCore.class, Mockito.times(1));
         MobileCore.registerExtension(eq(OptimizeExtension.class), callbackCaptor.capture());
 
         // verify the callback
-        ExtensionErrorCallback extensionErrorCallback = callbackCaptor.getValue();
+        ExtensionErrorCallback<ExtensionError> extensionErrorCallback = callbackCaptor.getValue();
         assertNotNull("The extension error callback should not be null.", extensionErrorCallback);
 
         // should be able to invoke the callback
@@ -106,7 +106,7 @@ public class OptimizeTests {
     }
 
     @Test
-    public void testUpdatePropositions_validDecisionScope() throws Exception {
+    public void testUpdatePropositions_validDecisionScope() {
         // test
         final List<DecisionScope> scopes = new ArrayList<>();
         scopes.add(new DecisionScope("eyJhY3Rpdml0eUlkIjoieGNvcmU6b2ZmZXItYWN0aXZpdHk6MTExMTExMTExMTExMTExMSIsInBsYWNlbWVudElkIjoieGNvcmU6b2ZmZXItcGxhY2VtZW50OjExMTExMTExMTExMTExMTEifQ=="));
@@ -138,7 +138,7 @@ public class OptimizeTests {
     }
 
     @Test
-    public void testUpdatePropositions_validDecisionScopeWithXDMAndData() throws Exception {
+    public void testUpdatePropositions_validDecisionScopeWithXDMAndData() {
         // test
         final List<DecisionScope> scopes = new ArrayList<>();
         scopes.add(new DecisionScope("eyJhY3Rpdml0eUlkIjoieGNvcmU6b2ZmZXItYWN0aXZpdHk6MTExMTExMTExMTExMTExMSIsInBsYWNlbWVudElkIjoieGNvcmU6b2ZmZXItcGxhY2VtZW50OjExMTExMTExMTExMTExMTEifQ=="));
@@ -189,7 +189,7 @@ public class OptimizeTests {
     }
 
     @Test
-    public void testUpdatePropositions_multipleValidDecisionScopes() throws Exception {
+    public void testUpdatePropositions_multipleValidDecisionScopes() {
         // test
         final List<DecisionScope> scopes = new ArrayList<>();
         scopes.add(new DecisionScope("eyJhY3Rpdml0eUlkIjoieGNvcmU6b2ZmZXItYWN0aXZpdHk6MTExMTExMTExMTExMTExMSIsInBsYWNlbWVudElkIjoieGNvcmU6b2ZmZXItcGxhY2VtZW50OjExMTExMTExMTExMTExMTEifQ=="));
@@ -227,7 +227,7 @@ public class OptimizeTests {
     }
 
     @Test
-    public void testUpdatePropositions_emptyDecisionScopesList() throws Exception {
+    public void testUpdatePropositions_emptyDecisionScopesList() {
         // test
         Optimize.updatePropositions(new ArrayList<DecisionScope>(), null, null);
 
@@ -237,7 +237,7 @@ public class OptimizeTests {
     }
 
     @Test
-    public void testUpdatePropositions_nullDecisionScopesList() throws Exception {
+    public void testUpdatePropositions_nullDecisionScopesList() {
         // test
         Optimize.updatePropositions(null, null, null);
 
@@ -247,7 +247,7 @@ public class OptimizeTests {
     }
 
     @Test
-    public void testUpdatePropositions_invalidDecisionScopeInList() throws Exception {
+    public void testUpdatePropositions_invalidDecisionScopeInList() {
         // test
         final List<DecisionScope> scopes = new ArrayList<>();
         scopes.add(new DecisionScope("eyJhY3Rpdml0eUlkIjoiIiwicGxhY2VtZW50SWQiOiJ4Y29yZTpvZmZlci1wbGFjZW1lbnQ6MTExMTExMTExMTExMTExMSJ9"));
@@ -280,7 +280,7 @@ public class OptimizeTests {
         // verify
         PowerMockito.verifyStatic(MobileCore.class, Mockito.times(1));
         final ArgumentCaptor<Event> eventCaptor = ArgumentCaptor.forClass(Event.class);
-        final ArgumentCaptor<AdobeCallbackWithError> callbackCaptor = ArgumentCaptor.forClass(AdobeCallbackWithError.class);
+        final ArgumentCaptor<AdobeCallbackWithError<Event>> callbackCaptor = ArgumentCaptor.forClass(AdobeCallbackWithError.class);
         MobileCore.dispatchEventWithResponseCallback(eventCaptor.capture(), callbackCaptor.capture(), any(ExtensionErrorCallback.class));
         final Event event = eventCaptor.getValue();
         final AdobeCallbackWithError<Event> callbackWithError = callbackCaptor.getValue();
@@ -303,7 +303,7 @@ public class OptimizeTests {
         // verify callback response
         final Map<String, Object> propositionData = new ObjectMapper().readValue(getClass().getClassLoader().getResource("json/PROPOSITION_VALID.json"), HashMap.class);
         final Proposition proposition = Proposition.fromEventData(propositionData);
-        final DecisionScope scope = new DecisionScope(proposition.getScope());
+        assertNotNull(proposition);
 
         final List<Map<String, Object>> propositionsList = new ArrayList<>();
         propositionsList.add(proposition.toEventData());
@@ -322,7 +322,7 @@ public class OptimizeTests {
     }
 
     @Test
-    public void testGetPropositions_multipleValidDecisionScopes() throws Exception {
+    public void testGetPropositions_multipleValidDecisionScopes() {
         // test
         final List<DecisionScope> scopes = new ArrayList<>();
         scopes.add(new DecisionScope("eyJhY3Rpdml0eUlkIjoieGNvcmU6b2ZmZXItYWN0aXZpdHk6MTExMTExMTExMTExMTExMSIsInBsYWNlbWVudElkIjoieGNvcmU6b2ZmZXItcGxhY2VtZW50OjExMTExMTExMTExMTExMTEifQ=="));
@@ -367,12 +367,12 @@ public class OptimizeTests {
     }
 
     @Test
-    public void testGetPropositions_invalidDecisionScopeInList() throws Exception {
+    public void testGetPropositions_invalidDecisionScopeInList() {
         // test
         final List<DecisionScope> scopes = new ArrayList<>();
         scopes.add(new DecisionScope("eyJhY3Rpdml0eUlkIjoiIiwicGxhY2VtZW50SWQiOiJ4Y29yZTpvZmZlci1wbGFjZW1lbnQ6MTExMTExMTExMTExMTExMSJ9"));
 
-        Optimize.getPropositions(null, new AdobeCallbackWithError<Map<DecisionScope, Proposition>>() {
+        Optimize.getPropositions(scopes, new AdobeCallbackWithError<Map<DecisionScope, Proposition>>() {
             @Override
             public void fail(AdobeError adobeError) {
                 responseError = adobeError;
@@ -385,13 +385,13 @@ public class OptimizeTests {
         });
 
         // verify
-        PowerMockito.verifyStatic(MobileCore.class, Mockito.times(1));
+        PowerMockito.verifyStatic(MobileCore.class, Mockito.times(2));
         MobileCore.log(any(LoggingMode.class), anyString(), anyString());
         assertEquals(AdobeError.UNEXPECTED_ERROR, responseError);
     }
 
     @Test
-    public void testGetPropositions_emptyDecisionScopesList() throws Exception {
+    public void testGetPropositions_emptyDecisionScopesList() {
         // test
         Optimize.getPropositions(new ArrayList<DecisionScope>(), new AdobeCallbackWithError<Map<DecisionScope, Proposition>>() {
             @Override
@@ -412,7 +412,7 @@ public class OptimizeTests {
     }
 
     @Test
-    public void testGetPropositions_nullDecisionScopesList() throws Exception {
+    public void testGetPropositions_nullDecisionScopesList() {
         // test
         Optimize.getPropositions(null, new AdobeCallbackWithError<Map<DecisionScope, Proposition>>() {
             @Override
@@ -449,14 +449,14 @@ public class OptimizeTests {
 
         //verify
         PowerMockito.verifyStatic(MobileCore.class, Mockito.times(1));
-        final ArgumentCaptor<AdobeCallbackWithError> callbackCaptor = ArgumentCaptor.forClass(AdobeCallbackWithError.class);
+        final ArgumentCaptor<AdobeCallbackWithError<Event>> callbackCaptor = ArgumentCaptor.forClass(AdobeCallbackWithError.class);
         MobileCore.registerEventListener(eq("com.adobe.eventType.optimize"), eq("com.adobe.eventSource.notification"),
                 callbackCaptor.capture());
         final AdobeCallbackWithError<Event> callbackWithError = callbackCaptor.getValue();
 
         final Map<String, Object> propositionData = new ObjectMapper().readValue(getClass().getClassLoader().getResource("json/PROPOSITION_VALID.json"), HashMap.class);
         final Proposition proposition = Proposition.fromEventData(propositionData);
-        final DecisionScope scope = new DecisionScope(proposition.getScope());
+        assertNotNull(proposition);
 
         final List<Map<String, Object>> propositionsList = new ArrayList<>();
         propositionsList.add(proposition.toEventData());
@@ -475,7 +475,7 @@ public class OptimizeTests {
     }
 
     @Test
-    public void testOnPropositionsUpdate_emptyPropositionData() throws Exception {
+    public void testOnPropositionsUpdate_emptyPropositionData() {
         // test
         Optimize.onPropositionsUpdate(new AdobeCallbackWithError<Map<DecisionScope, Proposition>>() {
             @Override
@@ -491,7 +491,7 @@ public class OptimizeTests {
 
         //verify
         PowerMockito.verifyStatic(MobileCore.class, Mockito.times(1));
-        final ArgumentCaptor<AdobeCallbackWithError> callbackCaptor = ArgumentCaptor.forClass(AdobeCallbackWithError.class);
+        final ArgumentCaptor<AdobeCallbackWithError<Event>> callbackCaptor = ArgumentCaptor.forClass(AdobeCallbackWithError.class);
         MobileCore.registerEventListener(eq("com.adobe.eventType.optimize"), eq("com.adobe.eventSource.notification"),
                 callbackCaptor.capture());
         final AdobeCallbackWithError<Event> callbackWithError = callbackCaptor.getValue();
@@ -510,7 +510,7 @@ public class OptimizeTests {
     }
 
     @Test
-    public void testOnPropositionsUpdate_nullPropositionData() throws Exception {
+    public void testOnPropositionsUpdate_nullPropositionData() {
         // test
         Optimize.onPropositionsUpdate(new AdobeCallbackWithError<Map<DecisionScope, Proposition>>() {
             @Override
@@ -526,7 +526,7 @@ public class OptimizeTests {
 
         //verify
         PowerMockito.verifyStatic(MobileCore.class, Mockito.times(1));
-        final ArgumentCaptor<AdobeCallbackWithError> callbackCaptor = ArgumentCaptor.forClass(AdobeCallbackWithError.class);
+        final ArgumentCaptor<AdobeCallbackWithError<Event>> callbackCaptor = ArgumentCaptor.forClass(AdobeCallbackWithError.class);
         MobileCore.registerEventListener(eq("com.adobe.eventType.optimize"), eq("com.adobe.eventSource.notification"),
                 callbackCaptor.capture());
         final AdobeCallbackWithError<Event> callbackWithError = callbackCaptor.getValue();

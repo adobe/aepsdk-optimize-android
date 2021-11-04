@@ -56,7 +56,7 @@ public class DecisionScope {
     }
 
     /**
-     * Constructor creates a {@code DecisionScope} using the provided {@code activityId} and {@code placementId}.
+     * Constructor creates a {@code DecisionScope} using the provided {@code activityId}, {@code placementId} and {@code itemCount}.
      *
      * @param activityId {@link String} containing activity identifier for the given scope.
      * @param placementId {@code String} containing placement identifier for the given scope.

@@ -33,9 +33,9 @@ import com.adobe.marketing.mobile.edge.identity.AuthenticatedState
 import com.adobe.marketing.mobile.edge.identity.Identity
 import com.adobe.marketing.mobile.edge.identity.IdentityItem
 import com.adobe.marketing.mobile.edge.identity.IdentityMap
-import com.adobe.marketing.mobile.optimizeapp.DecisionScope
-import com.adobe.marketing.mobile.optimizeapp.Offer
-import com.adobe.marketing.mobile.optimizeapp.OfferType
+import com.adobe.marketing.mobile.optimize.DecisionScope
+import com.adobe.marketing.mobile.optimize.Offer
+import com.adobe.marketing.mobile.optimize.OfferType
 import com.adobe.marketing.optimizeapp.viewmodels.MainViewModel
 
 @Composable
@@ -79,7 +79,7 @@ fun OffersView(viewModel: MainViewModel) {
                 .padding(horizontal = 10.dp)) {
                 Button(modifier = Modifier.align(Alignment.CenterStart), onClick = {
                     viewModel.updateDecisionScopes()
-                    var decisionScopeList = arrayListOf<DecisionScope>()
+                    val decisionScopeList = arrayListOf<DecisionScope>()
                     viewModel.textDecisionScope?.also { decisionScopeList.add(it) }
                     viewModel.imageDecisionScope?.also { decisionScopeList.add(it) }
                     viewModel.htmlDecisionScope?.also { decisionScopeList.add(it) }
@@ -96,7 +96,7 @@ fun OffersView(viewModel: MainViewModel) {
 
                     if(viewModel.targetMboxDecisionScope?.name?.isNotEmpty() == true) {
                         viewModel.targetParamsMbox.forEach {
-                            if (!it.key.isNullOrEmpty() && !it.value.isNullOrEmpty()) {
+                            if (it.key.isNotEmpty() && it.value.isNotEmpty()) {
                                 targetParams[it.key] = it.value
                             }
                         }
@@ -138,7 +138,7 @@ fun OffersView(viewModel: MainViewModel) {
 
                 Button(modifier = Modifier.align(Alignment.Center), onClick = {
                     viewModel.updateDecisionScopes()
-                    var decisionScopeList = arrayListOf<DecisionScope>()
+                    val decisionScopeList = arrayListOf<DecisionScope>()
                     viewModel.textDecisionScope?.also { decisionScopeList.add(it) }
                     viewModel.imageDecisionScope?.also { decisionScopeList.add(it) }
                     viewModel.htmlDecisionScope?.also { decisionScopeList.add(it) }
@@ -211,7 +211,6 @@ fun TextOffers(offers: List<Offer>?, placeHolder: String = "Placeholder Text", v
                         style = MaterialTheme.typography.body1,
                         textAlign = TextAlign.Center)
                 }
-
                 }
         } ?: Text(
             text = placeHolder,

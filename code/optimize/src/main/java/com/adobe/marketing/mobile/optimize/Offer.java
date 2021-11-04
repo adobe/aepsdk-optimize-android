@@ -51,7 +51,7 @@ public class Offer {
      * {@code Offer} Builder.
      */
     public static class Builder {
-        private Offer offer;
+        final private Offer offer;
         private boolean didBuild;
 
         /**
@@ -70,8 +70,8 @@ public class Offer {
             offer.content = content != null ? content : "";
             offer.etag = "";
             offer.schema = "";
-            offer.language = new ArrayList<String>();
-            offer.characteristics = new HashMap<String, String>();
+            offer.language = new ArrayList<>();
+            offer.characteristics = new HashMap<>();
             didBuild = false;
         }
 
@@ -451,7 +451,7 @@ public class Offer {
         Offer that = (Offer) o;
         if (id != null ? !id.equals(that.id) : that.id != null) return false;
         if (etag != null ? !etag.equals(that.etag) : that.etag != null) return false;
-        if (schema != null ? !schema.equals(that.schema) : schema != null) return false;
+        if (schema != null ? !schema.equals(that.schema) : that.schema != null) return false;
         if (type != that.type) return false;
         if (language != null ? !language.equals(that.language) : that.language != null) return false;
         if (content != null ? !content.equals(that.content) : that.content != null) return false;

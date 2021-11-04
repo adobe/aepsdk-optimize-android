@@ -76,7 +76,7 @@ fun SettingsView(viewModel: MainViewModel) {
             SettingTextField(value = viewModel.textTargetOrderId, placeholder = "Enter Order Id") { viewModel.textTargetOrderId = it }
             SettingTextField(value = viewModel.textTargetOrderTotal, placeholder = "Enter Order Total") { viewModel.textTargetOrderTotal = it }
             SettingTextField(value = viewModel.textTargetPurchaseId, placeholder = "Enter Purchased Product Ids (comma-separated)") { viewModel.textTargetPurchaseId = it }
-            SettingsLabel(text = "Target Parameters - Product", align = TextAlign.Start, textStyle = MaterialTheme.typography.subtitle1)
+            SettingsLabel(text = "Target Parameters - Product", align = TextAlign.Center, textStyle = MaterialTheme.typography.subtitle2)
             SettingTextField(value = viewModel.textTargetProductId, placeholder = "Enter Product Id") { viewModel.textTargetProductId = it }
             SettingTextField(value = viewModel.textTargetProductCategoryId, placeholder = "Enter Product Category id") { viewModel.textTargetProductCategoryId = it }
             SettingsLabel(text = "About", align = TextAlign.Start, textStyle = MaterialTheme.typography.subtitle1)

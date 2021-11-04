@@ -17,12 +17,12 @@ import com.adobe.marketing.mobile.Edge
 import com.adobe.marketing.mobile.LoggingMode
 import com.adobe.marketing.mobile.MobileCore
 import com.adobe.marketing.mobile.edge.identity.Identity
-import com.adobe.marketing.mobile.optimizeapp.Optimize
+import com.adobe.marketing.mobile.optimize.Optimize
 
 class MainApplication : Application() {
 
     companion object {
-        const val LAUNCH_ENVIRONMENT_FILE_ID = "<You Launch environment Id>"
+        const val LAUNCH_ENVIRONMENT_FILE_ID = "<Your Launch environment Id>"
     }
 
     override fun onCreate() {
@@ -37,7 +37,7 @@ class MainApplication : Application() {
 
         MobileCore.configureWithAppID(LAUNCH_ENVIRONMENT_FILE_ID)
         MobileCore.start {
-            print("Adobe SDK's successfully registered")
+            print("Adobe SDK is successfully registered")
         }
     }
 }
