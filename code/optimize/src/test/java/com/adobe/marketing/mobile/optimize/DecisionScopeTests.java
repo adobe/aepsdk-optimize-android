@@ -37,6 +37,7 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 
+
 @RunWith(PowerMockRunner.class)
 @PrepareForTest(Base64.class)
 public class DecisionScopeTests {
@@ -46,13 +47,13 @@ public class DecisionScopeTests {
         Mockito.when(Base64.encodeToString((byte[]) any(), anyInt())).thenAnswer(new Answer<String>() {
             @Override
             public String answer(InvocationOnMock invocation) {
-                return new String(Base64.encode((byte[]) invocation.getArguments()[0], Base64.DEFAULT));
+                return java.util.Base64.getEncoder().encodeToString((byte[]) invocation.getArguments()[0]);
             }
         });
         Mockito.when(Base64.decode((byte[]) any(), anyInt())).thenAnswer(new Answer<byte[]>() {
             @Override
             public byte[] answer(InvocationOnMock invocation) throws Throwable {
-                return Base64.decode((byte[]) invocation.getArguments()[0], Base64.DEFAULT);
+                return java.util.Base64.getDecoder().decode((byte[]) invocation.getArguments()[0]);
             }
         });
     }
