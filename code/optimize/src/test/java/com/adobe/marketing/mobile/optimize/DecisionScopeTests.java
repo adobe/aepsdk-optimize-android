@@ -12,15 +12,6 @@
 
 package com.adobe.marketing.mobile.optimize;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
-
 import android.util.Base64;
 
 import org.junit.Before;
@@ -37,6 +28,15 @@ import org.powermock.modules.junit4.PowerMockRunner;
 import java.util.HashMap;
 import java.util.Map;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
+
 @RunWith(PowerMockRunner.class)
 @PrepareForTest(Base64.class)
 public class DecisionScopeTests {
@@ -46,13 +46,13 @@ public class DecisionScopeTests {
         Mockito.when(Base64.encodeToString((byte[]) any(), anyInt())).thenAnswer(new Answer<String>() {
             @Override
             public String answer(InvocationOnMock invocation) {
-                return java.util.Base64.getEncoder().encodeToString((byte[]) invocation.getArguments()[0]);
+                return new String(Base64.encode((byte[]) invocation.getArguments()[0], Base64.DEFAULT));
             }
         });
         Mockito.when(Base64.decode((byte[]) any(), anyInt())).thenAnswer(new Answer<byte[]>() {
             @Override
             public byte[] answer(InvocationOnMock invocation) throws Throwable {
-                return java.util.Base64.getDecoder().decode((byte[]) invocation.getArguments()[0]);
+                return Base64.decode((byte[]) invocation.getArguments()[0], Base64.DEFAULT);
             }
         });
     }
