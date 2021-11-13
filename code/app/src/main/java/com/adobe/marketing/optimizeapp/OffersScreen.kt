@@ -38,6 +38,8 @@ import com.adobe.marketing.mobile.optimize.Offer
 import com.adobe.marketing.mobile.optimize.OfferType
 import com.adobe.marketing.optimizeapp.viewmodels.MainViewModel
 
+private typealias TapClickHandler = (Offer) -> Unit
+
 @Composable
 fun OffersView(viewModel: MainViewModel) {
     Column(
@@ -51,16 +53,19 @@ fun OffersView(viewModel: MainViewModel) {
                 .fillMaxHeight(fraction = 0.85f)
                 .verticalScroll(state = rememberScrollState())
         ) {
+            val tapClickHandler: TapClickHandler = {
+                viewModel.trackOfferTapped(offer = it)
+            }
             OffersSectionText(sectionName = "Text Offers")
-            TextOffers(offers = viewModel.propositionStateMap[viewModel.textDecisionScope?.name]?.offers, viewModel = viewModel)
+            TextOffers(offers = viewModel.propositionStateMap[viewModel.textDecisionScope?.name]?.offers, clickHandler = tapClickHandler)
             OffersSectionText(sectionName = "Image Offers")
-            ImageOffers(offers = viewModel.propositionStateMap[viewModel.imageDecisionScope?.name]?.offers, viewModel = viewModel)
+            ImageOffers(offers = viewModel.propositionStateMap[viewModel.imageDecisionScope?.name]?.offers, clickHandler = tapClickHandler)
             OffersSectionText(sectionName = "HTML Offers")
-            HTMLOffers(offers = viewModel.propositionStateMap[viewModel.htmlDecisionScope?.name]?.offers, viewModel = viewModel)
+            HTMLOffers(offers = viewModel.propositionStateMap[viewModel.htmlDecisionScope?.name]?.offers, clickHandler = tapClickHandler)
             OffersSectionText(sectionName = "JSON Offers")
-            TextOffers(offers = viewModel.propositionStateMap[viewModel.jsonDecisionScope?.name]?.offers, placeHolder = """{"PlaceHolder": true}}""", viewModel = viewModel)
+            TextOffers(offers = viewModel.propositionStateMap[viewModel.jsonDecisionScope?.name]?.offers, placeHolder = """{"PlaceHolder": true}}""", clickHandler = tapClickHandler)
             OffersSectionText(sectionName = "Target Offers")
-            TargetOffersView(offers = viewModel.propositionStateMap[viewModel.targetMboxDecisionScope?.name]?.offers, viewModel = viewModel)
+            TargetOffersView(offers = viewModel.propositionStateMap[viewModel.targetMboxDecisionScope?.name]?.offers, clickHandler = tapClickHandler)
         }
 
         Spacer(
@@ -183,7 +188,7 @@ fun OffersSectionText(sectionName: String) {
 }
 
 @Composable
-fun TextOffers(offers: List<Offer>?, placeHolder: String = "Placeholder Text", viewModel: MainViewModel) {
+fun TextOffers(offers: List<Offer>?, placeHolder: String = "Placeholder Text", clickHandler: TapClickHandler) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -206,7 +211,7 @@ fun TextOffers(offers: List<Offer>?, placeHolder: String = "Placeholder Text", v
                             .absolutePadding(top = 5.dp)
                             .height(100.dp)
                             .clickable {
-                                viewModel.trackOfferTapped(offer = offer)
+                                clickHandler(offer)
                             },
                         style = MaterialTheme.typography.body1,
                         textAlign = TextAlign.Center)
@@ -225,7 +230,7 @@ fun TextOffers(offers: List<Offer>?, placeHolder: String = "Placeholder Text", v
 }
 
 @Composable
-fun ImageOffers(offers: List<Offer>?, viewModel: MainViewModel) {
+fun ImageOffers(offers: List<Offer>?, clickHandler: TapClickHandler) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -240,7 +245,9 @@ fun ImageOffers(offers: List<Offer>?, viewModel: MainViewModel) {
                     .padding(all = 20.dp)
                     .width(100.dp)
                     .height(100.dp)
-                    .clickable { viewModel.trackOfferTapped(offer = offer) }
+                    .clickable {
+                        clickHandler(offer)
+                    }
             )
         } ?: Image(
             painter = painterResource(id = R.drawable.adobe),
@@ -255,7 +262,7 @@ fun ImageOffers(offers: List<Offer>?, viewModel: MainViewModel) {
 }
 
 @Composable
-fun HTMLOffers(offers: List<Offer>?, placeHolderHtml: String = "<html><body><p>HTML Placeholder!!</p></body></html>", viewModel: MainViewModel) {
+fun HTMLOffers(offers: List<Offer>?, placeHolderHtml: String = "<html><body><p>HTML Placeholder!!</p></body></html>", clickHandler: TapClickHandler) {
         Column(modifier = Modifier
             .fillMaxWidth()
             .wrapContentHeight(),
@@ -263,7 +270,10 @@ fun HTMLOffers(offers: List<Offer>?, placeHolderHtml: String = "<html><body><p>H
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             offers?.onEach {
-                HtmlOfferWebView(html = it.content, onclick = {viewModel.trackOfferTapped(offer = it)})
+                HtmlOfferWebView(html = it.content, onclick = {
+                    clickHandler(it)
+                    }
+                )
             } ?: HtmlOfferWebView(html = placeHolderHtml)
         }
 }
@@ -292,19 +302,19 @@ fun HtmlOfferWebView(html: String, onclick: (() -> Unit)? = null) {
 }
 
 @Composable
-fun TargetOffersView(offers: List<Offer>?, viewModel: MainViewModel) {
+fun TargetOffersView(offers: List<Offer>?, clickHandler: TapClickHandler) {
     Column(modifier = Modifier
         .fillMaxWidth()
         .wrapContentHeight()) {
         offers?.onEach {
             when (it.type) {
-                OfferType.HTML -> HtmlOfferWebView(html = it.content, onclick = {viewModel.trackOfferTapped(it)})
+                OfferType.HTML -> HtmlOfferWebView(html = it.content, onclick = {clickHandler(it)})
                 else -> Text(text = it.content, modifier = Modifier
                     .padding(vertical = 20.dp)
                     .fillMaxWidth()
                     .wrapContentHeight()
-                    .clickable { viewModel.trackOfferTapped(it) }, textAlign = TextAlign.Center)
+                    .clickable { clickHandler(it) }, textAlign = TextAlign.Center)
             }
-        } ?: TextOffers(offers = null, placeHolder = "Placeholder Target Text", viewModel = viewModel)
+        } ?: TextOffers(offers = null, placeHolder = "Placeholder Target Text", clickHandler = clickHandler)
     }
 }
