@@ -11,7 +11,6 @@
  */
 package com.adobe.marketing.optimizeapp
 
-import android.util.Log
 import android.view.ViewGroup
 import android.webkit.WebView
 import androidx.compose.foundation.*
@@ -44,7 +43,6 @@ import com.adobe.marketing.mobile.optimize.DecisionScope
 import com.adobe.marketing.mobile.optimize.Offer
 import com.adobe.marketing.mobile.optimize.OfferType
 import com.adobe.marketing.optimizeapp.viewmodels.MainViewModel
-import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filter
@@ -75,18 +73,15 @@ fun OffersView(viewModel: MainViewModel) {
             ) {
 
                 OffersSectionText(sectionName = "Text Offers")
-                TextOffers(offers = null)
+                TextOffers()
                 OffersSectionText(sectionName = "Image Offers")
-                ImageOffers(offers = null)
+                ImageOffers()
                 OffersSectionText(sectionName = "HTML Offers")
-                HTMLOffers(offers = null)
+                HTMLOffers()
                 OffersSectionText(sectionName = "JSON Offers")
-                TextOffers(
-                    offers = null,
-                    placeHolder = """{"PlaceHolder": true}}"""
-                )
+                JSONOffers()
                 OffersSectionText(sectionName = "Target Offers")
-                TargetOffersView(offers = null)
+                TargetOffersView()
             }
         } else {
             LazyColumn(
@@ -95,32 +90,27 @@ fun OffersView(viewModel: MainViewModel) {
                     .fillMaxHeight(fraction = 0.85f),
                 state = listState
             ) {
-                items(items = viewModel.propositionStateMap.keys.toList().sorted(), itemContent = { item ->
+                items(items = viewModel.propositionStateMap.keys.toList().sorted(), key = { item -> item }, itemContent = { item ->
                     when(item) {
                         viewModel.textDecisionScope?.name -> {
                             OffersSectionText(sectionName = "Text Offers")
-                            val offers = viewModel.propositionStateMap[viewModel.textDecisionScope?.name]?.offers
-                            TextOffers(offers = offers, listState = listState)
+                            TextOffers(offers = viewModel.propositionStateMap[viewModel.textDecisionScope?.name]?.offers, listState = listState)
                         }
                         viewModel.imageDecisionScope?.name -> {
                             OffersSectionText(sectionName = "Image Offers")
-                            val offers = viewModel.propositionStateMap[viewModel.imageDecisionScope?.name]?.offers
-                            ImageOffers(offers = offers, listState = listState)
+                            ImageOffers(offers = viewModel.propositionStateMap[viewModel.imageDecisionScope?.name]?.offers, listState = listState)
                         }
                         viewModel.htmlDecisionScope?.name -> {
                             OffersSectionText(sectionName = "HTML Offers")
-                            val offers = viewModel.propositionStateMap[viewModel.htmlDecisionScope?.name]?.offers
-                            HTMLOffers(offers = offers, listState = listState)
+                            HTMLOffers(offers = viewModel.propositionStateMap[viewModel.htmlDecisionScope?.name]?.offers, listState = listState)
                         }
                         viewModel.jsonDecisionScope?.name -> {
                             OffersSectionText(sectionName = "JSON Offers")
-                            val offers = viewModel.propositionStateMap[viewModel.jsonDecisionScope?.name]?.offers
-                            JSONOffers(offers = offers, listState = listState)
+                            JSONOffers(offers = viewModel.propositionStateMap[viewModel.jsonDecisionScope?.name]?.offers, listState = listState)
                         }
                         viewModel.targetMboxDecisionScope?.name -> {
                             OffersSectionText(sectionName = "Target Offers")
-                            val offers = viewModel.propositionStateMap[viewModel.targetMboxDecisionScope?.name]?.offers
-                            TargetOffersView(offers = offers, listState = listState)
+                            TargetOffersView(offers = viewModel.propositionStateMap[viewModel.targetMboxDecisionScope?.name]?.offers, listState = listState)
                         }
                     }
                 })
@@ -250,7 +240,7 @@ fun OffersSectionText(sectionName: String) {
 }
 
 @Composable
-fun TextOffers(offers: List<Offer>?, placeHolder: String = "Placeholder Text", listState: LazyListState? = null) {
+fun TextOffers(offers: List<Offer>? = null, placeHolder: String = "Placeholder Text", listState: LazyListState? = null) {
 
     offers?.let { offersList ->
         offersList.forEach { offer ->
@@ -267,11 +257,10 @@ fun TextOffers(offers: List<Offer>?, placeHolder: String = "Placeholder Text", l
 
     listState?.also {
         LaunchedEffect(it) {
-            snapshotFlow {
-                listState.firstVisibleItemIndex
-            }.map { index -> index < 3 }
+            snapshotFlow { listState.layoutInfo.visibleItemsInfo.map { lazyListItemInfo -> lazyListItemInfo.key } }
+                .map { visibleItemKeys -> visibleItemKeys.contains(offers?.get(0)?.proposition?.scope ?: "") }
                 .distinctUntilChanged()
-                .filter { it == true }
+                .filter { result -> result }
                 .collect {
                     offers?.forEach(displayHandler)
                 }
@@ -280,7 +269,7 @@ fun TextOffers(offers: List<Offer>?, placeHolder: String = "Placeholder Text", l
 }
 
 @Composable
-fun JSONOffers(offers: List<Offer>?, placeHolder: String = """{"PlaceHolder": true}""", listState: LazyListState? = null) {
+fun JSONOffers(offers: List<Offer>? = null, placeHolder: String = """{"PlaceHolder": true}""", listState: LazyListState? = null) {
 
     offers?.let { offersList ->
         offersList.forEach { offer ->
@@ -297,11 +286,10 @@ fun JSONOffers(offers: List<Offer>?, placeHolder: String = """{"PlaceHolder": tr
 
     listState?.also {
         LaunchedEffect(it) {
-            snapshotFlow {
-                listState.firstVisibleItemIndex
-            }.map { index -> index < 4 }
+            snapshotFlow { listState.layoutInfo.visibleItemsInfo.map { lazyListItemInfo -> lazyListItemInfo.key } }
+                .map { visibleItemKeys -> visibleItemKeys.contains(offers?.get(0)?.proposition?.scope ?: "") }
                 .distinctUntilChanged()
-                .filter { it == true }
+                .filter { result -> result }
                 .collect {
                     offers?.forEach(displayHandler)
                 }
@@ -325,7 +313,7 @@ fun TextOffer(offer: Offer) {
 }
 
 @Composable
-fun ImageOffers(offers: List<Offer>?, listState: LazyListState? = null) {
+fun ImageOffers(offers: List<Offer>? = null, listState: LazyListState? = null) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -357,11 +345,10 @@ fun ImageOffers(offers: List<Offer>?, listState: LazyListState? = null) {
 
     listState?.also {
         LaunchedEffect(it) {
-            snapshotFlow {
-                listState.firstVisibleItemIndex
-            }.map { index -> index < 2 }
+            snapshotFlow { listState.layoutInfo.visibleItemsInfo.map { lazyListItemInfo -> lazyListItemInfo.key } }
+                .map { visibleItemKeys -> visibleItemKeys.contains(offers?.get(0)?.proposition?.scope ?: "") }
                 .distinctUntilChanged()
-                .filter { it == true }
+                .filter { result -> result }
                 .collect {
                     offers?.forEach(displayHandler)
                 }
@@ -370,7 +357,7 @@ fun ImageOffers(offers: List<Offer>?, listState: LazyListState? = null) {
 }
 
 @Composable
-fun HTMLOffers(offers: List<Offer>?, placeHolderHtml: String = "<html><body><p>HTML Placeholder!!</p></body></html>", listState: LazyListState? = null) {
+fun HTMLOffers(offers: List<Offer>?= null, placeHolderHtml: String = "<html><body><p>HTML Placeholder!!</p></body></html>", listState: LazyListState? = null) {
         Column(modifier = Modifier
             .fillMaxWidth()
             .wrapContentHeight(),
@@ -387,11 +374,10 @@ fun HTMLOffers(offers: List<Offer>?, placeHolderHtml: String = "<html><body><p>H
 
     listState?.also {
         LaunchedEffect(it) {
-            snapshotFlow {
-                listState.firstVisibleItemIndex
-            }.map { index -> index >= 3 }
+            snapshotFlow { listState.layoutInfo.visibleItemsInfo.map { lazyListItemInfo -> lazyListItemInfo.key } }
+                .map { visibleItemKeys -> visibleItemKeys.contains(offers?.get(0)?.proposition?.scope ?: "") }
                 .distinctUntilChanged()
-                .filter { it == true }
+                .filter { result -> result }
                 .collect {
                     offers?.forEach(displayHandler)
                 }
@@ -423,7 +409,7 @@ fun HtmlOfferWebView(html: String, onclick: (() -> Unit)? = null) {
 }
 
 @Composable
-fun TargetOffersView(offers: List<Offer>?, listState: LazyListState? = null) {
+fun TargetOffersView(offers: List<Offer>? = null, listState: LazyListState? = null) {
     Column(modifier = Modifier
         .fillMaxWidth()
         .wrapContentHeight()) {
@@ -441,11 +427,10 @@ fun TargetOffersView(offers: List<Offer>?, listState: LazyListState? = null) {
 
     listState?.also {
         LaunchedEffect(it) {
-            snapshotFlow {
-                listState.firstVisibleItemIndex
-            }.map { index -> index == 0 }
+            snapshotFlow { listState.layoutInfo.visibleItemsInfo.map { lazyListItemInfo -> lazyListItemInfo.key } }
+                .map { visibleItemKeys -> visibleItemKeys.contains(offers?.get(0)?.proposition?.scope ?: "") }
                 .distinctUntilChanged()
-                .filter { it == true }
+                .filter { result -> result }
                 .collect {
                     offers?.forEach(displayHandler)
                 }
