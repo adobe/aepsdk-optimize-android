@@ -109,20 +109,6 @@ class MainViewModel: ViewModel() {
         Optimize.clearCachedPropositions()
     }
 
-    /**
-     * Calls the Optimize SDK API to track [Offer] displayed.
-     */
-    fun trackOfferDisplayed(offer: Offer?) {
-        offer?.displayed()
-    }
-
-    /**
-     * Calls the Optimize SDK API to track [Offer] tapped.
-     */
-    fun trackOfferTapped(offer: Offer?) {
-        offer?.tapped()
-    }
-
     //End: Calls to Optimize SDK API's
 
 

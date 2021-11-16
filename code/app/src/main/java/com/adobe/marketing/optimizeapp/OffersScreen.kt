@@ -15,6 +15,8 @@ import android.view.ViewGroup
 import android.webkit.WebView
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.Button
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
@@ -38,7 +40,13 @@ import com.adobe.marketing.mobile.optimize.Offer
 import com.adobe.marketing.mobile.optimize.OfferType
 import com.adobe.marketing.optimizeapp.viewmodels.MainViewModel
 
-private typealias TapClickHandler = (Offer) -> Unit
+private val clickHandler: (Offer) -> Unit = { offer ->
+    offer.tapped()
+}
+
+private val displayHandler: (Offer) -> Unit = { offer ->
+    offer.displayed()
+}
 
 @Composable
 fun OffersView(viewModel: MainViewModel) {
@@ -47,26 +55,74 @@ fun OffersView(viewModel: MainViewModel) {
             .fillMaxHeight()
             .fillMaxWidth()
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .fillMaxHeight(fraction = 0.85f)
-                .verticalScroll(state = rememberScrollState())
-        ) {
-            val tapClickHandler: TapClickHandler = {
-                viewModel.trackOfferTapped(offer = it)
+        if (viewModel.propositionStateMap.isEmpty()) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .fillMaxHeight(fraction = 0.85f)
+                    .verticalScroll(state = rememberScrollState())
+            ) {
+
+                OffersSectionText(sectionName = "Text Offers")
+                TextOffers(offers = null)
+                OffersSectionText(sectionName = "Image Offers")
+                ImageOffers(offers = null)
+                OffersSectionText(sectionName = "HTML Offers")
+                HTMLOffers(offers = null)
+                OffersSectionText(sectionName = "JSON Offers")
+                TextOffers(
+                    offers = null,
+                    placeHolder = """{"PlaceHolder": true}}"""
+                )
+                OffersSectionText(sectionName = "Target Offers")
+                TargetOffersView(offers = null)
             }
-            OffersSectionText(sectionName = "Text Offers")
-            TextOffers(offers = viewModel.propositionStateMap[viewModel.textDecisionScope?.name]?.offers, clickHandler = tapClickHandler)
-            OffersSectionText(sectionName = "Image Offers")
-            ImageOffers(offers = viewModel.propositionStateMap[viewModel.imageDecisionScope?.name]?.offers, clickHandler = tapClickHandler)
-            OffersSectionText(sectionName = "HTML Offers")
-            HTMLOffers(offers = viewModel.propositionStateMap[viewModel.htmlDecisionScope?.name]?.offers, clickHandler = tapClickHandler)
-            OffersSectionText(sectionName = "JSON Offers")
-            TextOffers(offers = viewModel.propositionStateMap[viewModel.jsonDecisionScope?.name]?.offers, placeHolder = """{"PlaceHolder": true}}""", clickHandler = tapClickHandler)
-            OffersSectionText(sectionName = "Target Offers")
-            TargetOffersView(offers = viewModel.propositionStateMap[viewModel.targetMboxDecisionScope?.name]?.offers, clickHandler = tapClickHandler)
+        } else {
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .fillMaxHeight(fraction = 0.85f)
+            ) {
+                items(items = viewModel.propositionStateMap.keys.toList().sorted(), itemContent = { item ->
+                    when(item) {
+                        viewModel.textDecisionScope?.name -> {
+                            OffersSectionText(sectionName = "Text Offers")
+                            val offers = viewModel.propositionStateMap[viewModel.textDecisionScope?.name]?.offers
+                            TextOffers(offers = offers)
+                            offers?.forEach(displayHandler)
+                        }
+                        viewModel.imageDecisionScope?.name -> {
+                            OffersSectionText(sectionName = "Image Offers")
+                            val offers = viewModel.propositionStateMap[viewModel.imageDecisionScope?.name]?.offers
+                            ImageOffers(offers = offers)
+                            offers?.forEach(displayHandler)
+                        }
+                        viewModel.htmlDecisionScope?.name -> {
+                            OffersSectionText(sectionName = "HTML Offers")
+                            val offers = viewModel.propositionStateMap[viewModel.htmlDecisionScope?.name]?.offers
+                            HTMLOffers(offers = offers)
+                            offers?.forEach(displayHandler)
+                        }
+                        viewModel.jsonDecisionScope?.name -> {
+                            OffersSectionText(sectionName = "JSON Offers")
+                            val offers = viewModel.propositionStateMap[viewModel.jsonDecisionScope?.name]?.offers
+                            TextOffers(
+                                offers = offers,
+                                placeHolder = """{"PlaceHolder": true}}"""
+                            )
+                            offers?.forEach(displayHandler)
+                        }
+                        viewModel.targetMboxDecisionScope?.name -> {
+                            OffersSectionText(sectionName = "Target Offers")
+                            val offers = viewModel.propositionStateMap[viewModel.targetMboxDecisionScope?.name]?.offers
+                            TargetOffersView(offers = offers)
+                            offers?.forEach(displayHandler)
+                        }
+                    }
+                })
+            }
         }
+
 
         Spacer(
             modifier = Modifier
@@ -79,9 +135,10 @@ fun OffersView(viewModel: MainViewModel) {
             elevation = 1.5.dp
         ) {
             Box(modifier = Modifier
+                .padding(horizontal = 10.dp)
                 .fillMaxWidth()
                 .fillMaxHeight()
-                .padding(horizontal = 10.dp)) {
+                ) {
                 Button(modifier = Modifier.align(Alignment.CenterStart), onClick = {
                     viewModel.updateDecisionScopes()
                     val decisionScopeList = arrayListOf<DecisionScope>()
@@ -188,49 +245,39 @@ fun OffersSectionText(sectionName: String) {
 }
 
 @Composable
-fun TextOffers(offers: List<Offer>?, placeHolder: String = "Placeholder Text", clickHandler: TapClickHandler) {
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .wrapContentHeight()
-    ) {
+fun TextOffers(offers: List<Offer>?, placeHolder: String = "Placeholder Text") {
 
-        offers?.let {offersList ->
-            Column(
-                modifier = Modifier
-                    .padding(vertical = 10.dp)
-                    .wrapContentHeight()
-                    .align(Alignment.Center),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center,
-            ) {
-                offersList.forEach { offer ->
-                    Text(
-                        text = offer.content,
-                        modifier = Modifier
-                            .absolutePadding(top = 5.dp)
-                            .height(100.dp)
-                            .clickable {
-                                clickHandler(offer)
-                            },
-                        style = MaterialTheme.typography.body1,
-                        textAlign = TextAlign.Center)
-                }
-                }
-        } ?: Text(
-            text = placeHolder,
-            modifier = Modifier
-                .padding(vertical = 20.dp)
-                .height(100.dp)
-                .align(Alignment.Center),
-            style = MaterialTheme.typography.body1,
-            textAlign = TextAlign.Center
-        )
-    }
+    offers?.let { offersList ->
+        offersList.forEach { offer ->
+            TextOffer(offer = offer)
+        }
+    } ?: Text(
+        text = placeHolder,
+        modifier = Modifier
+            .padding(vertical = 20.dp)
+            .height(100.dp),
+        style = MaterialTheme.typography.body1,
+        textAlign = TextAlign.Center
+    )
 }
 
 @Composable
-fun ImageOffers(offers: List<Offer>?, clickHandler: TapClickHandler) {
+fun TextOffer(offer: Offer) {
+    Text(
+        text = offer.content,
+        modifier = Modifier
+            .absolutePadding(top = 5.dp, bottom = 5.dp)
+            .fillMaxWidth()
+            .height(100.dp)
+            .clickable {
+                clickHandler(offer)
+            },
+        style = MaterialTheme.typography.body1,
+        textAlign = TextAlign.Center)
+}
+
+@Composable
+fun ImageOffers(offers: List<Offer>?) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -262,7 +309,7 @@ fun ImageOffers(offers: List<Offer>?, clickHandler: TapClickHandler) {
 }
 
 @Composable
-fun HTMLOffers(offers: List<Offer>?, placeHolderHtml: String = "<html><body><p>HTML Placeholder!!</p></body></html>", clickHandler: TapClickHandler) {
+fun HTMLOffers(offers: List<Offer>?, placeHolderHtml: String = "<html><body><p>HTML Placeholder!!</p></body></html>") {
         Column(modifier = Modifier
             .fillMaxWidth()
             .wrapContentHeight(),
@@ -302,7 +349,7 @@ fun HtmlOfferWebView(html: String, onclick: (() -> Unit)? = null) {
 }
 
 @Composable
-fun TargetOffersView(offers: List<Offer>?, clickHandler: TapClickHandler) {
+fun TargetOffersView(offers: List<Offer>?) {
     Column(modifier = Modifier
         .fillMaxWidth()
         .wrapContentHeight()) {
@@ -315,6 +362,6 @@ fun TargetOffersView(offers: List<Offer>?, clickHandler: TapClickHandler) {
                     .wrapContentHeight()
                     .clickable { clickHandler(it) }, textAlign = TextAlign.Center)
             }
-        } ?: TextOffers(offers = null, placeHolder = "Placeholder Target Text", clickHandler = clickHandler)
+        } ?: TextOffers(offers = null, placeHolder = "Placeholder Target Text")
     }
 }
