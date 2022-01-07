@@ -1,6 +1,11 @@
 {
   "id": "222429",
   "schema": "https://ns.adobe.com/personalization/json-content-item",
+  "meta" : {
+    "activity.name" : "Demo AB Activity",
+    "experience.name" : "Experience A",
+    "profile.marketingCloudVisitorId" : "67706174319866856517739865618220416768"
+  },
   "data": {
     "id": "222429",
     "format": "application/json",

@@ -153,6 +153,14 @@ public class OfferTests {
         assertEquals("222429", offer.getId());
         assertNull(offer.getEtag());
         assertEquals("https://ns.adobe.com/personalization/json-content-item", offer.getSchema());
+
+        Map<String, Object> metadata = offer.getMeta();
+        assertNotNull(metadata);
+        assertEquals(3, metadata.size());
+        assertEquals("Demo AB Activity", (String)metadata.get("activity.name"));
+        assertEquals("Experience A", (String)metadata.get("experience.name"));
+        assertEquals("67706174319866856517739865618220416768", (String)metadata.get("profile.marketingCloudVisitorId"));
+
         assertEquals(OfferType.JSON, offer.getType());
         assertEquals("{\"testing\":\"ho-ho\"}", offer.getContent());
         assertNull(offer.getLanguage());

@@ -33,6 +33,7 @@ public class Offer {
     private String id;
     private String etag;
     private String schema;
+    private Map<String, Object> meta;
     private OfferType type;
     private List<String> language;
     private String content;
@@ -70,6 +71,7 @@ public class Offer {
             offer.content = content != null ? content : "";
             offer.etag = "";
             offer.schema = "";
+            offer.meta = new HashMap<>();
             offer.language = new ArrayList<>();
             offer.characteristics = new HashMap<>();
             didBuild = false;
@@ -100,6 +102,20 @@ public class Offer {
             throwIfAlreadyBuilt();
 
             offer.schema = schema;
+            return this;
+        }
+
+        /**
+         * Sets the metadata for this {@code Offer}.
+         *
+         * @param meta {@code Map<String, String>} containing {@link Offer} metadata.
+         * @return this Offer {@link Builder}
+         * @throws UnsupportedOperationException if this method is invoked after {@link Builder#build()}.
+         */
+        public Builder setMeta(final Map<String, Object> meta) {
+            throwIfAlreadyBuilt();
+
+            offer.meta = meta;
             return this;
         }
 
@@ -176,6 +192,15 @@ public class Offer {
      */
     public String getSchema() {
         return schema;
+    }
+
+    /**
+     * Gets the {@code Offer} metadata.
+     *
+     * @return {@code Map<String, Object>} containing the {@link Offer} metadata.
+     */
+    public Map<String, Object> getMeta() {
+        return meta;
     }
 
     /**
@@ -369,6 +394,8 @@ public class Offer {
             final String etag = (String) data.get(OptimizeConstants.JsonKeys.PAYLOAD_ITEM_ETAG);
             final String schema = (String) data.get(OptimizeConstants.JsonKeys.PAYLOAD_ITEM_SCHEMA);
 
+            final Map<String, Object> meta = (Map<String, Object>) data.get(OptimizeConstants.JsonKeys.PAYLOAD_ITEM_META);
+
             final Map<String, Object> offerData = (Map<String, Object>) data.get(OptimizeConstants.JsonKeys.PAYLOAD_ITEM_DATA);
             if (OptimizeUtils.isNullOrEmpty(offerData)) {
                 MobileCore.log(LoggingMode.DEBUG, LOG_TAG, "Cannot create Offer object, provided data Map doesn't contain valid item data.");
@@ -411,6 +438,7 @@ public class Offer {
             return new Builder(id, OfferType.from(format), content)
                     .setEtag(etag)
                     .setSchema(schema)
+                    .setMeta(meta)
                     .setLanguage(language)
                     .setCharacteristics(characteristics)
                     .build();
@@ -431,6 +459,7 @@ public class Offer {
         offerMap.put(OptimizeConstants.JsonKeys.PAYLOAD_ITEM_ID, this.id);
         offerMap.put(OptimizeConstants.JsonKeys.PAYLOAD_ITEM_ETAG, this.etag);
         offerMap.put(OptimizeConstants.JsonKeys.PAYLOAD_ITEM_SCHEMA, this.schema);
+        offerMap.put(OptimizeConstants.JsonKeys.PAYLOAD_ITEM_META, this.meta);
 
         final Map<String, Object> data = new HashMap<>();
         data.put(OptimizeConstants.JsonKeys.PAYLOAD_ITEM_ID, this.id);
@@ -452,6 +481,7 @@ public class Offer {
         if (id != null ? !id.equals(that.id) : that.id != null) return false;
         if (etag != null ? !etag.equals(that.etag) : that.etag != null) return false;
         if (schema != null ? !schema.equals(that.schema) : that.schema != null) return false;
+        if (meta != null ? !meta.equals(that.meta) : that.meta != null) return false;
         if (type != that.type) return false;
         if (language != null ? !language.equals(that.language) : that.language != null) return false;
         if (content != null ? !content.equals(that.content) : that.content != null) return false;
