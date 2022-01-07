@@ -108,7 +108,7 @@ public class Offer {
         /**
          * Sets the metadata for this {@code Offer}.
          *
-         * @param meta {@code Map<String, String>} containing {@link Offer} metadata.
+         * @param meta {@code Map<String, Object>} containing {@link Offer} metadata.
          * @return this Offer {@link Builder}
          * @throws UnsupportedOperationException if this method is invoked after {@link Builder#build()}.
          */
