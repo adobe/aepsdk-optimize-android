@@ -22,6 +22,7 @@ import com.adobe.marketing.mobile.LoggingMode;
 import com.adobe.marketing.mobile.MobileCore;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -144,6 +145,7 @@ class OptimizeExtension extends Extension {
                     final Map<String, Object> queryPersonalization = new HashMap<>();
                     queryPersonalization.put(OptimizeConstants.JsonKeys.DECISION_SCOPES, validScopeNames);
                     final Map<String, Object> query = new HashMap<>();
+                    query.put(OptimizeConstants.JsonKeys.QUERY_SCHEMAS, getSupportedSchemasForQuery());
                     query.put(OptimizeConstants.JsonKeys.QUERY_PERSONALIZATION, queryPersonalization);
                     edgeEventData.put(OptimizeConstants.JsonKeys.QUERY, query);
 
@@ -508,6 +510,25 @@ class OptimizeExtension extends Extension {
         }
 
         return validScopeNames;
+    }
+
+    /**
+     * Fetches the schemas for the proposition items supported by the SDK.
+     * <p>
+     * The schemas' array returned by this method can be used to request supported proposition items from the Experience Edge network during personalization query requests.
+     *
+     * @return {@code List<String>} containing SDK supported schema strings for perosnalization query.
+     */
+    private List<String> getSupportedSchemasForQuery() {
+        return new ArrayList<>(Arrays.asList(
+                OptimizeConstants.JsonValues.QUERY_SCHEMA_TARGET_HTML,
+                OptimizeConstants.JsonValues.QUERY_SCHEMA_TARGET_JSON,
+                OptimizeConstants.JsonValues.QUERY_SCHEMA_TARGET_DEFAULT,
+                OptimizeConstants.JsonValues.QUERY_SCHEMA_OFFER_HTML,
+                OptimizeConstants.JsonValues.QUERY_SCHEMA_TARGET_JSON,
+                OptimizeConstants.JsonValues.QUERY_SCHEMA_OFFER_IMAGE,
+                OptimizeConstants.JsonValues.QUERY_SCHEMA_OFFER_TEXT
+        ));
     }
 
     /**

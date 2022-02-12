@@ -183,6 +183,21 @@ public class OfferTests {
     }
 
     @Test
+    public void testFromEventData_defaultContentOfferFromTarget() throws Exception {
+        Map<String, Object> offerData = new ObjectMapper().readValue(getClass().getClassLoader().getResource("json/OFFER_VALID_DEFAULT_CONTENT_TARGET.json"), HashMap.class);
+        final Offer offer = Offer.fromEventData(offerData);
+        assertNotNull(offer);
+
+        assertEquals("222429", offer.getId());
+        assertNull(offer.getEtag());
+        assertEquals("https://ns.adobe.com/personalization/default-content-item", offer.getSchema());
+        assertEquals(OfferType.UNKNOWN, offer.getType());
+        assertEquals("", offer.getContent());
+        assertNull(offer.getLanguage());
+        assertNull(offer.getCharacteristics());
+    }
+
+    @Test
     public void testFromEventData_emptyOffer() throws Exception {
         Map<String, Object> offerData = new ObjectMapper().readValue(getClass().getClassLoader().getResource("json/OFFER_INVALID_EMPTY.json"), HashMap.class);
         final Offer offer = Offer.fromEventData(offerData);

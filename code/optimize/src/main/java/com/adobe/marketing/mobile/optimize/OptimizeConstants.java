@@ -124,6 +124,7 @@ class OptimizeConstants {
         static final String DECISION_SCOPES = "decisionScopes";
         static final String XDM = "xdm";
         static final String QUERY = "query";
+        static final String QUERY_SCHEMAS = "schemas";
         static final String QUERY_PERSONALIZATION = "personalization";
         static final String DATA = "data";
         static final String DATASET_ID = "datasetId";
@@ -145,6 +146,17 @@ class OptimizeConstants {
         static final String EE_EVENT_TYPE_PERSONALIZATION = "personalization.request";
         static final String EE_EVENT_TYPE_PROPOSITION_DISPLAY = "decisioning.propositionDisplay";
         static final String EE_EVENT_TYPE_PROPOSITION_INTERACT = "decisioning.propositionInteract";
+
+        // Target schemas
+        static final String QUERY_SCHEMA_TARGET_HTML = "https://ns.adobe.com/personalization/html-content-item";
+        static final String QUERY_SCHEMA_TARGET_JSON = "https://ns.adobe.com/personalization/json-content-item";
+        static final String QUERY_SCHEMA_TARGET_DEFAULT = "https://ns.adobe.com/personalization/default-content-item";
+
+        // Offer Decisioning schemas
+        static final String QUERY_SCHEMA_OFFER_HTML = "https://ns.adobe.com/experience/offer-management/content-component-html";
+        static final String QUERY_SCHEMA_OFFER_JSON = "https://ns.adobe.com/experience/offer-management/content-component-json";
+        static final String QUERY_SCHEMA_OFFER_IMAGE = "https://ns.adobe.com/experience/offer-management/content-component-imagelink";
+        static final String QUERY_SCHEMA_OFFER_TEXT = "https://ns.adobe.com/experience/offer-management/content-component-text";
 
         private JsonValues() {}
     }
