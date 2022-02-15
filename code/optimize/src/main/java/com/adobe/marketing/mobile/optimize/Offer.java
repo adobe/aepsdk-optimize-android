@@ -439,7 +439,7 @@ public class Offer {
                         .setCharacteristics(characteristics)
                         .build();
             } else {
-                if (!schema.equals(OptimizeConstants.JsonValues.QUERY_SCHEMA_TARGET_DEFAULT)) {
+                if (!schema.equals(OptimizeConstants.JsonValues.SCHEMA_TARGET_DEFAULT)) {
                     MobileCore.log(LoggingMode.DEBUG, LOG_TAG, "Cannot create Offer object, provided data Map doesn't contain valid item data.");
                     return null;
                 }

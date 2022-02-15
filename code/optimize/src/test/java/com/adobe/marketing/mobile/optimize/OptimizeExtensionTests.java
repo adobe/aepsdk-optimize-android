@@ -40,6 +40,7 @@ import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.reflect.Whitebox;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -244,6 +245,10 @@ public class OptimizeExtensionTests {
         assertNotNull(query);
         final Map<String, Object> queryPersonalization = (Map<String, Object>) query.get("personalization");
         assertNotNull(queryPersonalization);
+        final List<String> schemas = (List<String>) queryPersonalization.get("schemas");
+        assertNotNull(schemas);
+        assertEquals(7, schemas.size());
+        assertEquals(OptimizeExtension.supportedSchemas, schemas);
         final List<String> scopes = (List<String>) queryPersonalization.get("decisionScopes");
         assertNotNull(scopes);
         assertEquals(1, scopes.size());
@@ -311,6 +316,10 @@ public class OptimizeExtensionTests {
         assertNotNull(query);
         final Map<String, Object> queryPersonalization = (Map<String, Object>) query.get("personalization");
         assertNotNull(queryPersonalization);
+        final List<String> schemas = (List<String>) queryPersonalization.get("schemas");
+        assertNotNull(schemas);
+        assertEquals(7, schemas.size());
+        assertEquals(OptimizeExtension.supportedSchemas, schemas);
         final List<String> scopes = (List<String>) queryPersonalization.get("decisionScopes");
         assertNotNull(scopes);
         assertEquals(1, scopes.size());
@@ -380,6 +389,10 @@ public class OptimizeExtensionTests {
         assertNotNull(query);
         final Map<String, Object> queryPersonalization = (Map<String, Object>) query.get("personalization");
         assertNotNull(queryPersonalization);
+        final List<String> schemas = (List<String>) queryPersonalization.get("schemas");
+        assertNotNull(schemas);
+        assertEquals(7, schemas.size());
+        assertEquals(OptimizeExtension.supportedSchemas, schemas);
         final List<String> scopes = (List<String>) queryPersonalization.get("decisionScopes");
         assertNotNull(scopes);
         assertEquals(1, scopes.size());
@@ -442,6 +455,10 @@ public class OptimizeExtensionTests {
         assertNotNull(query);
         final Map<String, Object> queryPersonalization = (Map<String, Object>) query.get("personalization");
         assertNotNull(queryPersonalization);
+        final List<String> schemas = (List<String>) queryPersonalization.get("schemas");
+        assertNotNull(schemas);
+        assertEquals(7, schemas.size());
+        assertEquals(OptimizeExtension.supportedSchemas, schemas);
         final List<String> scopes = (List<String>) queryPersonalization.get("decisionScopes");
         assertNotNull(scopes);
         assertEquals(2, scopes.size());
@@ -584,6 +601,10 @@ public class OptimizeExtensionTests {
         assertNotNull(query);
         final Map<String, Object> queryPersonalization = (Map<String, Object>) query.get("personalization");
         assertNotNull(queryPersonalization);
+        final List<String> schemas = (List<String>) queryPersonalization.get("schemas");
+        assertNotNull(schemas);
+        assertEquals(7, schemas.size());
+        assertEquals(OptimizeExtension.supportedSchemas, schemas);
         final List<String> scopes = (List<String>) queryPersonalization.get("decisionScopes");
         assertNotNull(scopes);
         assertEquals(1, scopes.size());
