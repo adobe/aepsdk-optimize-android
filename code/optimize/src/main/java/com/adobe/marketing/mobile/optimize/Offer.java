@@ -452,7 +452,7 @@ public class Offer {
                         .setCharacteristics(null)
                         .build();
             }
-        } catch (Exception e) {
+        } catch (final ClassCastException e) {
             MobileCore.log(LoggingMode.WARNING, LOG_TAG, "Cannot create Offer object, provided data contains invalid fields.");
             return null;
         }

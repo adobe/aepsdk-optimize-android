@@ -40,7 +40,7 @@ class OptimizeExtension extends Extension {
     private final Map<DecisionScope, Proposition> cachedPropositions;
 
     // List containing the schema strings for the proposition items supported by the SDK, sent in the personalization query request.
-    final static List<String> supportedSchemas = new ArrayList<>(Arrays.asList(
+    final static List<String> supportedSchemas = Arrays.asList(
             // Target schemas
             OptimizeConstants.JsonValues.SCHEMA_TARGET_HTML,
             OptimizeConstants.JsonValues.SCHEMA_TARGET_JSON,
@@ -49,9 +49,9 @@ class OptimizeExtension extends Extension {
             // Offer Decisioning schemas
             OptimizeConstants.JsonValues.SCHEMA_OFFER_HTML,
             OptimizeConstants.JsonValues.SCHEMA_OFFER_JSON,
-            OptimizeConstants.JsonValues.SCHEMA_OFFER_JSON,
+            OptimizeConstants.JsonValues.SCHEMA_OFFER_IMAGE,
             OptimizeConstants.JsonValues.SCHEMA_OFFER_TEXT
-    ));
+    );
 
     /**
      * Constructor for {@code OptimizeExtension}.
