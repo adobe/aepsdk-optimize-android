@@ -403,7 +403,7 @@ public class Offer {
             }
 
             final String nestedId = (String) offerData.get(OptimizeConstants.JsonKeys.PAYLOAD_ITEM_DATA_ID);
-            if (OptimizeUtils.isNullOrEmpty(id) || !nestedId.equals(id)) {
+            if (OptimizeUtils.isNullOrEmpty(id) || !id.equals(nestedId)) {
                 MobileCore.log(LoggingMode.DEBUG, LOG_TAG, "Cannot create Offer object, provided item id is null or empty or it doesn't match item data id.");
                 return null;
             }

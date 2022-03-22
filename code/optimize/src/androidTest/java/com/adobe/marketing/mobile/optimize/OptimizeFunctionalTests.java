@@ -299,7 +299,7 @@ public class OptimizeFunctionalTests {
         Assert.assertEquals(decisionScopeName2, decisionScopeList.get(0));
     }
 
-    //7
+    //7a
     @Test
     public void testGetPropositions_decisionScopeInCache() throws InterruptedException, IOException {
         //setup
@@ -401,6 +401,171 @@ public class OptimizeFunctionalTests {
         Assert.assertEquals("<h1>This is HTML content</h1>", offer.getContent());
         Assert.assertEquals(1, offer.getCharacteristics().size());
         Assert.assertEquals("true", offer.getCharacteristics().get("testing"));
+    }
+
+    //7b
+    @Test
+    public void testGetPropositions_decisionScopeInCacheFromTargetResponseWithClickTracking() throws ClassCastException, InterruptedException,IOException {
+        //setup
+        //Send Edge Response event so that propositions will get cached by the Optimize SDK
+        final Map<String, Object> configData = new HashMap<>();
+        configData.put("edge.configId", "ffffffff-ffff-ffff-ffff-ffffffffffff");
+        MobileCore.updateConfiguration(configData);
+        final String decisionScopeString = "myMbox1";
+
+        final String edgeResponseData = "{\n" +
+                "                                  \"payload\": [\n" +
+                "                                    {\n" +
+                "                                        \"id\": \"AT:eyJhY3Rpdml0eUlkIjoiMTExMTExIiwiZXhwZXJpZW5jZUlkIjoiMCJ9\",\n" +
+                "                                        \"scope\": \"" + decisionScopeString + "\",\n" +
+                "                                        \"scopeDetails\": {\n" +
+                "                                            \"decisionProvider\": \"TGT\",\n" +
+                "                                            \"activity\": {\n" +
+                "                                               \"id\": \"111111\"\n" +
+                "                                             },\n" +
+                "                                            \"experience\": {\n" +
+                "                                               \"id\": \"0\"\n" +
+                "                                             },\n" +
+                "                                            \"strategies\": [\n" +
+                "                                               {\n" +
+                "                                                  \"step\": \"entry\",\n" +
+                "                                                  \"algorithmID\": \"0\",\n" +
+                "                                                  \"trafficType\": \"0\"\n" +
+                "                                               },\n" +
+                "                                               {\n" +
+                "                                                  \"step\": \"display\",\n" +
+                "                                                  \"algorithmID\": \"0\",\n" +
+                "                                                  \"trafficType\": \"0\"\n" +
+                "                                               }\n" +
+                "                                             ],\n" +
+                "                                            \"characteristics\": {\n" +
+                "                                               \"stateToken\": \"SGFZpwAqaqFTayhAT2xsgzG3+2fw4m+O9FK8c0QoOHfxVkH1ttT1PGBX3/jV8a5uFF0fAox6CXpjJ1PGRVQBjHl9Zc6mRxY9NQeM7rs/3Es1RHPkzBzyhpVS6eg9q+kw\",\n" +
+                "                                               \"eventTokens\": {\n" +
+                "                                                   \"display\": \"MmvRrL5aB4Jz36JappRYg2qipfsIHvVzTQxHolz2IpSCnQ9Y9OaLL2gsdrWQTvE54PwSz67rmXWmSnkXpSSS2Q==\",\n" +
+                "                                                   \"click\": \"EZDMbI2wmAyGcUYLr3VpmA==\"\n" +
+                "                                               }\n" +
+                "                                             }\n" +
+                "                                        },\n" +
+                "                                        \"items\": [\n" +
+                "                                            {\n" +
+                "                                                \"id\": \"0\",\n" +
+                "                                                \"schema\": \"https://ns.adobe.com/personalization/json-content-item\",\n" +
+                "                                                \"data\": {\n" +
+                "                                                    \"id\": \"0\",\n" +
+                "                                                    \"format\": \"application/json\",\n" +
+                "                                                    \"content\": {\n" +
+                "                                                       \"device\": \"mobile\"\n" +
+                "                                                     }\n" +
+                "                                                }\n" +
+                "                                            },\n" +
+                "                                            {\n" +
+                "                                                \"id\": \"111111\",\n" +
+                "                                                \"data\": {\n" +
+                "                                                    \"type\": \"click\",\n" +
+                "                                                    \"format\": \"application/vnd.adobe.target.metric\"\n" +
+                "                                                }\n" +
+                "                                            }\n" +
+                "                                        ]\n" +
+                "                                    }\n" +
+                "                                  ],\n" +
+                "                                \"requestEventId\": \"AAAAAAAA-AAAA-AAAA-AAAA-AAAAAAAAAAAA\",\n" +
+                "                                \"requestId\": \"BBBBBBBB-BBBB-BBBB-BBBB-BBBBBBBBBBBB\",\n" +
+                "                                \"type\": \"personalization:decisions\"\n" +
+                "                              }";
+
+        final ObjectMapper objectMapper = new ObjectMapper();
+        final Map<String, Object> eventData = objectMapper.readValue(edgeResponseData, new TypeReference<Map<String, Object>>() {});
+
+        final Event event = new Event.Builder(
+                "AEP Response Event Handle",
+                OptimizeTestConstants.EventType.EDGE,
+                OptimizeTestConstants.EventSource.PERSONALIZATION).
+                setEventData(eventData).
+                build();
+
+        //Action
+        MobileCore.dispatchEvent(event, new ExtensionErrorCallback<ExtensionError>() {
+            @Override
+            public void error(ExtensionError extensionError) {
+                Assert.fail("Error in dispatching Edge Personalization event.");
+            }
+        });
+
+        Thread.sleep(1000);
+        TestHelper.resetTestExpectations();
+        final DecisionScope decisionScope = new DecisionScope(decisionScopeString);
+        final Map<DecisionScope, Proposition> propositionMap = new HashMap<>();
+        final ADBCountDownLatch countDownLatch = new ADBCountDownLatch(1);
+        Optimize.getPropositions(Collections.singletonList(decisionScope), new AdobeCallbackWithError<Map<DecisionScope, Proposition>>() {
+            @Override
+            public void fail(AdobeError adobeError) {
+                Assert.fail("Error in getting cached propositions");
+            }
+
+            @Override
+            public void call(Map<DecisionScope, Proposition> decisionScopePropositionMap) {
+                propositionMap.putAll(decisionScopePropositionMap);
+                countDownLatch.countDown();
+            }
+        });
+
+        countDownLatch.await(1, TimeUnit.SECONDS);
+        //Assertions
+        final List<Event> optimizeResponseEventsList = TestHelper.getDispatchedEventsWith(OptimizeTestConstants.EventType.OPTIMIZE, OptimizeTestConstants.EventSource.RESPONSE_CONTENT);
+        Assert.assertNotNull(optimizeResponseEventsList);
+        Assert.assertEquals(1, optimizeResponseEventsList.size());
+        Assert.assertNull(optimizeResponseEventsList.get(0).getEventData().get("responseerror"));
+        Assert.assertEquals(1, propositionMap.size());
+
+        final Proposition proposition = propositionMap.get(decisionScope);
+        Assert.assertNotNull(proposition);
+        Assert.assertEquals("AT:eyJhY3Rpdml0eUlkIjoiMTExMTExIiwiZXhwZXJpZW5jZUlkIjoiMCJ9", proposition.getId());
+        Assert.assertEquals("myMbox1", proposition.getScope());
+
+        final Map<String, Object> scopeDetails = proposition.getScopeDetails();
+        assertEquals(5, scopeDetails.size());
+        assertEquals("TGT", scopeDetails.get("decisionProvider"));
+        final Map<String, Object> activity = (Map<String, Object>)scopeDetails.get("activity");
+        assertNotNull(activity);
+        assertEquals(1, activity.size());
+        assertEquals("111111", activity.get("id"));
+        final Map<String, Object> experience = (Map<String, Object>)scopeDetails.get("experience");
+        assertNotNull(experience);
+        assertEquals(1, experience.size());
+        assertEquals("0", experience.get("id"));
+        final List<Map<String, Object>> strategies = (List<Map<String, Object>>)scopeDetails.get("strategies");
+        assertNotNull(strategies);
+        assertEquals(2, strategies.size());
+        final Map<String, Object> strategy0 = strategies.get(0);
+        assertNotNull(strategy0);
+        assertEquals(3, strategy0.size());
+        assertEquals("entry", strategy0.get("step"));
+        assertEquals("0", strategy0.get("algorithmID"));
+        assertEquals("0", strategy0.get("trafficType"));
+        final Map<String, Object> strategy1 = strategies.get(1);
+        assertNotNull(strategy1);
+        assertEquals(3, strategy1.size());
+        assertEquals("display", strategy1.get("step"));
+        assertEquals("0", strategy1.get("algorithmID"));
+        assertEquals("0", strategy1.get("trafficType"));
+        final Map <String, Object> characteristics = (Map<String, Object>)scopeDetails.get("characteristics");
+        assertNotNull(characteristics);
+        assertEquals(2, characteristics.size());
+        assertEquals("SGFZpwAqaqFTayhAT2xsgzG3+2fw4m+O9FK8c0QoOHfxVkH1ttT1PGBX3/jV8a5uFF0fAox6CXpjJ1PGRVQBjHl9Zc6mRxY9NQeM7rs/3Es1RHPkzBzyhpVS6eg9q+kw", characteristics.get("stateToken"));
+        final Map<String, Object> eventTokens = (Map<String, Object>)characteristics.get("eventTokens");
+        assertNotNull(eventTokens);
+        assertEquals(2, eventTokens.size());
+        assertEquals("MmvRrL5aB4Jz36JappRYg2qipfsIHvVzTQxHolz2IpSCnQ9Y9OaLL2gsdrWQTvE54PwSz67rmXWmSnkXpSSS2Q==", eventTokens.get("display"));
+        assertEquals("EZDMbI2wmAyGcUYLr3VpmA==", eventTokens.get("click"));
+
+        Assert.assertEquals(1, proposition.getOffers().size());
+        final Offer offer = proposition.getOffers().get(0);
+        Assert.assertEquals("0", offer.getId());
+        Assert.assertEquals("https://ns.adobe.com/personalization/json-content-item", offer.getSchema());
+        Assert.assertEquals(OfferType.JSON, offer.getType());
+        Assert.assertEquals("{\"device\":\"mobile\"}", offer.getContent());
+        Assert.assertNull(offer.getCharacteristics());
+        Assert.assertNull(offer.getLanguage());
     }
 
     //8

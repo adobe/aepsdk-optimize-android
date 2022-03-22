@@ -702,7 +702,7 @@ public class OptimizeExtensionTests {
 
         final Map<String, Object> scopeDetails = proposition.getScopeDetails();
         assertNotNull(scopeDetails);
-        assertEquals(4, scopeDetails.size());
+        assertEquals(5, scopeDetails.size());
         assertEquals("TGT", scopeDetails.get("decisionProvider"));
         final Map<String, Object> activity = (Map<String, Object>)scopeDetails.get("activity");
         assertNotNull(activity);
@@ -714,12 +714,29 @@ public class OptimizeExtensionTests {
         assertEquals("0", experience.get("id"));
         final List<Map<String, Object>> strategies = (List<Map<String, Object>>)scopeDetails.get("strategies");
         assertNotNull(strategies);
-        assertEquals(1, strategies.size());
-        final Map<String, Object> strategy = strategies.get(0);
-        assertNotNull(strategy);
-        assertEquals(2, strategy.size());
-        assertEquals("0", strategy.get("algorithmID"));
-        assertEquals("0", strategy.get("trafficType"));
+        assertEquals(2, strategies.size());
+        final Map<String, Object> strategy0 = strategies.get(0);
+        assertNotNull(strategy0);
+        assertEquals(3, strategy0.size());
+        assertEquals("entry", strategy0.get("step"));
+        assertEquals("0", strategy0.get("algorithmID"));
+        assertEquals("0", strategy0.get("trafficType"));
+
+        final Map<String, Object> strategy1 = strategies.get(1);
+        assertNotNull(strategy1);
+        assertEquals(3, strategy1.size());
+        assertEquals("display", strategy1.get("step"));
+        assertEquals("0", strategy1.get("algorithmID"));
+        assertEquals("0", strategy1.get("trafficType"));
+
+        final Map<String, Object> characteristics = (Map<String, Object>)scopeDetails.get("characteristics");
+        final String stateToken = (String)characteristics.get("stateToken");
+        assertEquals("SGFZpwAqaqFTayhAT2xsgzG3+2fw4m+O9FK8c0QoOHfxVkH1ttT1PGBX3/jV8a5uFF0fAox6CXpjJ1PGRVQBjHl9Zc6mRxY9NQeM7rs/3Es1RHPkzBzyhpVS6eg9q+kw", stateToken);
+        final Map<String, Object> eventTokens = (Map<String, Object>)characteristics.get("eventTokens");
+        final String displayEventToken = (String)eventTokens.get("display");
+        assertEquals("MmvRrL5aB4Jz36JappRYg2qipfsIHvVzTQxHolz2IpSCnQ9Y9OaLL2gsdrWQTvE54PwSz67rmXWmSnkXpSSS2Q==", displayEventToken);
+        final String clickEventToken = (String)eventTokens.get("click");
+        assertEquals("EZDMbI2wmAyGcUYLr3VpmA==", clickEventToken);
 
         assertEquals(1, proposition.getOffers().size());
         final Offer offer = proposition.getOffers().get(0);
