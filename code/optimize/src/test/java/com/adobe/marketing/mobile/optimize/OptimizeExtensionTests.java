@@ -730,13 +730,14 @@ public class OptimizeExtensionTests {
         assertEquals("0", strategy1.get("trafficType"));
 
         final Map<String, Object> characteristics = (Map<String, Object>)scopeDetails.get("characteristics");
-        final String stateToken = (String)characteristics.get("stateToken");
-        assertEquals("SGFZpwAqaqFTayhAT2xsgzG3+2fw4m+O9FK8c0QoOHfxVkH1ttT1PGBX3/jV8a5uFF0fAox6CXpjJ1PGRVQBjHl9Zc6mRxY9NQeM7rs/3Es1RHPkzBzyhpVS6eg9q+kw", stateToken);
+        assertNotNull(characteristics);
+        assertEquals(2, characteristics.size());
+        assertEquals("SGFZpwAqaqFTayhAT2xsgzG3+2fw4m+O9FK8c0QoOHfxVkH1ttT1PGBX3/jV8a5uFF0fAox6CXpjJ1PGRVQBjHl9Zc6mRxY9NQeM7rs/3Es1RHPkzBzyhpVS6eg9q+kw", characteristics.get("stateToken"));
         final Map<String, Object> eventTokens = (Map<String, Object>)characteristics.get("eventTokens");
-        final String displayEventToken = (String)eventTokens.get("display");
-        assertEquals("MmvRrL5aB4Jz36JappRYg2qipfsIHvVzTQxHolz2IpSCnQ9Y9OaLL2gsdrWQTvE54PwSz67rmXWmSnkXpSSS2Q==", displayEventToken);
-        final String clickEventToken = (String)eventTokens.get("click");
-        assertEquals("EZDMbI2wmAyGcUYLr3VpmA==", clickEventToken);
+        assertNotNull(eventTokens);
+        assertEquals(2, eventTokens.size());
+        assertEquals("MmvRrL5aB4Jz36JappRYg2qipfsIHvVzTQxHolz2IpSCnQ9Y9OaLL2gsdrWQTvE54PwSz67rmXWmSnkXpSSS2Q==", eventTokens.get("display"));
+        assertEquals("EZDMbI2wmAyGcUYLr3VpmA==", eventTokens.get("click"));
 
         assertEquals(1, proposition.getOffers().size());
         final Offer offer = proposition.getOffers().get(0);
