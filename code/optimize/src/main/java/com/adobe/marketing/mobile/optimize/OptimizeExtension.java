@@ -22,6 +22,7 @@ import com.adobe.marketing.mobile.LoggingMode;
 import com.adobe.marketing.mobile.MobileCore;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -36,7 +37,21 @@ class OptimizeExtension extends Extension {
     private final Object executorMutex = new Object();
     private ExecutorService executorService;
 
-    final private Map<DecisionScope, Proposition> cachedPropositions;
+    private final Map<DecisionScope, Proposition> cachedPropositions;
+
+    // List containing the schema strings for the proposition items supported by the SDK, sent in the personalization query request.
+    final static List<String> supportedSchemas = Arrays.asList(
+            // Target schemas
+            OptimizeConstants.JsonValues.SCHEMA_TARGET_HTML,
+            OptimizeConstants.JsonValues.SCHEMA_TARGET_JSON,
+            OptimizeConstants.JsonValues.SCHEMA_TARGET_DEFAULT,
+
+            // Offer Decisioning schemas
+            OptimizeConstants.JsonValues.SCHEMA_OFFER_HTML,
+            OptimizeConstants.JsonValues.SCHEMA_OFFER_JSON,
+            OptimizeConstants.JsonValues.SCHEMA_OFFER_IMAGE,
+            OptimizeConstants.JsonValues.SCHEMA_OFFER_TEXT
+    );
 
     /**
      * Constructor for {@code OptimizeExtension}.
@@ -142,6 +157,7 @@ class OptimizeExtension extends Extension {
 
                     // Add query
                     final Map<String, Object> queryPersonalization = new HashMap<>();
+                    queryPersonalization.put(OptimizeConstants.JsonKeys.SCHEMAS, supportedSchemas);
                     queryPersonalization.put(OptimizeConstants.JsonKeys.DECISION_SCOPES, validScopeNames);
                     final Map<String, Object> query = new HashMap<>();
                     query.put(OptimizeConstants.JsonKeys.QUERY_PERSONALIZATION, queryPersonalization);

@@ -397,53 +397,63 @@ public class Offer {
             final Map<String, Object> meta = (Map<String, Object>) data.get(OptimizeConstants.JsonKeys.PAYLOAD_ITEM_META);
 
             final Map<String, Object> offerData = (Map<String, Object>) data.get(OptimizeConstants.JsonKeys.PAYLOAD_ITEM_DATA);
-            if (OptimizeUtils.isNullOrEmpty(offerData)) {
-                MobileCore.log(LoggingMode.DEBUG, LOG_TAG, "Cannot create Offer object, provided data Map doesn't contain valid item data.");
-                return null;
-            }
 
-            final String nestedId = (String) offerData.get(OptimizeConstants.JsonKeys.PAYLOAD_ITEM_DATA_ID);
-            if (OptimizeUtils.isNullOrEmpty(id) || !id.equals(nestedId)) {
-                MobileCore.log(LoggingMode.DEBUG, LOG_TAG, "Cannot create Offer object, provided item id is null or empty or it doesn't match item data id.");
-                return null;
-            }
-
-            final String format = (String) offerData.get(OptimizeConstants.JsonKeys.PAYLOAD_ITEM_DATA_FORMAT);
-            if (OptimizeUtils.isNullOrEmpty(format)) {
-                MobileCore.log(LoggingMode.DEBUG, LOG_TAG, "Cannot create Offer object, provided data Map doesn't contain valid item data format.");
-                return null;
-            }
-
-            final List<String> language = (List<String>) offerData.get(OptimizeConstants.JsonKeys.PAYLOAD_ITEM_DATA_LANGUAGE);
-            final Map<String, String> characteristics = (Map<String, String>) offerData.get(OptimizeConstants.JsonKeys.PAYLOAD_ITEM_DATA_CHARACTERISTICS);
-
-
-            String content = null;
-            if (offerData.containsKey(OptimizeConstants.JsonKeys.PAYLOAD_ITEM_DATA_CONTENT)) {
-                final Object offerContent = offerData.get(OptimizeConstants.JsonKeys.PAYLOAD_ITEM_DATA_CONTENT);
-                if (offerContent instanceof String) {
-                    content = (String) offerContent;
-                } else {
-                    final JSONObject offerContentJson = new JSONObject((Map<String, Object>)offerContent);
-                    content = offerContentJson.toString();
+            if (!OptimizeUtils.isNullOrEmpty(offerData)) {
+                final String nestedId = (String) offerData.get(OptimizeConstants.JsonKeys.PAYLOAD_ITEM_DATA_ID);
+                if (OptimizeUtils.isNullOrEmpty(id) || !id.equals(nestedId)) {
+                    MobileCore.log(LoggingMode.DEBUG, LOG_TAG, "Cannot create Offer object, provided item id is null or empty or it doesn't match item data id.");
+                    return null;
                 }
-            } else if (offerData.containsKey(OptimizeConstants.JsonKeys.PAYLOAD_ITEM_DATA_DELIVERYURL)) {
-                content = (String) offerData.get(OptimizeConstants.JsonKeys.PAYLOAD_ITEM_DATA_DELIVERYURL);
-            }
-            if (content == null) {
-                MobileCore.log(LoggingMode.DEBUG, LOG_TAG, "Cannot create Offer object, provided data Map doesn't contain valid item data content or deliveryURL.");
-                return null;
-            }
 
-            return new Builder(id, OfferType.from(format), content)
-                    .setEtag(etag)
-                    .setSchema(schema)
-                    .setMeta(meta)
-                    .setLanguage(language)
-                    .setCharacteristics(characteristics)
-                    .build();
+                final String format = (String) offerData.get(OptimizeConstants.JsonKeys.PAYLOAD_ITEM_DATA_FORMAT);
+                if (OptimizeUtils.isNullOrEmpty(format)) {
+                    MobileCore.log(LoggingMode.DEBUG, LOG_TAG, "Cannot create Offer object, provided data Map doesn't contain valid item data format.");
+                    return null;
+                }
 
-        } catch (Exception e) {
+                final List<String> language = (List<String>) offerData.get(OptimizeConstants.JsonKeys.PAYLOAD_ITEM_DATA_LANGUAGE);
+                final Map<String, String> characteristics = (Map<String, String>) offerData.get(OptimizeConstants.JsonKeys.PAYLOAD_ITEM_DATA_CHARACTERISTICS);
+
+
+                String content = null;
+                if (offerData.containsKey(OptimizeConstants.JsonKeys.PAYLOAD_ITEM_DATA_CONTENT)) {
+                    final Object offerContent = offerData.get(OptimizeConstants.JsonKeys.PAYLOAD_ITEM_DATA_CONTENT);
+                    if (offerContent instanceof String) {
+                        content = (String) offerContent;
+                    } else {
+                        final JSONObject offerContentJson = new JSONObject((Map<String, Object>)offerContent);
+                        content = offerContentJson.toString();
+                    }
+                } else if (offerData.containsKey(OptimizeConstants.JsonKeys.PAYLOAD_ITEM_DATA_DELIVERYURL)) {
+                    content = (String) offerData.get(OptimizeConstants.JsonKeys.PAYLOAD_ITEM_DATA_DELIVERYURL);
+                }
+                if (content == null) {
+                    MobileCore.log(LoggingMode.DEBUG, LOG_TAG, "Cannot create Offer object, provided data Map doesn't contain valid item data content or deliveryURL.");
+                    return null;
+                }
+
+                return new Builder(id, OfferType.from(format), content)
+                        .setEtag(etag)
+                        .setSchema(schema)
+                        .setMeta(meta)
+                        .setLanguage(language)
+                        .setCharacteristics(characteristics)
+                        .build();
+            } else {
+                if (!schema.equals(OptimizeConstants.JsonValues.SCHEMA_TARGET_DEFAULT)) {
+                    MobileCore.log(LoggingMode.DEBUG, LOG_TAG, "Cannot create Offer object, provided data Map doesn't contain valid item data.");
+                    return null;
+                }
+                MobileCore.log(LoggingMode.VERBOSE, LOG_TAG, "Received default content proposition item, Offer content will be set to empty string.");
+                return new Builder(id, OfferType.UNKNOWN, "")
+                        .setEtag(null)
+                        .setSchema(schema)
+                        .setMeta(meta)
+                        .setLanguage(null)
+                        .setCharacteristics(null)
+                        .build();
+            }
+        } catch (final ClassCastException e) {
             MobileCore.log(LoggingMode.WARNING, LOG_TAG, "Cannot create Offer object, provided data contains invalid fields.");
             return null;
         }
