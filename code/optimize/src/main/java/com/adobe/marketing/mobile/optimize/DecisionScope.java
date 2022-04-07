@@ -91,7 +91,13 @@ public class DecisionScope {
         if (jsonString != null) {
             try {
                 final JSONObject jsonObject = new JSONObject(jsonString);
-                if (jsonObject.has(OptimizeConstants.XDM_ACTIVITY_ID)) {
+                if (jsonObject.has(OptimizeConstants.XDM_NAME)) {
+                    final String scopeName = jsonObject.getString(OptimizeConstants.XDM_NAME);
+                    if (OptimizeUtils.isNullOrEmpty(scopeName)) {
+                        MobileCore.log(LoggingMode.DEBUG, LOG_TAG, String.format("Invalid scope (%s)! Scope name is null or empty.", name));
+                        return false;
+                    }
+                } else if (jsonObject.has(OptimizeConstants.XDM_ACTIVITY_ID)) {
                     final String activityId = jsonObject.getString(OptimizeConstants.XDM_ACTIVITY_ID);
                     if (OptimizeUtils.isNullOrEmpty(activityId)) {
                         MobileCore.log(LoggingMode.DEBUG, LOG_TAG, String.format("Invalid scope (%s)! Activity Id is null or empty.", name));

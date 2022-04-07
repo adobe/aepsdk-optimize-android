@@ -223,6 +223,20 @@ public class DecisionScopeTests {
     }
 
     @Test
+    public void testIsValid_encodedScopeWithValidName() {
+        // test
+        final DecisionScope scope = new DecisionScope( "eyJ4ZG06bmFtZSI6ImNvbS5hZG9iZS5TYW1wbGVBcHAifQ==");
+        assertTrue(scope.isValid());
+    }
+
+    @Test
+    public void testIsValid_encodedScopeWithEmptyName() {
+        // test
+        final DecisionScope scope = new DecisionScope( "eyJ4ZG06bmFtZSI6IiJ9");
+        assertFalse(scope.isValid());
+    }
+
+    @Test
     public void testIsValid_encodedScopeWithEmptyActivityId() {
         // test
         final DecisionScope scope = new DecisionScope( "eyJ4ZG06YWN0aXZpdHlJZCI6IiIsInhkbTpwbGFjZW1lbnRJZCI6Inhjb3JlOm9mZmVyLXBsYWNlbWVudDoxMTExMTExMTExMTExMTExIn0=");

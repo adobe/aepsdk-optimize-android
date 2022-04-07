@@ -23,7 +23,7 @@ class OptimizeConstants {
     static final String XDM_PLACEMENT_ID = "xdm:placementId";
     static final String ITEM_COUNT = "itemCount";
     static final String XDM_ITEM_COUNT = "xdm:itemCount";
-
+    static final String XDM_NAME = "xdm:name";
 
     private OptimizeConstants() {}
 
