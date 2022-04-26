@@ -32,6 +32,7 @@ import static com.adobe.marketing.mobile.optimize.OptimizeConstants.LOG_TAG;
 public class Offer {
     private String id;
     private String etag;
+    private int score;
     private String schema;
     private Map<String, Object> meta;
     private OfferType type;
@@ -70,6 +71,7 @@ public class Offer {
             offer.type = type != null ? type : OfferType.UNKNOWN;
             offer.content = content != null ? content : "";
             offer.etag = "";
+            offer.score = 0;
             offer.schema = "";
             offer.meta = new HashMap<>();
             offer.language = new ArrayList<>();
@@ -88,6 +90,20 @@ public class Offer {
             throwIfAlreadyBuilt();
 
             offer.etag = etag;
+            return this;
+        }
+
+        /**
+         * Sets the score for this {@code Offer}.
+         *
+         * @param score {@code int} containing {@link Offer} score.
+         * @return this Offer {@link Builder}
+         * @throws UnsupportedOperationException if this method is invoked after {@link Builder#build()}.
+         */
+        public Builder setScore(final int score) {
+            throwIfAlreadyBuilt();
+
+            offer.score = score;
             return this;
         }
 
@@ -183,6 +199,15 @@ public class Offer {
      */
     public String getEtag() {
         return etag;
+    }
+
+    /**
+     * Gets the {@code Offer} score.
+     *
+     * @return {@code int} containing the {@link Offer} score.
+     */
+    public int getScore() {
+        return score;
     }
 
     /**
@@ -392,6 +417,8 @@ public class Offer {
         try {
             final String id = (String) data.get(OptimizeConstants.JsonKeys.PAYLOAD_ITEM_ID);
             final String etag = (String) data.get(OptimizeConstants.JsonKeys.PAYLOAD_ITEM_ETAG);
+            final int score = data.containsKey(OptimizeConstants.JsonKeys.PAYLOAD_ITEM_SCORE) ?
+                    (int) data.get(OptimizeConstants.JsonKeys.PAYLOAD_ITEM_SCORE) : 0;
             final String schema = (String) data.get(OptimizeConstants.JsonKeys.PAYLOAD_ITEM_SCHEMA);
 
             final Map<String, Object> meta = (Map<String, Object>) data.get(OptimizeConstants.JsonKeys.PAYLOAD_ITEM_META);
@@ -434,6 +461,7 @@ public class Offer {
 
                 return new Builder(id, OfferType.from(format), content)
                         .setEtag(etag)
+                        .setScore(score)
                         .setSchema(schema)
                         .setMeta(meta)
                         .setLanguage(language)
@@ -447,6 +475,7 @@ public class Offer {
                 MobileCore.log(LoggingMode.VERBOSE, LOG_TAG, "Received default content proposition item, Offer content will be set to empty string.");
                 return new Builder(id, OfferType.UNKNOWN, "")
                         .setEtag(null)
+                        .setScore(0)
                         .setSchema(schema)
                         .setMeta(meta)
                         .setLanguage(null)
@@ -468,6 +497,7 @@ public class Offer {
         final Map<String, Object> offerMap = new HashMap<>();
         offerMap.put(OptimizeConstants.JsonKeys.PAYLOAD_ITEM_ID, this.id);
         offerMap.put(OptimizeConstants.JsonKeys.PAYLOAD_ITEM_ETAG, this.etag);
+        offerMap.put(OptimizeConstants.JsonKeys.PAYLOAD_ITEM_SCORE, this.score);
         offerMap.put(OptimizeConstants.JsonKeys.PAYLOAD_ITEM_SCHEMA, this.schema);
         offerMap.put(OptimizeConstants.JsonKeys.PAYLOAD_ITEM_META, this.meta);
 
@@ -489,6 +519,7 @@ public class Offer {
 
         Offer that = (Offer) o;
         if (id != null ? !id.equals(that.id) : that.id != null) return false;
+        if (score != that.score) return false;
         if (etag != null ? !etag.equals(that.etag) : that.etag != null) return false;
         if (schema != null ? !schema.equals(that.schema) : that.schema != null) return false;
         if (meta != null ? !meta.equals(that.meta) : that.meta != null) return false;
@@ -500,6 +531,6 @@ public class Offer {
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, etag, schema, type, language, content, characteristics);
+        return Objects.hash(id, etag, score, schema, type, language, content, characteristics);
     }
 }

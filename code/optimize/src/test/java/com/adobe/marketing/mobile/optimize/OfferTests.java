@@ -52,6 +52,7 @@ public class OfferTests {
     public void testBuilder_validOffer() {
         final Offer offer = new Offer.Builder("xcore:personalized-offer:2222222222222222", OfferType.TEXT, "This is a plain text content!")
                     .setEtag("7")
+                    .setScore(2)
                     .setSchema("https://ns.adobe.com/experience/offer-management/content-component-text")
                     .setLanguage(new ArrayList<String>() {
                         {
@@ -67,6 +68,7 @@ public class OfferTests {
 
         assertEquals("xcore:personalized-offer:2222222222222222", offer.getId());
         assertEquals("7", offer.getEtag());
+        assertEquals(2, offer.getScore());
         assertEquals("https://ns.adobe.com/experience/offer-management/content-component-text", offer.getSchema());
         assertEquals(OfferType.TEXT, offer.getType());
         assertEquals(1, offer.getLanguage().size());
@@ -84,6 +86,7 @@ public class OfferTests {
 
         assertEquals("xcore:personalized-offer:1111111111111111", offer.getId());
         assertEquals("8", offer.getEtag());
+        assertEquals(0, offer.getScore());
         assertEquals("https://ns.adobe.com/experience/offer-management/content-component-json", offer.getSchema());
         assertEquals(OfferType.JSON, offer.getType());
         assertEquals(1, offer.getLanguage().size());
@@ -101,6 +104,7 @@ public class OfferTests {
 
         assertEquals("xcore:personalized-offer:2222222222222222", offer.getId());
         assertEquals("7", offer.getEtag());
+        assertEquals(0, offer.getScore());
         assertEquals("https://ns.adobe.com/experience/offer-management/content-component-text", offer.getSchema());
         assertEquals(OfferType.TEXT, offer.getType());
         assertEquals(1, offer.getLanguage().size());
@@ -118,6 +122,7 @@ public class OfferTests {
 
         assertEquals("xcore:personalized-offer:3333333333333333", offer.getId());
         assertEquals("8", offer.getEtag());
+        assertEquals(0, offer.getScore());
         assertEquals("https://ns.adobe.com/experience/offer-management/content-component-html", offer.getSchema());
         assertEquals(OfferType.HTML, offer.getType());
         assertEquals(1, offer.getLanguage().size());
@@ -135,11 +140,30 @@ public class OfferTests {
 
         assertEquals("xcore:personalized-offer:4444444444444444", offer.getId());
         assertEquals("8", offer.getEtag());
+        assertEquals(0, offer.getScore());
         assertEquals("https://ns.adobe.com/experience/offer-management/content-component-imagelink", offer.getSchema());
         assertEquals(OfferType.IMAGE, offer.getType());
         assertEquals(1, offer.getLanguage().size());
         assertEquals("en-us", offer.getLanguage().get(0));
         assertEquals("https://example.com/avatar1.png?alt=media", offer.getContent());
+        assertEquals(1, offer.getCharacteristics().size());
+        assertEquals("true", offer.getCharacteristics().get("mobile"));
+    }
+
+    @Test
+    public void testFromEventData_validOfferWithScore() throws Exception {
+        Map<String, Object> offerData = new ObjectMapper().readValue(getClass().getClassLoader().getResource("json/OFFER_VALID_WITH_SCORE.json"), HashMap.class);
+        final Offer offer = Offer.fromEventData(offerData);
+        assertNotNull(offer);
+
+        assertEquals("xcore:personalized-offer:2222222222222222", offer.getId());
+        assertEquals("7", offer.getEtag());
+        assertEquals(1, offer.getScore());
+        assertEquals("https://ns.adobe.com/experience/offer-management/content-component-text", offer.getSchema());
+        assertEquals(OfferType.TEXT, offer.getType());
+        assertEquals(1, offer.getLanguage().size());
+        assertEquals("en-us", offer.getLanguage().get(0));
+        assertEquals("This is a plain text content!", offer.getContent());
         assertEquals(1, offer.getCharacteristics().size());
         assertEquals("true", offer.getCharacteristics().get("mobile"));
     }

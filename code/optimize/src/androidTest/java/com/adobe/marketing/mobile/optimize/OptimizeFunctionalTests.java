@@ -326,6 +326,7 @@ public class OptimizeFunctionalTests {
                 "                                            {\n" +
                 "                                                \"id\": \"xcore:personalized-offer:1111111111111111\",\n" +
                 "                                                \"etag\": \"10\",\n" +
+                "                                                \"score\": 1,\n" +
                 "                                                \"schema\": \"https://ns.adobe.com/experience/offer-management/content-component-html\",\n" +
                 "                                                \"data\": {\n" +
                 "                                                    \"id\": \"xcore:personalized-offer:1111111111111111\",\n" +
@@ -396,6 +397,8 @@ public class OptimizeFunctionalTests {
 
         Offer offer = proposition.getOffers().get(0);
         Assert.assertEquals("xcore:personalized-offer:1111111111111111", offer.getId());
+        Assert.assertEquals("10", offer.getEtag());
+        Assert.assertEquals(1, offer.getScore());
         Assert.assertEquals("https://ns.adobe.com/experience/offer-management/content-component-html", offer.getSchema());
         Assert.assertEquals(OfferType.HTML, offer.getType());
         Assert.assertEquals("<h1>This is HTML content</h1>", offer.getContent());
