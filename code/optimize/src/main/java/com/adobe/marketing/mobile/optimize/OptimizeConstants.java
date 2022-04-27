@@ -111,6 +111,7 @@ class OptimizeConstants {
 
         static final String PAYLOAD_ITEM_ID = "id";
         static final String PAYLOAD_ITEM_ETAG = "etag";
+        static final String PAYLOAD_ITEM_SCORE = "score";
         static final String PAYLOAD_ITEM_SCHEMA = "schema";
         static final String PAYLOAD_ITEM_META = "meta";
         static final String PAYLOAD_ITEM_DATA = "data";
