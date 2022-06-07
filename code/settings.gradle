@@ -1,3 +1,4 @@
+include ':app'
 include ':optimize'
 rootProject.name = 'optimize'
-// include ':app'
+

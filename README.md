@@ -1,11 +1,7 @@
-# Adobe Experience Platform Optimize Mobile SDK (Beta)
-
-## Beta version acknowledgment
-
-By using the AEPOptimize SDK (“Beta”), you hereby acknowledge that the Beta is provided “as is” without warranty of any kind. Adobe shall have no obligation to maintain, correct, update, change, modify or otherwise support the Beta. You are advised to use caution and not to rely in any way on the correct functioning or performance of such Beta and/or accompanying materials. 
+# Adobe Experience Platform Optimize Mobile SDK
 
 ## About this project
-The AEP Mobile Optimize SDK Extension provides APIs to enable real-time personalization workflows in Adobe Experience Platform SDKs using the Edge decisioning services. It depends on the Mobile Core and requires Edge Extension to send personalization query Events to the Experience Edge network.
+The AEP Optimize mobile SDK Extension provides APIs to enable real-time personalization workflows in the Adobe Experience Platform SDKs using Adobe Target or Adobe Journey Optimizer Offer Decisioning. It depends on the Mobile Core and requires Edge Extension to send personalization query events to the Experience Edge network.
 
 ## Installation
 Integrate the Optimize extension into your app by including the following lines in your gradle file's `dependencies`:
@@ -24,9 +20,6 @@ To open and run the project, open the `code/build.gradle` file in Android Studio
 
 **Run demo application**
 Once you open the project in Android Studio (see above), select the `app` runnable and your favorite emulator and run the program.
-
-## Documentation
-TBD
 
 ## Related Projects
 

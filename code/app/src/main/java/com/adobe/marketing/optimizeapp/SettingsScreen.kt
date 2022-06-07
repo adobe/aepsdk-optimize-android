@@ -43,14 +43,8 @@ fun SettingsView(viewModel: MainViewModel) {
                 .verticalScroll(state = rememberScrollState())
                 .background(color = Color.LightGray)
         ) {
-            // Launch Environment Id
-            SettingsLabel(text = "Launch Environment File Id", align = TextAlign.Start, textStyle = MaterialTheme.typography.subtitle1)
-            SettingTextField(value = viewModel.textLaunchId, placeholder = "Enter your appId") {
-                viewModel.textLaunchId = it
-            }
-
-            // AEP Assurance Start URL
-            SettingsLabel(text = "AEPAssurance Start URL", align = TextAlign.Start, textStyle = MaterialTheme.typography.subtitle1)
+            // AEP Assurance Start Session URL
+            SettingsLabel(text = "Assurance Session URL", align = TextAlign.Start, textStyle = MaterialTheme.typography.subtitle1)
             SettingTextField(value = viewModel.textAssuranceUrl, placeholder = "Enter Assurance session URL") {
                 viewModel.textAssuranceUrl = it
             }
@@ -58,15 +52,15 @@ fun SettingsView(viewModel: MainViewModel) {
                 Text(text = "Start Assurance\nSession", textAlign = TextAlign.Start, style = MaterialTheme.typography.button)
             }
 
-            // AEP Optimize ODE
-            SettingsLabel(text = "AEPOptimize-ODE", align = TextAlign.Start, textStyle = MaterialTheme.typography.subtitle1)
+            // AEP Optimize OD
+            SettingsLabel(text = "Optimize-OD", align = TextAlign.Start, textStyle = MaterialTheme.typography.subtitle1)
             SettingTextField(value = viewModel.textOdeText, placeholder = "Enter Encoded Decision Scope (Text)") { viewModel.textOdeText = it }
             SettingTextField(value = viewModel.textOdeImage, placeholder = "Enter Encoded Decision Scope (Image)") { viewModel.textOdeImage = it }
             SettingTextField(value = viewModel.textOdeHtml, placeholder = "Enter Encoded Decision Scope (HTML)") { viewModel.textOdeHtml = it }
             SettingTextField(value = viewModel.textOdeJson, placeholder = "Enter Encoded Decision Scope (JSON)") { viewModel.textOdeJson = it }
 
             // AEP Optimize Target
-            SettingsLabel(text = "AEPOptimize-Target", align = TextAlign.Start, textStyle = MaterialTheme.typography.subtitle1)
+            SettingsLabel(text = "Optimize-Target", align = TextAlign.Start, textStyle = MaterialTheme.typography.subtitle1)
             SettingTextField(value = viewModel.textTargetMbox, placeholder = "Enter Target Mbox") { viewModel.textTargetMbox = it }
             SettingsLabel(text = "Target Parameters - Mbox", align = TextAlign.Center, textStyle = MaterialTheme.typography.subtitle2)
             KeyValuePairsView(keyValuePairList = viewModel.targetParamsMbox)
