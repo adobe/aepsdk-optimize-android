@@ -201,14 +201,14 @@ dependencies {
     // Adobe Mobile SDK Core
     implementation "com.adobe.marketing.mobile:core:${rootProject.mavenCoreVersion}"
 
-    testImplementation "androidx.test.ext:junit:${rootProject.ext.junitVersion}"
-    testImplementation "org.mockito:mockito-core:${rootProject.ext.mockitoCoreVersion}"
+    testImplementation "androidx.test.ext:junit:${rootProject.junitVersion}"
+    testImplementation "org.mockito:mockito-core:${rootProject.mockitoCoreVersion}"
     testImplementation 'com.fasterxml.jackson.core:jackson-databind:2.9.9'
     testImplementation 'org.powermock:powermock-api-mockito2:2.0.0'
     testImplementation 'org.powermock:powermock-module-junit4:2.0.0'
     testImplementation 'org.json:json:20180813'
 
-    androidTestImplementation "androidx.test.ext:junit:${rootProject.ext.junitVersion}"
+    androidTestImplementation "androidx.test.ext:junit:${rootProject.junitVersion}"
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
     androidTestImplementation 'com.fasterxml.jackson.core:jackson-databind:2.9.9'
 
