@@ -1,4 +1,3 @@
 include ':app'
 include ':optimize'
 rootProject.name = 'optimize'
-

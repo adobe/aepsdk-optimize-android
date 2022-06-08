@@ -3,6 +3,12 @@ apply plugin: 'jacoco'
 apply plugin: 'maven-publish'
 apply plugin: 'signing'
 
+ext {
+    srcFolders = file("./").listFiles().findAll {
+        !it.isFile() && !it.name.startsWith("gradle") && !it.name.startsWith("test")
+    }.collect { "./" + it.name + "/src/main/java" }
+}
+
 jacoco {
     toolVersion = rootProject.ext.jacocoVersion
 }
