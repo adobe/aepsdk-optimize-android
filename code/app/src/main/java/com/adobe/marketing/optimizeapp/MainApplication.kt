@@ -14,6 +14,7 @@ package com.adobe.marketing.optimizeapp
 import android.app.Application
 import com.adobe.marketing.mobile.Assurance
 import com.adobe.marketing.mobile.Edge
+import com.adobe.marketing.mobile.Lifecycle
 import com.adobe.marketing.mobile.LoggingMode
 import com.adobe.marketing.mobile.MobileCore
 import com.adobe.marketing.mobile.edge.identity.Identity
@@ -31,13 +32,14 @@ class MainApplication : Application() {
         MobileCore.setLogLevel(LoggingMode.VERBOSE)
 
         Identity.registerExtension()
+        Lifecycle.registerExtension()
         Edge.registerExtension()
         Optimize.registerExtension()
         Assurance.registerExtension()
 
         MobileCore.configureWithAppID(LAUNCH_ENVIRONMENT_FILE_ID)
         MobileCore.start {
-            print("Adobe SDK is successfully registered")
+            print("Adobe mobile SDKs are successfully registered.")
         }
     }
 }

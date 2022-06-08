@@ -32,7 +32,7 @@ import com.adobe.marketing.optimizeapp.viewmodels.MainViewModel
 fun MainScreen(viewModel: MainViewModel) {
     val navController = rememberNavController()
     var appBarTitle by remember {
-        mutableStateOf("Welcome to AEPOptimize Demo")
+        mutableStateOf("Welcome to Optimize Demo")
     }
     val bottomNavigationItems = listOf(
         BottomNavigationScreen.OffersScreen,
@@ -43,7 +43,7 @@ fun MainScreen(viewModel: MainViewModel) {
         OffersBottomNavigation(navController = navController, items = bottomNavigationItems, onNavigationChange = {
             appBarTitle = when(it){
                 BottomNavigationScreen.SettingsScreen -> "Settings"
-                BottomNavigationScreen.OffersScreen -> "Welcome to AEPOptimize Demo"
+                BottomNavigationScreen.OffersScreen -> "Welcome to Optimize Demo"
             }
         })
     },
@@ -53,7 +53,7 @@ fun MainScreen(viewModel: MainViewModel) {
                     text = "$appBarTitle",
                     modifier = Modifier.fillMaxWidth(),
                     textAlign = TextAlign.Center,
-                    style = MaterialTheme.typography.h5
+                    style = MaterialTheme.typography.h6
                 )
             }
         }

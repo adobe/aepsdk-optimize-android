@@ -24,7 +24,6 @@ import com.adobe.marketing.optimizeapp.models.OptimizePair
 class MainViewModel: ViewModel() {
 
     //Settings textField Values
-    var textLaunchId by mutableStateOf("")
     var textAssuranceUrl by mutableStateOf("")
     var textOdeText by mutableStateOf("")
     var textOdeImage by mutableStateOf("")
@@ -47,7 +46,6 @@ class MainViewModel: ViewModel() {
         override fun call(propositions: Map<DecisionScope, Proposition>?) {
             propositions?.forEach {
                 propositionStateMap[it.key.name] = it.value
-                it.value.offers.onEach { offer -> trackOfferDisplayed(offer = offer) }
             }
         }
 
@@ -60,7 +58,7 @@ class MainViewModel: ViewModel() {
         Optimize.onPropositionsUpdate(propositionUpdateCallback)
     }
 
-    //Begin: Calls to Optimize SDK API's
+    //Begin: Calls to Optimize SDK APIs
 
     /**
      * Calls the Optimize SDK API to get the extension version see [Optimize.extensionVersion]
@@ -78,7 +76,6 @@ class MainViewModel: ViewModel() {
             override fun call(propositions: Map<DecisionScope, Proposition>?) {
                 propositions?.forEach {
                     propositionStateMap[it.key.name] = it.value
-                    it.value.offers.onEach { offer -> trackOfferDisplayed(offer = offer) }
                 }
             }
 
