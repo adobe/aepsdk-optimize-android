@@ -24,7 +24,9 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.constraintlayout.compose.ChainStyle
 import androidx.constraintlayout.compose.ConstraintLayout
+import androidx.constraintlayout.compose.Dimension
 import com.adobe.marketing.mobile.Assurance
 import com.adobe.marketing.optimizeapp.models.OptimizePair
 import com.adobe.marketing.optimizeapp.viewmodels.MainViewModel
@@ -43,36 +45,36 @@ fun SettingsView(viewModel: MainViewModel) {
                 .verticalScroll(state = rememberScrollState())
                 .background(color = Color.LightGray)
         ) {
-            // AEP Assurance Start Session URL
+            // Assurance Start Session URL
             SettingsLabel(text = "Assurance Session URL", align = TextAlign.Start, textStyle = MaterialTheme.typography.subtitle1)
-            SettingTextField(value = viewModel.textAssuranceUrl, placeholder = "Enter Assurance session URL") {
+            SettingsTextField(value = viewModel.textAssuranceUrl, placeholder = "Enter Assurance session URL") {
                 viewModel.textAssuranceUrl = it
             }
             Button(modifier = Modifier.padding(vertical = 20.dp, horizontal = 20.dp), onClick = { Assurance.startSession(viewModel.textAssuranceUrl)  }) {
                 Text(text = "Start Assurance Session", textAlign = TextAlign.Start, style = MaterialTheme.typography.button)
             }
 
-            // AEP Optimize OD
+            // Optimize OD
             SettingsLabel(text = "Optimize-OD", align = TextAlign.Start, textStyle = MaterialTheme.typography.subtitle1)
-            SettingTextField(value = viewModel.textOdeText, placeholder = "Enter Encoded Decision Scope (Text)") { viewModel.textOdeText = it }
-            SettingTextField(value = viewModel.textOdeImage, placeholder = "Enter Encoded Decision Scope (Image)") { viewModel.textOdeImage = it }
-            SettingTextField(value = viewModel.textOdeHtml, placeholder = "Enter Encoded Decision Scope (HTML)") { viewModel.textOdeHtml = it }
-            SettingTextField(value = viewModel.textOdeJson, placeholder = "Enter Encoded Decision Scope (JSON)") { viewModel.textOdeJson = it }
+            SettingsTextField(value = viewModel.textOdeText, placeholder = "Enter Encoded Decision Scope (Text)") { viewModel.textOdeText = it }
+            SettingsTextField(value = viewModel.textOdeImage, placeholder = "Enter Encoded Decision Scope (Image)") { viewModel.textOdeImage = it }
+            SettingsTextField(value = viewModel.textOdeHtml, placeholder = "Enter Encoded Decision Scope (HTML)") { viewModel.textOdeHtml = it }
+            SettingsTextField(value = viewModel.textOdeJson, placeholder = "Enter Encoded Decision Scope (JSON)") { viewModel.textOdeJson = it }
 
-            // AEP Optimize Target
+            // Optimize Target
             SettingsLabel(text = "Optimize-Target", align = TextAlign.Start, textStyle = MaterialTheme.typography.subtitle1)
-            SettingTextField(value = viewModel.textTargetMbox, placeholder = "Enter Target Mbox") { viewModel.textTargetMbox = it }
+            SettingsTextField(value = viewModel.textTargetMbox, placeholder = "Enter Target Mbox") { viewModel.textTargetMbox = it }
             SettingsLabel(text = "Target Parameters - Mbox", align = TextAlign.Center, textStyle = MaterialTheme.typography.subtitle2)
-            KeyValuePairsView(keyValuePairList = viewModel.targetParamsMbox)
+            KeyValuePairView(keyValuePairList = viewModel.targetParamsMbox)
             SettingsLabel(text = "Target Parameters - Profile", align = TextAlign.Center, textStyle = MaterialTheme.typography.subtitle2)
-            KeyValuePairsView(keyValuePairList = viewModel.targetParamsProfile)
+            KeyValuePairView(keyValuePairList = viewModel.targetParamsProfile)
             SettingsLabel(text = "Target Parameters - Order", align = TextAlign.Center, textStyle = MaterialTheme.typography.subtitle2)
-            SettingTextField(value = viewModel.textTargetOrderId, placeholder = "Enter Order Id") { viewModel.textTargetOrderId = it }
-            SettingTextField(value = viewModel.textTargetOrderTotal, placeholder = "Enter Order Total") { viewModel.textTargetOrderTotal = it }
-            SettingTextField(value = viewModel.textTargetPurchaseId, placeholder = "Enter Purchased Product Ids (comma-separated)") { viewModel.textTargetPurchaseId = it }
+            SettingsTextField(value = viewModel.textTargetOrderId, placeholder = "Enter Order Id") { viewModel.textTargetOrderId = it }
+            SettingsTextField(value = viewModel.textTargetOrderTotal, placeholder = "Enter Order Total") { viewModel.textTargetOrderTotal = it }
+            SettingsTextField(value = viewModel.textTargetPurchaseId, placeholder = "Enter Purchased Product Ids (comma-separated)") { viewModel.textTargetPurchaseId = it }
             SettingsLabel(text = "Target Parameters - Product", align = TextAlign.Center, textStyle = MaterialTheme.typography.subtitle2)
-            SettingTextField(value = viewModel.textTargetProductId, placeholder = "Enter Product Id") { viewModel.textTargetProductId = it }
-            SettingTextField(value = viewModel.textTargetProductCategoryId, placeholder = "Enter Product Category id") { viewModel.textTargetProductCategoryId = it }
+            SettingsTextField(value = viewModel.textTargetProductId, placeholder = "Enter Product Id") { viewModel.textTargetProductId = it }
+            SettingsTextField(value = viewModel.textTargetProductCategoryId, placeholder = "Enter Product Category id") { viewModel.textTargetProductCategoryId = it }
             SettingsLabel(text = "About", align = TextAlign.Start, textStyle = MaterialTheme.typography.subtitle1)
             VersionLabel(viewModel.getOptimizeExtensionVersion())
         }
@@ -87,7 +89,7 @@ private fun SettingsLabel(text: String, align: TextAlign, textStyle: TextStyle){
 }
 
 @Composable
-private fun SettingTextField(value: String, placeholder: String, valueChange: (String) -> Unit) {
+private fun SettingsTextField(value: String, placeholder: String, valueChange: (String) -> Unit) {
     TextField(value = value, onValueChange = {
         valueChange(it)
     }, placeholder = {
@@ -101,7 +103,7 @@ private fun SettingTextField(value: String, placeholder: String, valueChange: (S
 }
 
 @Composable
-private fun KeyValuePairsView(keyValuePairList: MutableList<OptimizePair>) {
+private fun KeyValuePairView(keyValuePairList: MutableList<OptimizePair>) {
 
     keyValuePairList.forEachIndexed { index, pair ->
         KeyValuePairRow(pair = pair, isLastRow = index == (keyValuePairList.size - 1), onclick = { addNew ->
@@ -122,50 +124,64 @@ private fun KeyValuePairsView(keyValuePairList: MutableList<OptimizePair>) {
 private fun KeyValuePairRow(pair: OptimizePair, isLastRow: Boolean, onclick: (isToAddNew: Boolean) -> Unit, onKeyChanged: (String) -> Unit, onValueChanged: (String) -> Unit) {
 
     ConstraintLayout(modifier = Modifier
-        .padding(horizontal = 20.dp, vertical = 10.dp)
+        .padding(horizontal = 20.dp, vertical = 20.dp)
         .fillMaxWidth()) {
         val (key, colon, value, button) = createRefs()
 
-        Text(text = ":", fontWeight = FontWeight.Bold, modifier = Modifier
-            .constrainAs(colon) {
-                centerVerticallyTo(parent)
-                start.linkTo(parent.start)
-                end.linkTo(parent.end)
-            })
+        TextField(value = pair.key,
+                onValueChange = {
+                    onKeyChanged(it)
+                },
+                modifier = Modifier
+                    .constrainAs(key) {
+                        start.linkTo(parent.start)
+                        end.linkTo(colon.start)
+                        width = Dimension.fillToConstraints
+                    },
+                placeholder = { Text(text = "Enter Key") },
+                shape = RoundedCornerShape(size = 15.dp),
+                colors = TextFieldDefaults.textFieldColors(backgroundColor = Color.White, focusedIndicatorColor = Color.Transparent, unfocusedIndicatorColor = Color.Transparent)
+        )
 
-        TextField(value = pair.key, onValueChange = {
-            onKeyChanged(it)
-        }, modifier = Modifier
-            .constrainAs(key) {
-                start.linkTo(parent.start)
-                end.linkTo(colon.start)
-            }
-            .width(150.dp), placeholder = { Text(text = "Enter Key") }, shape = RoundedCornerShape(size = 15.dp),
-            colors = TextFieldDefaults.textFieldColors(backgroundColor = Color.White, focusedIndicatorColor = Color.Transparent, unfocusedIndicatorColor = Color.Transparent)
+        Text(text = ":", fontWeight = FontWeight.Bold, modifier = Modifier
+                .constrainAs(colon) {
+                    centerVerticallyTo(parent)
+                    start.linkTo(key.end)
+                    end.linkTo(value.start)
+                })
+
+        TextField(value = pair.value,
+                onValueChange = {
+                    onValueChanged(it)
+                },
+                placeholder = {
+                    Text(text = "Enter Value")
+                },
+                modifier = Modifier
+                    .constrainAs(value) {
+                        start.linkTo(colon.end)
+                        end.linkTo(button.start)
+                        width = Dimension.fillToConstraints
+                    },
+                shape = RoundedCornerShape(size = 15.dp),
+                colors = TextFieldDefaults.textFieldColors(backgroundColor = Color.White, focusedIndicatorColor = Color.Transparent, unfocusedIndicatorColor = Color.Transparent)
         )
 
         Image(painter = painterResource(id = if(isLastRow) R.drawable.add_circle else R.drawable.remove_circle), contentDescription = null, modifier = Modifier
-            .clickable(enabled = true) {
-                onclick(isLastRow)
-            }
-            .constrainAs(button) {
-                end.linkTo(parent.end)
-                centerVerticallyTo(parent)
-            })
-
-        TextField(value = pair.value, onValueChange = {
-            onValueChanged(it)
-        }, placeholder = {
-            Text(text = "Enter Value")
-        },
-            modifier = Modifier
-                .constrainAs(value) {
-                    start.linkTo(colon.end)
-                    end.linkTo(button.start)
+                .clickable(enabled = true) {
+                    onclick(isLastRow)
                 }
-                .width(150.dp)
-                ,shape = RoundedCornerShape(size = 15.dp),
-            colors = TextFieldDefaults.textFieldColors(backgroundColor = Color.White, focusedIndicatorColor = Color.Transparent, unfocusedIndicatorColor = Color.Transparent)
+                .constrainAs(button) {
+                    end.linkTo(parent.end)
+                    centerVerticallyTo(parent)
+                })
+
+        createHorizontalChain(
+                key,
+                colon,
+                value,
+                button,
+                chainStyle = ChainStyle.SpreadInside
         )
     }
 }
