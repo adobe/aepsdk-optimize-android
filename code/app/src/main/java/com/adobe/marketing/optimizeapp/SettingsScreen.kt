@@ -49,7 +49,7 @@ fun SettingsView(viewModel: MainViewModel) {
                 viewModel.textAssuranceUrl = it
             }
             Button(modifier = Modifier.padding(vertical = 20.dp, horizontal = 20.dp), onClick = { Assurance.startSession(viewModel.textAssuranceUrl)  }) {
-                Text(text = "Start Assurance\nSession", textAlign = TextAlign.Start, style = MaterialTheme.typography.button)
+                Text(text = "Start Assurance Session", textAlign = TextAlign.Start, style = MaterialTheme.typography.button)
             }
 
             // AEP Optimize OD

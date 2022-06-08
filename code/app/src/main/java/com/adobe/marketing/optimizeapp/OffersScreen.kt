@@ -240,15 +240,16 @@ fun OffersSectionText(sectionName: String) {
 }
 
 @Composable
-fun TextOffers(offers: List<Offer>? = null, placeHolder: String = "Placeholder Text", listState: LazyListState? = null) {
+fun TextOffers(offers: List<Offer>? = null, placeholder: String = "Placeholder Text", listState: LazyListState? = null) {
 
     offers?.let { offersList ->
         offersList.forEach { offer ->
             TextOffer(offer = offer)
         }
     } ?: Text(
-        text = placeHolder,
+        text = placeholder,
         modifier = Modifier
+            .fillMaxSize()
             .padding(vertical = 20.dp)
             .height(100.dp),
         style = MaterialTheme.typography.body1,
@@ -269,15 +270,16 @@ fun TextOffers(offers: List<Offer>? = null, placeHolder: String = "Placeholder T
 }
 
 @Composable
-fun JSONOffers(offers: List<Offer>? = null, placeHolder: String = """{"PlaceHolder": true}""", listState: LazyListState? = null) {
+fun JSONOffers(offers: List<Offer>? = null, placeholder: String = """{"placeholder": true}""", listState: LazyListState? = null) {
 
     offers?.let { offersList ->
         offersList.forEach { offer ->
             TextOffer(offer = offer)
         }
     } ?: Text(
-        text = placeHolder,
+        text = placeholder,
         modifier = Modifier
+            .fillMaxSize()
             .padding(vertical = 20.dp)
             .height(100.dp),
         style = MaterialTheme.typography.body1,
@@ -357,7 +359,7 @@ fun ImageOffers(offers: List<Offer>? = null, listState: LazyListState? = null) {
 }
 
 @Composable
-fun HTMLOffers(offers: List<Offer>?= null, placeHolderHtml: String = "<html><body><p>HTML Placeholder!!</p></body></html>", listState: LazyListState? = null) {
+fun HTMLOffers(offers: List<Offer>?= null, placeholderHtml: String = "<html><body><p style=\"color:green; font-size:20px;position: absolute;top: 50%;left: 50%;margin-right: -50%;transform: translate(-50%, -50%)\">Placeholder Html</p></body></html>", listState: LazyListState? = null) {
         Column(modifier = Modifier
             .fillMaxWidth()
             .wrapContentHeight(),
@@ -369,7 +371,7 @@ fun HTMLOffers(offers: List<Offer>?= null, placeHolderHtml: String = "<html><bod
                     clickHandler(it)
                     }
                 )
-            } ?: HtmlOfferWebView(html = placeHolderHtml)
+            } ?: HtmlOfferWebView(html = placeholderHtml)
         }
 
     listState?.also {
@@ -422,7 +424,7 @@ fun TargetOffersView(offers: List<Offer>? = null, listState: LazyListState? = nu
                     .wrapContentHeight()
                     .clickable { clickHandler(it) }, textAlign = TextAlign.Center)
             }
-        } ?: TextOffers(offers = null, placeHolder = "Placeholder Target Text")
+        } ?: TextOffers(offers = null, placeholder = "Placeholder Target Text")
     }
 
     listState?.also {

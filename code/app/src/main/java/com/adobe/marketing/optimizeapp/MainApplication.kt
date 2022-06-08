@@ -37,7 +37,7 @@ class MainApplication : Application() {
 
         MobileCore.configureWithAppID(LAUNCH_ENVIRONMENT_FILE_ID)
         MobileCore.start {
-            print("Adobe SDK is successfully registered")
+            print("Adobe mobile SDKs are successfully registered.")
         }
     }
 }
