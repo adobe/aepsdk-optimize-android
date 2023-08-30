@@ -66,7 +66,7 @@ public class OptimizeExtensionTests {
     public void test_getVersion() {
         // test
         final String extensionVersion = extension.getVersion();
-        Assert.assertEquals("getVersion should return the correct extension version.", "2.0.0", extensionVersion);
+        Assert.assertEquals("getVersion should return the correct extension version.", "2.0.1", extensionVersion);
     }
 
     @Test
@@ -104,7 +104,7 @@ public class OptimizeExtensionTests {
     @Test
     public void testReadyForEvent_configurationSet() {
         // setup
-        setConfigurationSharedState(new HashMap<String, Object>() {
+        setConfigurationSharedState(SharedStateStatus.SET, new HashMap<String, Object>() {
             {
                 put("edge.configId", "ffffffff-ffff-ffff-ffff-ffffffffffff");
             }
@@ -117,8 +117,14 @@ public class OptimizeExtensionTests {
     }
 
     @Test
-    public void testReadyForEvent_configurationNotSet() {
+    public void testReadyForEvent_configurationPending() {
         // setup
+        setConfigurationSharedState(SharedStateStatus.PENDING, new HashMap<String, Object>() {
+            {
+                put("edge.configId", "ffffffff-ffff-ffff-ffff-ffffffffffff");
+            }
+        });
+
         final Event testEvent = new Event.Builder("Optimize Update Propositions Request", "com.adobe.eventType.optimize", "com.adobe.eventSource.requestContent")
                 .build();
 
@@ -126,9 +132,19 @@ public class OptimizeExtensionTests {
     }
 
     @Test
-    public void testReadyForEvent_invalidConfigurationSet() {
+    public void testReadyForEvent_configurationPendingNoData() {
         // setup
-        setConfigurationSharedState(null);
+        setConfigurationSharedState(SharedStateStatus.PENDING, null);
+
+        final Event testEvent = new Event.Builder("Optimize Update Propositions Request", "com.adobe.eventType.optimize", "com.adobe.eventSource.requestContent")
+                .build();
+
+        Assert.assertFalse(extension.readyForEvent(testEvent));
+    }
+
+    @Test
+    public void testReadyForEvent_configurationNotSet() {
+        // setup
         final Event testEvent = new Event.Builder("Optimize Update Propositions Request", "com.adobe.eventType.optimize", "com.adobe.eventSource.requestContent")
                 .build();
 
@@ -156,7 +172,7 @@ public class OptimizeExtensionTests {
     @Test
     public void testHandleOptimizeRequestContent_nullEventData() {
         // setup
-        setConfigurationSharedState(new HashMap<String, Object>() {
+        setConfigurationSharedState(SharedStateStatus.SET, new HashMap<String, Object>() {
             {
                 put("edge.configId", "ffffffff-ffff-ffff-ffff-ffffffffffff");
             }
@@ -178,7 +194,7 @@ public class OptimizeExtensionTests {
     @Test
     public void testHandleOptimizeRequestContent_emptyEventData() {
         // setup
-        setConfigurationSharedState(new HashMap<String, Object>() {
+        setConfigurationSharedState(SharedStateStatus.SET, new HashMap<String, Object>() {
             {
                 put("edge.configId", "ffffffff-ffff-ffff-ffff-ffffffffffff");
             }
@@ -199,7 +215,7 @@ public class OptimizeExtensionTests {
     @Test
     public void testHandleOptimizeRequestContent_invalidRequestType() {
         // setup
-        setConfigurationSharedState(new HashMap<String, Object>() {
+        setConfigurationSharedState(SharedStateStatus.SET, new HashMap<String, Object>() {
             {
                 put("edge.configId", "ffffffff-ffff-ffff-ffff-ffffffffffff");
             }
@@ -230,7 +246,7 @@ public class OptimizeExtensionTests {
                     .thenAnswer((Answer<byte[]>) invocation -> java.util.Base64.getDecoder().decode((String) invocation.getArguments()[0]));
 
             // setup
-            setConfigurationSharedState(new HashMap<String, Object>() {
+            setConfigurationSharedState(SharedStateStatus.SET, new HashMap<String, Object>() {
                 {
                     put("edge.configId", "ffffffff-ffff-ffff-ffff-ffffffffffff");
                 }
@@ -294,7 +310,7 @@ public class OptimizeExtensionTests {
                     .thenAnswer((Answer<byte[]>) invocation -> java.util.Base64.getDecoder().decode((String) invocation.getArguments()[0]));
 
             // setup
-            setConfigurationSharedState(new HashMap<String, Object>() {
+            setConfigurationSharedState(SharedStateStatus.SET, new HashMap<String, Object>() {
                 {
                     put("edge.configId", "ffffffff-ffff-ffff-ffff-ffffffffffff");
                     put("optimize.datasetId", "111111111111111111111111");
@@ -371,7 +387,7 @@ public class OptimizeExtensionTests {
                     .thenAnswer((Answer<byte[]>) invocation -> java.util.Base64.getDecoder().decode((String) invocation.getArguments()[0]));
 
             // setup
-            setConfigurationSharedState(new HashMap<String, Object>() {
+            setConfigurationSharedState(SharedStateStatus.SET, new HashMap<String, Object>() {
                 {
                     put("edge.configId", "ffffffff-ffff-ffff-ffff-ffffffffffff");
                 }
@@ -447,7 +463,7 @@ public class OptimizeExtensionTests {
                     .thenAnswer((Answer<byte[]>) invocation -> java.util.Base64.getDecoder().decode((String) invocation.getArguments()[0]));
 
             // setup
-            setConfigurationSharedState(new HashMap<String, Object>() {
+            setConfigurationSharedState(SharedStateStatus.SET, new HashMap<String, Object>() {
                 {
                     put("edge.configId", "ffffffff-ffff-ffff-ffff-ffffffffffff");
                 }
@@ -542,7 +558,7 @@ public class OptimizeExtensionTests {
                     .thenAnswer((Answer<byte[]>) invocation -> java.util.Base64.getDecoder().decode((String) invocation.getArguments()[0]));
 
             // setup
-            setConfigurationSharedState(new HashMap<String, Object>() {
+            setConfigurationSharedState(SharedStateStatus.SET, new HashMap<String, Object>() {
                 {
                     put("edge.configId", "ffffffff-ffff-ffff-ffff-ffffffffffff");
                 }
@@ -573,7 +589,7 @@ public class OptimizeExtensionTests {
                     .thenAnswer((Answer<byte[]>) invocation -> java.util.Base64.getDecoder().decode((String) invocation.getArguments()[0]));
 
             // setup
-            setConfigurationSharedState(new HashMap<String, Object>() {
+            setConfigurationSharedState(SharedStateStatus.SET, new HashMap<String, Object>() {
                 {
                     put("edge.configId", "ffffffff-ffff-ffff-ffff-ffffffffffff");
                 }
@@ -609,7 +625,7 @@ public class OptimizeExtensionTests {
                     .thenAnswer((Answer<byte[]>) invocation -> java.util.Base64.getDecoder().decode((String) invocation.getArguments()[0]));
 
             // setup
-            setConfigurationSharedState(new HashMap<String, Object>() {
+            setConfigurationSharedState(SharedStateStatus.SET, new HashMap<String, Object>() {
                 {
                     put("edge.configId", "ffffffff-ffff-ffff-ffff-ffffffffffff");
                 }
@@ -978,7 +994,7 @@ public class OptimizeExtensionTests {
             base64MockedStatic.when(() -> Base64.decode(ArgumentMatchers.anyString(), ArgumentMatchers.anyInt()))
                     .thenAnswer((Answer<byte[]>) invocation -> java.util.Base64.getDecoder().decode((String) invocation.getArguments()[0]));
             // setup
-            setConfigurationSharedState(new HashMap<String, Object>() {
+            setConfigurationSharedState(SharedStateStatus.SET, new HashMap<String, Object>() {
                 {
                     put("edge.configId", "ffffffff-ffff-ffff-ffff-ffffffffffff");
                 }
@@ -1047,7 +1063,7 @@ public class OptimizeExtensionTests {
             base64MockedStatic.when(() -> Base64.decode(ArgumentMatchers.anyString(), ArgumentMatchers.anyInt()))
                     .thenAnswer((Answer<byte[]>) invocation -> java.util.Base64.getDecoder().decode((String) invocation.getArguments()[0]));
             // setup
-            setConfigurationSharedState(new HashMap<String, Object>() {
+            setConfigurationSharedState(SharedStateStatus.SET, new HashMap<String, Object>() {
                 {
                     put("edge.configId", "ffffffff-ffff-ffff-ffff-ffffffffffff");
                 }
@@ -1119,7 +1135,7 @@ public class OptimizeExtensionTests {
                     .thenAnswer((Answer<byte[]>) invocation -> java.util.Base64.getDecoder().decode((String) invocation.getArguments()[0]));
 
             // setup
-            setConfigurationSharedState(new HashMap<String, Object>() {
+            setConfigurationSharedState(SharedStateStatus.SET, new HashMap<String, Object>() {
                 {
                     put("edge.configId", "ffffffff-ffff-ffff-ffff-ffffffffffff");
                 }
@@ -1172,7 +1188,7 @@ public class OptimizeExtensionTests {
                     .thenAnswer((Answer<byte[]>) invocation -> java.util.Base64.getDecoder().decode((String) invocation.getArguments()[0]));
 
             // setup
-            setConfigurationSharedState(new HashMap<String, Object>() {
+            setConfigurationSharedState(SharedStateStatus.SET, new HashMap<String, Object>() {
                 {
                     put("edge.configId", "ffffffff-ffff-ffff-ffff-ffffffffffff");
                 }
@@ -1219,7 +1235,7 @@ public class OptimizeExtensionTests {
                     .thenAnswer((Answer<byte[]>) invocation -> java.util.Base64.getDecoder().decode((String) invocation.getArguments()[0]));
 
             // setup
-            setConfigurationSharedState(new HashMap<String, Object>() {
+            setConfigurationSharedState(SharedStateStatus.SET, new HashMap<String, Object>() {
                 {
                     put("edge.configId", "ffffffff-ffff-ffff-ffff-ffffffffffff");
                 }
@@ -1262,7 +1278,7 @@ public class OptimizeExtensionTests {
     @Test
     public void testHandleOptimizeRequestContent_HandleTrackPropositions_validPropositionInteractionsForDisplay() throws Exception{
         // setup
-        setConfigurationSharedState(new HashMap<String, Object>() {
+        setConfigurationSharedState(SharedStateStatus.SET, new HashMap<String, Object>() {
             {
                 put("edge.configId", "ffffffff-ffff-ffff-ffff-ffffffffffff");
             }
@@ -1311,7 +1327,7 @@ public class OptimizeExtensionTests {
     @Test
     public void testHandleOptimizeRequestContent_HandleTrackPropositions_validPropositionInteractionsForTap() throws Exception{
         // setup
-        setConfigurationSharedState(new HashMap<String, Object>() {
+        setConfigurationSharedState(SharedStateStatus.SET, new HashMap<String, Object>() {
             {
                 put("edge.configId", "ffffffff-ffff-ffff-ffff-ffffffffffff");
             }
@@ -1370,7 +1386,7 @@ public class OptimizeExtensionTests {
     @Test
     public void testHandleOptimizeRequestContent_HandleTrackPropositions_validPropositionInteractionsWithDatasetIdInConfig() throws Exception{
         // setup
-        setConfigurationSharedState(new HashMap<String, Object>() {
+        setConfigurationSharedState(SharedStateStatus.SET, new HashMap<String, Object>() {
             {
                 put("edge.configId", "ffffffff-ffff-ffff-ffff-ffffffffffff");
                 put("optimize.datasetId", "111111111111111111111111");
@@ -1452,7 +1468,7 @@ public class OptimizeExtensionTests {
     public void testHandleOptimizeRequestContent_HandleTrackPropositions_missingPropositionInteractions() throws Exception{
         try (MockedStatic<Log> logMockedStatic = Mockito.mockStatic(Log.class)) {
             // setup
-            setConfigurationSharedState(new HashMap<String, Object>() {
+            setConfigurationSharedState(SharedStateStatus.SET, new HashMap<String, Object>() {
                 {
                     put("edge.configId", "ffffffff-ffff-ffff-ffff-ffffffffffff");
                 }
@@ -1477,7 +1493,7 @@ public class OptimizeExtensionTests {
     public void testHandleOptimizeRequestContent_HandleTrackPropositions_emptyPropositionInteractions() throws Exception{
         try (MockedStatic<Log> logMockedStatic = Mockito.mockStatic(Log.class)) {
             // setup
-            setConfigurationSharedState(new HashMap<String, Object>() {
+            setConfigurationSharedState(SharedStateStatus.SET, new HashMap<String, Object>() {
                 {
                     put("edge.configId", "ffffffff-ffff-ffff-ffff-ffffffffffff");
                 }
@@ -1542,13 +1558,13 @@ public class OptimizeExtensionTests {
 
 
     // Helper methods
-    private void setConfigurationSharedState(final Map<String, Object> data) {
+    private void setConfigurationSharedState(final SharedStateStatus status, final Map<String, Object> data) {
         Mockito.when(mockExtensionApi.getSharedState(
                 ArgumentMatchers.eq(OptimizeConstants.Configuration.EXTENSION_NAME),
                 ArgumentMatchers.any(),
                 ArgumentMatchers.eq(false),
                 ArgumentMatchers.eq(SharedStateResolution.ANY)
-        )).thenReturn(new SharedStateResult(SharedStateStatus.SET, data));
+        )).thenReturn(new SharedStateResult(status, data));
     }
 }
 

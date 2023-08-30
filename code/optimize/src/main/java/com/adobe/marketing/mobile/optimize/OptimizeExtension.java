@@ -93,7 +93,7 @@ class OptimizeExtension extends Extension {
         if (OptimizeConstants.EventType.OPTIMIZE.equalsIgnoreCase(event.getType())
                 && OptimizeConstants.EventSource.REQUEST_CONTENT.equalsIgnoreCase(event.getSource())) {
             SharedStateResult configurationSharedState = getApi().getSharedState(OptimizeConstants.Configuration.EXTENSION_NAME, event, false, SharedStateResolution.ANY);
-            return configurationSharedState != null && configurationSharedState.getValue() != null;
+            return configurationSharedState != null && configurationSharedState.getStatus() == SharedStateStatus.SET;
         }
         return true;
     }
@@ -461,8 +461,7 @@ class OptimizeExtension extends Extension {
                 event,
                 false,
                 SharedStateResolution.ANY);
-        return configurationSharedState != null && configurationSharedState.getStatus() != SharedStateStatus.PENDING ?
-                configurationSharedState.getValue() : null;
+        return configurationSharedState != null ? configurationSharedState.getValue() : null;
     }
 
     /**

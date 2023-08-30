@@ -70,10 +70,10 @@ dependencies {
 
     // Adobe mobile SDKs
     implementation project(":optimize")
-    implementation 'com.adobe.marketing.mobile:core:2.0.0'
-    implementation 'com.adobe.marketing.mobile:lifecycle:2.0.0'
-    implementation 'com.adobe.marketing.mobile:signal:2.0.0'
-    implementation 'com.adobe.marketing.mobile:assurance:2.0.0'
+    implementation 'com.adobe.marketing.mobile:core:2.3.0'
+    implementation 'com.adobe.marketing.mobile:lifecycle:2.0.4'
+    implementation 'com.adobe.marketing.mobile:signal:2.0.1'
+    implementation 'com.adobe.marketing.mobile:assurance:2.1.1'
     implementation 'com.adobe.marketing.mobile:edge:2.0.0'
-    implementation 'com.adobe.marketing.mobile:edgeidentity:2.0.0'
+    implementation 'com.adobe.marketing.mobile:edgeidentity:2.0.1'
 }

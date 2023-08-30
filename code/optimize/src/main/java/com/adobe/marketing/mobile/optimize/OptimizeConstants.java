@@ -14,7 +14,7 @@ package com.adobe.marketing.mobile.optimize;
 
 class OptimizeConstants {
     static final String LOG_TAG = "Optimize";
-    static final String EXTENSION_VERSION = "2.0.0";
+    static final String EXTENSION_VERSION = "2.0.1";
     static final String EXTENSION_NAME = "com.adobe.optimize";
     static final String FRIENDLY_NAME = "Optimize";
     static final long DEFAULT_RESPONSE_CALLBACK_TIMEOUT = 500L;
