@@ -515,76 +515,11 @@ public class Optimize {
         }
     }
 
-    public static void displayPropositions(List<OptimizeProposition> propositions) {
-        trackWithData(
-                generateInteractionXdmForPropositions(
+    public static void trackDisplayedPropositions(final List<OptimizeProposition> propositions) {
+        OptimizeUtils.trackWithData(
+                OptimizeUtils.generateInteractionXdm(
                         propositions,
-                        OptimizeConstants.JsonValues.EE_EVENT_TYPE_PROPOSITION_DISPLAY));
-    }
-
-    private static Map<String, Object> generateInteractionXdmForPropositions(
-            List<OptimizeProposition> propositions, final String experienceEventType) {
-        final List<Map<String, Object>> decisioningPropositions =
-                getDecisioningPropositions(propositions);
-        final Map<String, Object> experienceDecisioning = new HashMap<>();
-        experienceDecisioning.put(
-                OptimizeConstants.JsonKeys.DECISIONING_PROPOSITIONS, decisioningPropositions);
-        final Map<String, Object> experience = new HashMap<>();
-        experience.put(OptimizeConstants.JsonKeys.EXPERIENCE_DECISIONING, experienceDecisioning);
-
-        final Map<String, Object> xdm = new HashMap<>();
-        xdm.put(OptimizeConstants.JsonKeys.EXPERIENCE, experience);
-        xdm.put(OptimizeConstants.JsonKeys.EXPERIENCE_EVENT_TYPE, experienceEventType);
-        return xdm;
-    }
-
-    private static @NonNull List<Map<String, Object>> getDecisioningPropositions(
-            List<OptimizeProposition> propositions) {
-        final List<Map<String, Object>> decisioningPropositions = new ArrayList<>();
-        for (OptimizeProposition prop : propositions) {
-            decisioningPropositions.add(
-                    new HashMap<String, Object>() {
-                        {
-                            put(
-                                    OptimizeConstants.JsonKeys.DECISIONING_PROPOSITIONS_ID,
-                                    prop.getId());
-                            put(
-                                    OptimizeConstants.JsonKeys.DECISIONING_PROPOSITIONS_SCOPE,
-                                    prop.getScope());
-                            put(
-                                    OptimizeConstants.JsonKeys
-                                            .DECISIONING_PROPOSITIONS_SCOPEDETAILS,
-                                    prop.getScopeDetails());
-                        }
-                    });
-        }
-        return decisioningPropositions;
-    }
-
-    private static void trackWithData(final Map<String, Object> xdm) {
-        if (OptimizeUtils.isNullOrEmpty(xdm)) {
-            Log.debug(
-                    OptimizeConstants.LOG_TAG,
-                    SELF_TAG,
-                    "Failed to dispatch track propositions request event, input xdm is null or"
-                            + " empty.");
-            return;
-        }
-
-        final Map<String, Object> eventData = new HashMap<>();
-        eventData.put(
-                OptimizeConstants.EventDataKeys.REQUEST_TYPE,
-                OptimizeConstants.EventDataValues.REQUEST_TYPE_TRACK);
-        eventData.put(OptimizeConstants.EventDataKeys.PROPOSITION_INTERACTIONS, xdm);
-
-        final Event edgeEvent =
-                new Event.Builder(
-                                OptimizeConstants.EventNames.TRACK_PROPOSITIONS_REQUEST,
-                                OptimizeConstants.EventType.OPTIMIZE,
-                                OptimizeConstants.EventSource.REQUEST_CONTENT)
-                        .setEventData(eventData)
-                        .build();
-
-        MobileCore.dispatchEvent(edgeEvent);
+                        OptimizeConstants.JsonValues.EE_EVENT_TYPE_PROPOSITION_DISPLAY,
+                        null));
     }
 }
