@@ -234,9 +234,7 @@ class OptimizeUtils {
      * @return {@code Map<String, Object>} containing the XDM data for the proposition interaction.
      */
     static Map<String, Object> generateInteractionXdm(
-            final List<OptimizeProposition> propositions,
-            final String experienceEventType,
-            final String id) {
+            final List<OptimizeProposition> propositions, final String experienceEventType) {
 
         final List<Map<String, Object>> decisioningPropositions = new ArrayList<>();
 
@@ -258,11 +256,12 @@ class OptimizeUtils {
                                         OptimizeConstants.JsonKeys
                                                 .DECISIONING_PROPOSITIONS_SCOPEDETAILS,
                                         prop.getScopeDetails());
-                                if (id != null) {
+                                if (!prop.getOffers().isEmpty()
+                                        && prop.getOffers().get(0).getId() != null) {
                                     propositionItem.put(
                                             OptimizeConstants.JsonKeys
                                                     .DECISIONING_PROPOSITIONS_ITEMS_ID,
-                                            id);
+                                            prop.getOffers().get(0).getId());
                                     propositionItemsList.add(propositionItem);
                                     put(
                                             OptimizeConstants.JsonKeys

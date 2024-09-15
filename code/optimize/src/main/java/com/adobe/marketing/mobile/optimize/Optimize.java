@@ -519,7 +519,6 @@ public class Optimize {
         OptimizeUtils.trackWithData(
                 OptimizeUtils.generateInteractionXdm(
                         propositions,
-                        OptimizeConstants.JsonValues.EE_EVENT_TYPE_PROPOSITION_DISPLAY,
-                        null));
+                        OptimizeConstants.JsonValues.EE_EVENT_TYPE_PROPOSITION_DISPLAY));
     }
 }
