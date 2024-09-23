@@ -324,4 +324,62 @@ class OptimizeUtils {
 
         MobileCore.dispatchEvent(edgeEvent);
     }
+
+    /**
+     * Generates a map containing XDM formatted data for `Experience Event - OptimizeProposition
+     * Interactions` field group from this `OptimizeProposition` offer and given
+     * `experienceEventType`.
+     *
+     * <p>
+     *
+     * <p>The method returns null if the proposition reference within the offer is released and no
+     * longer valid.
+     *
+     * @param experienceEventType [String] containing the event type for the Experience Event
+     * @return `Map<String, Object>` containing the XDM data for the proposition interaction.
+     */
+    protected static Map<String, Object> generateInteractionXdm(
+            final String experienceEventType,
+            final List<OptimizeProposition> pendingDisplayedPropositions) {
+        List<Map<String, Object>> decisioningPropositions = new ArrayList<>();
+        if (!pendingDisplayedPropositions.isEmpty()) {
+            for (OptimizeProposition prop : pendingDisplayedPropositions) {
+
+                Map<String, Object> propositionItem = new HashMap<>();
+                List<Map<String, Object>> propositionItemsList = new ArrayList<>();
+
+                Map<String, Object> map = new HashMap<>();
+                map.put(OptimizeConstants.JsonKeys.DECISIONING_PROPOSITIONS_ID, prop.getId());
+                map.put(OptimizeConstants.JsonKeys.DECISIONING_PROPOSITIONS_SCOPE, prop.getScope());
+                map.put(
+                        OptimizeConstants.JsonKeys.DECISIONING_PROPOSITIONS_SCOPEDETAILS,
+                        prop.getScopeDetails());
+
+                if (!prop.getOffers().isEmpty() && prop.getOffers().get(0).getId() != null) {
+                    propositionItem.put(
+                            OptimizeConstants.JsonKeys.DECISIONING_PROPOSITIONS_ITEMS_ID,
+                            prop.getOffers().get(0).getId());
+                    propositionItemsList.add(propositionItem);
+                    map.put(
+                            OptimizeConstants.JsonKeys.DECISIONING_PROPOSITIONS_ITEMS,
+                            propositionItemsList);
+                }
+
+                decisioningPropositions.add(map);
+            }
+        }
+
+        Map<String, Object> experienceDecisioning = new HashMap<>();
+        experienceDecisioning.put(
+                OptimizeConstants.JsonKeys.DECISIONING_PROPOSITIONS, decisioningPropositions);
+
+        Map<String, Object> experience = new HashMap<>();
+        experience.put(OptimizeConstants.JsonKeys.EXPERIENCE_DECISIONING, experienceDecisioning);
+
+        Map<String, Object> xdm = new HashMap<>();
+        xdm.put(OptimizeConstants.JsonKeys.EXPERIENCE, experience);
+        xdm.put(OptimizeConstants.JsonKeys.EXPERIENCE_EVENT_TYPE, experienceEventType);
+
+        return xdm;
+    }
 }
