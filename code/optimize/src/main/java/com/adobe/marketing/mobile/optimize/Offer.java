@@ -38,7 +38,6 @@ public class Offer {
     private Map<String, String> characteristics;
 
     SoftReference<OptimizeProposition> propositionReference;
-    PropositionsRepository propositionsRepository = PropositionsRepositoryImpl.INSTANCE;
 
     /**
      * Private constructor.
@@ -282,10 +281,7 @@ public class Offer {
      * @see OptimizeUtils#trackWithData(Map)
      */
     public void displayed() {
-        if (propositionReference != null || propositionReference.get() != null) {
-            Map<String, Object> xdm = generateDisplayInteractionXdm();
-            propositionsRepository.trackDisplayInteraction(xdm);
-        }
+        OptimizeUtils.trackWithData(generateDisplayInteractionXdm());
     }
 
     /**
@@ -295,10 +291,7 @@ public class Offer {
      * @see OptimizeUtils#trackWithData(Map)
      */
     public void tapped() {
-        if (propositionReference != null || propositionReference.get() != null) {
-            Map<String, Object> xdm = generateDisplayInteractionXdm();
-            propositionsRepository.trackTapInteraction(xdm);
-        }
+        OptimizeUtils.trackWithData(generateTapInteractionXdm());
     }
 
     /**
