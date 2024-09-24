@@ -305,7 +305,7 @@ public class Offer {
      * along with any additional XDM, free-form data, and override dataset identifier.
      *
      * @return {@code Map<String, Object>} containing the XDM data for the proposition interaction.
-     * @see OptimizeUtils#generateInteractionXdm(String, List)
+     * @see OptimizeUtils#generateInteractionXdm(String, List, Boolean)
      */
     public Map<String, Object> generateDisplayInteractionXdm() {
         if (propositionReference == null || propositionReference.get() == null) {
@@ -313,7 +313,8 @@ public class Offer {
         }
         return OptimizeUtils.generateInteractionXdm(
                 OptimizeConstants.JsonValues.EE_EVENT_TYPE_PROPOSITION_DISPLAY,
-                Collections.singletonList(propositionReference.get()));
+                Collections.singletonList(propositionReference.get()),
+                true);
     }
 
     /**
@@ -327,7 +328,7 @@ public class Offer {
      * along with any additional XDM, free-form data, and override dataset identifier.
      *
      * @return {@code Map<String, Object>} containing the XDM data for the proposition interaction.
-     * @see OptimizeUtils#generateInteractionXdm(String, List)
+     * @see OptimizeUtils#generateInteractionXdm(String, List, Boolean)
      */
     public Map<String, Object> generateTapInteractionXdm() {
         if (propositionReference == null || propositionReference.get() == null) {
@@ -335,7 +336,8 @@ public class Offer {
         }
         return OptimizeUtils.generateInteractionXdm(
                 OptimizeConstants.JsonValues.EE_EVENT_TYPE_PROPOSITION_INTERACT,
-                Collections.singletonList(propositionReference.get()));
+                Collections.singletonList(propositionReference.get()),
+                true);
     }
 
     /**

@@ -226,8 +226,9 @@ public class OptimizeUtilsTest {
         }
         Map<String, Object> xdm =
                 generateInteractionXdm(
+                        OptimizeConstants.JsonValues.EE_EVENT_TYPE_PROPOSITION_DISPLAY,
                         optimizePropositionList,
-                        OptimizeConstants.JsonValues.EE_EVENT_TYPE_PROPOSITION_DISPLAY);
+                        false);
         Assert.assertNotNull(xdm);
 
         Assert.assertEquals("decisioning.propositionDisplay", xdm.get("eventType"));
@@ -269,9 +270,7 @@ public class OptimizeUtilsTest {
         Assert.assertEquals("0", sdStrategies1.get(0).get("trafficType"));
         final List<Map<String, Object>> items1 =
                 (List<Map<String, Object>>) propositionInteractionDetailsMap1.get("items");
-        Assert.assertNotNull(items1);
-        Assert.assertEquals(1, items1.size());
-        Assert.assertEquals("246314", items1.get(0).get("id"));
+        Assert.assertNull(items1);
         final Map<String, Object> scopeDetails2 =
                 (Map<String, Object>) propositionInteractionDetailsMap2.get("scopeDetails");
         Assert.assertNotNull(scopeDetails2);
@@ -290,8 +289,6 @@ public class OptimizeUtilsTest {
         Assert.assertEquals("1", sdStrategies2.get(0).get("trafficType"));
         final List<Map<String, Object>> items2 =
                 (List<Map<String, Object>>) propositionInteractionDetailsMap2.get("items");
-        Assert.assertNotNull(items2);
-        Assert.assertEquals(1, items2.size());
-        Assert.assertEquals("246315", items2.get(0).get("id"));
+        Assert.assertNull(items2);
     }
 }

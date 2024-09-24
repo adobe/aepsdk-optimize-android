@@ -2740,9 +2740,7 @@ public class OptimizeFunctionalTests {
 
         List<Map<String, Object>> itemsList1 =
                 (List<Map<String, Object>>) propositionMap1.get("items");
-        Assert.assertNotNull(itemsList1);
-        Assert.assertEquals(1, itemsList1.size());
-        Assert.assertEquals("xcore:personalized-offer:246314", itemsList1.get(0).get("id"));
+        Assert.assertNull(itemsList1);
 
         // Proposition 2 validation
         Map<String, Object> propositionMap2 = propositionList.get(1);
@@ -2754,9 +2752,7 @@ public class OptimizeFunctionalTests {
 
         List<Map<String, Object>> itemsList2 =
                 (List<Map<String, Object>>) propositionMap2.get("items");
-        Assert.assertNotNull(itemsList2);
-        Assert.assertEquals(1, itemsList2.size());
-        Assert.assertEquals("xcore:personalized-offer:246315", itemsList2.get(0).get("id"));
+        Assert.assertNull(itemsList2);
     }
 
     private void updateConfiguration(final Map<String, Object> config) throws InterruptedException {

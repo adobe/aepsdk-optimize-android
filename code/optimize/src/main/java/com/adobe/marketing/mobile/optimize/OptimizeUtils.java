@@ -274,7 +274,8 @@ class OptimizeUtils {
      */
     protected static Map<String, Object> generateInteractionXdm(
             final String experienceEventType,
-            final List<OptimizeProposition> pendingDisplayedPropositions) {
+            final List<OptimizeProposition> pendingDisplayedPropositions,
+            final Boolean shouldAppendOfferIds) {
         List<Map<String, Object>> decisioningPropositions = new ArrayList<>();
         if (!pendingDisplayedPropositions.isEmpty()) {
             for (OptimizeProposition prop : pendingDisplayedPropositions) {
@@ -289,7 +290,9 @@ class OptimizeUtils {
                         OptimizeConstants.JsonKeys.DECISIONING_PROPOSITIONS_SCOPEDETAILS,
                         prop.getScopeDetails());
 
-                if (!prop.getOffers().isEmpty() && prop.getOffers().get(0).getId() != null) {
+                if (shouldAppendOfferIds
+                        && !prop.getOffers().isEmpty()
+                        && prop.getOffers().get(0).getId() != null) {
                     propositionItem.put(
                             OptimizeConstants.JsonKeys.DECISIONING_PROPOSITIONS_ITEMS_ID,
                             prop.getOffers().get(0).getId());

@@ -519,7 +519,8 @@ public class Optimize {
         Map<String, Object> xdm =
                 OptimizeUtils.generateInteractionXdm(
                         OptimizeConstants.JsonValues.EE_EVENT_TYPE_PROPOSITION_DISPLAY,
-                        propositions);
+                        propositions,
+                        false);
         OptimizeUtils.trackWithData(xdm);
     }
 }
