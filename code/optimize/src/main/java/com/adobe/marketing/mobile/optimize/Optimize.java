@@ -515,6 +515,14 @@ public class Optimize {
         }
     }
 
+    /**
+     * Dispatches an event for the Edge network extension to send an Experience Event to the Edge
+     * network with the display interaction data for the given {@code List<OptimizeProposition>}
+     * offer.
+     *
+     * @param propositions {@code List<OptimizeProposition>} containing the list of propositions
+     * @see OptimizeUtils#trackWithData(Map)
+     */
     public static void trackDisplayedPropositions(final List<OptimizeProposition> propositions) {
         Map<String, Object> xdm =
                 OptimizeUtils.generateInteractionXdm(
