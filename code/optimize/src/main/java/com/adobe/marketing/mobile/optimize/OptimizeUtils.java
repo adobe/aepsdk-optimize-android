@@ -18,6 +18,7 @@ import com.adobe.marketing.mobile.MobileCore;
 import com.adobe.marketing.mobile.EventType;
 import com.adobe.marketing.mobile.services.Log;
 import com.adobe.marketing.mobile.util.DataReader;
+import com.adobe.marketing.mobile.util.StringUtils;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -276,39 +277,30 @@ class OptimizeUtils {
             final String experienceEventType,
             final List<OptimizeProposition> pendingDisplayedPropositions,
             final Boolean shouldAppendOfferIds) {
-        List<Map<String, Object>> decisioningPropositions = new ArrayList<>();
+        List<Map<String, Object>> propositions = new ArrayList<>();
         if (!pendingDisplayedPropositions.isEmpty()) {
             for (OptimizeProposition prop : pendingDisplayedPropositions) {
-
-                Map<String, Object> propositionItem = new HashMap<>();
-                List<Map<String, Object>> propositionItemsList = new ArrayList<>();
-
-                Map<String, Object> map = new HashMap<>();
-                map.put(OptimizeConstants.JsonKeys.DECISIONING_PROPOSITIONS_ID, prop.getId());
-                map.put(OptimizeConstants.JsonKeys.DECISIONING_PROPOSITIONS_SCOPE, prop.getScope());
-                map.put(
+                Map<String, Object> proposition = new HashMap<>();
+                proposition.put(
+                        OptimizeConstants.JsonKeys.DECISIONING_PROPOSITIONS_ID, prop.getId());
+                proposition.put(
+                        OptimizeConstants.JsonKeys.DECISIONING_PROPOSITIONS_SCOPE, prop.getScope());
+                proposition.put(
                         OptimizeConstants.JsonKeys.DECISIONING_PROPOSITIONS_SCOPEDETAILS,
                         prop.getScopeDetails());
 
-                if (shouldAppendOfferIds
-                        && !prop.getOffers().isEmpty()
-                        && prop.getOffers().get(0).getId() != null) {
-                    propositionItem.put(
-                            OptimizeConstants.JsonKeys.DECISIONING_PROPOSITIONS_ITEMS_ID,
-                            prop.getOffers().get(0).getId());
-                    propositionItemsList.add(propositionItem);
-                    map.put(
+                if (shouldAppendOfferIds && !prop.getOffers().isEmpty()) {
+                    proposition.put(
                             OptimizeConstants.JsonKeys.DECISIONING_PROPOSITIONS_ITEMS,
-                            propositionItemsList);
+                            getOfferIds(prop));
                 }
-
-                decisioningPropositions.add(map);
+                propositions.add(proposition);
             }
         }
 
         Map<String, Object> experienceDecisioning = new HashMap<>();
         experienceDecisioning.put(
-                OptimizeConstants.JsonKeys.DECISIONING_PROPOSITIONS, decisioningPropositions);
+                OptimizeConstants.JsonKeys.DECISIONING_PROPOSITIONS, propositions);
 
         Map<String, Object> experience = new HashMap<>();
         experience.put(OptimizeConstants.JsonKeys.EXPERIENCE_DECISIONING, experienceDecisioning);
@@ -318,5 +310,23 @@ class OptimizeUtils {
         xdm.put(OptimizeConstants.JsonKeys.EXPERIENCE_EVENT_TYPE, experienceEventType);
 
         return xdm;
+    }
+
+    private static List<Map<String, Object>> getOfferIds(final OptimizeProposition prop) {
+        List<Map<String, Object>> offersIds = new ArrayList<>();
+        for (Offer offer : prop.getOffers()) {
+            if (!StringUtils.isNullOrEmpty(offer.getId())) {
+                offersIds.add(
+                        new HashMap<String, Object>() {
+                            {
+                                put(
+                                        OptimizeConstants.JsonKeys
+                                                .DECISIONING_PROPOSITIONS_ITEMS_ID,
+                                        offer.getId());
+                            }
+                        });
+            }
+        }
+        return offersIds;
     }
 }
