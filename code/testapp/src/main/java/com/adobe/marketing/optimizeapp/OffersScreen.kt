@@ -42,6 +42,8 @@ import com.adobe.marketing.mobile.edge.identity.IdentityMap
 import com.adobe.marketing.mobile.optimize.DecisionScope
 import com.adobe.marketing.mobile.optimize.Offer
 import com.adobe.marketing.mobile.optimize.OfferType
+import com.adobe.marketing.mobile.optimize.Optimize.trackDisplayedPropositions
+import com.adobe.marketing.mobile.optimize.OptimizeProposition
 import com.adobe.marketing.optimizeapp.viewmodels.MainViewModel
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filter
@@ -53,6 +55,10 @@ private val clickHandler: (Offer) -> Unit = { offer ->
 
 private val displayHandler: (Offer) -> Unit = { offer ->
     offer.displayed()
+}
+
+private val displayPropositionsHandler: (List<OptimizeProposition>) -> Unit = { props ->
+    trackDisplayedPropositions(props)
 }
 
 @Composable
@@ -113,6 +119,9 @@ fun OffersView(viewModel: MainViewModel) {
                         }
                     }
                 })
+            }.also {
+                // uncomment this if you want to send the displayPropositions in batches to the Edge network and don't forget to comment all the displayHandler calls
+                // displayPropositionsHandler(viewModel.optimizePropositionStateMap.values.toList())
             }
         }
 
