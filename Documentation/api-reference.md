@@ -12,6 +12,7 @@ Refer to the [Getting Started Guide](getting-started.md).
 - [onPropositionsUpdate](#onPropositionsUpdate)
 - [resetIdentities](#resetIdentities)
 - [updatePropositions](#updatePropositions)
+- [updatePropositionsWithCompletionHandler](#updatePropositionsWithCompletionHandler)
 
 ## Public classes
 
@@ -180,6 +181,63 @@ Optimize.updatePropositions(decisionScopes,
                             new HashMap<String, Object>() {
                                 {
                                     put("dataKey", "dataValue");
+                                }
+                            });
+```
+
+## updatePropositionsWithCompletionHandler
+
+This API dispatches an event for the Edge network extension to fetch decision propositions, for the provided decision scopes array, from the decisioning services enabled in the Experience Edge. The returned decision propositions are cached in-memory in the Optimize SDK extension and can be retrieved using `getPropositions` API.
+
+> [!TIP]
+> Completion callback passed to `updatePropositions` supports network timeout and fatal errors returned by edge network along with fetched propositions data. The SDK's internal retry mechanism handles the recoverable HTTP errors. As a result, recoverable HTTP errors are not returned through this callback.
+
+### Java
+
+#### Syntax
+
+```java
+public static void updatePropositions(final List<DecisionScope> decisionScopes, 
+                                      final Map<String, Object> xdm,
+                                      final Map<String, Object> data,
+                                      final AdobeCallback<Map<DecisionScope, OptimizeProposition>> callback)
+```
+
+* _decisionScopes_ is a list of decision scopes for which propositions need updating.
+* _xdm_ is a map containing additional xdm formatted data to be attached to the Experience Event.
+* _data_ is a map containing additional freeform data to be attached to the Experience Event.
+* _callback_ is an optional completion handler that is invoked at the completion of the edge request. `call` method is invoked with propositions map of type `Map<DecisionScope, OptimizeProposition>`. If the callback is an instance of `AdobeCallbackWithOptimizeError`, and if the operation times out or an error occurs in retrieving propositions, the `fail` method is invoked with the appropriate [AEPOptimizeError](https://developer.adobe.com/client-sdks/edge/adobe-journey-optimizer-decisioning/api-reference/#aepoptimizeerror). _Note:_ In certain cases, both the success and failure callbacks may be triggered. To handle these cases, ensure that your implementation checks for both successful propositions and errors within the callback, as both may be present simultaneously.
+
+#### Example
+
+```java
+final DecisionScope decisionScope1 = DecisionScope("xcore:offer-activity:1111111111111111", "xcore:offer-placement:1111111111111111", 2);
+final DecisionScope decisionScope2 = new DecisionScope("myScope");
+
+final List<DecisionScope> decisionScopes = new ArrayList<>();
+decisionScopes.add(decisionScope1);
+decisionScopes.add(decisionScope2);
+
+Optimize.updatePropositions(decisionScopes,
+                            new HashMap<String, Object>() {
+                                {
+                                    put("xdmKey", "xdmValue");
+                                }
+                            },
+                            new HashMap<String, Object>() {
+                                {
+                                    put("dataKey", "dataValue");
+                                }
+                            },
+                            new AdobeCallbackWithOptimizeError<Map<DecisionScope, OptimizeProposition>>() {
+                                @Override
+                                public void fail(AEPOptimizeError optimizeError) {
+                                    responseError = optimizeError;
+                                }
+
+                                @Override
+                                public void call(Map<DecisionScope, OptimizeProposition> propositionsMap) {
+                                    responseMap = propositionsMap;
                                 }
                             });
 ```
