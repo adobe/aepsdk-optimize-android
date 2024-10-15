@@ -1,0 +1,8 @@
+{
+  "requestId": "BBBBBBBB-BBBB-BBBB-BBBB-BBBBBBBBBBBBA",
+  "detail": "Bad Gateway",
+  "status": 502,
+  "requestEventId": "AAAAAAAA-AAAA-AAAA-AAAA-AAAAAAAAAAAA",
+  "type": "https://ns.adobe.com/aep/errors/ODE-0001-502",
+  "title": "Bad Gateway"
+}

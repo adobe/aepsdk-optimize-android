@@ -13,6 +13,7 @@ package com.adobe.marketing.optimizeapp
 
 import android.view.ViewGroup
 import android.webkit.WebView
+import android.widget.Toast
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -25,11 +26,13 @@ import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -57,6 +60,7 @@ private val displayHandler: (Offer) -> Unit = { offer ->
 
 @Composable
 fun OffersView(viewModel: MainViewModel) {
+    val context = LocalContext.current
     var listState = rememberLazyListState()
     Column(
         modifier = Modifier
@@ -108,6 +112,9 @@ fun OffersView(viewModel: MainViewModel) {
                             JSONOffers(offers = viewModel.optimizePropositionStateMap[viewModel.jsonDecisionScope?.name]?.offers, listState = listState)
                         }
                         viewModel.targetMboxDecisionScope?.name -> {
+                            val updatePropositionsErrorMsg = viewModel.optimizeErrors.collectAsState().value
+                            Toast.makeText(context, updatePropositionsErrorMsg, Toast.LENGTH_LONG).show()
+
                             OffersSectionText(sectionName = "Target Offers")
                             TargetOffersView(offers = viewModel.optimizePropositionStateMap[viewModel.targetMboxDecisionScope?.name]?.offers, listState = listState)
                         }

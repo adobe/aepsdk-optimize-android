@@ -22,6 +22,7 @@ import com.adobe.marketing.mobile.optimize.DecisionScope
 import com.adobe.marketing.mobile.optimize.Optimize
 import com.adobe.marketing.mobile.optimize.OptimizeProposition
 import com.adobe.marketing.optimizeapp.models.OptimizePair
+import kotlinx.coroutines.flow.MutableStateFlow
 
 class MainViewModel: ViewModel() {
 
@@ -43,6 +44,8 @@ class MainViewModel: ViewModel() {
     var targetParamsProfile = mutableStateListOf(OptimizePair("",""))
 
     var optimizePropositionStateMap = mutableStateMapOf<String, OptimizeProposition>()
+
+    var optimizeErrors = MutableStateFlow("")
 
     private val optimizePropositionUpdateCallback = object : AdobeCallbackWithError<Map<DecisionScope, OptimizeProposition>> {
         override fun call(propositions: Map<DecisionScope, OptimizeProposition>?) {
@@ -99,11 +102,16 @@ class MainViewModel: ViewModel() {
         optimizePropositionStateMap.clear()
         Optimize.updatePropositions(decisionScopes, xdm, data, object: AdobeCallbackWithOptimizeError<Map<DecisionScope, OptimizeProposition>>{
             override fun call(propositions: Map<DecisionScope, OptimizeProposition>?) {
-                Log.i("Optimize Test App","Propositions updated successfully.")
+                propositions?.let {
+                    Log.i("Optimize Test App","Propositions updated successfully.")
+                } ?: run {
+                    Log.i("Optimize Test App","No propositions provided.")
+                }
             }
 
             override fun fail(error: AEPOptimizeError?) {
-                Log.i("Optimize Test App","Error in updating Propositions:: ${error?.title ?: "Undefined"}.")
+                Log.i("Optimize Test App","Error in updating Propositions:: Status: ${error?.status ?: "Undefined"}, Title: ${error?.title ?: "Undefined"}.")
+                optimizeErrors.value = "Error in updating Propositions:: ${error?.status ?: "Undefined"}."
             }
 
         })

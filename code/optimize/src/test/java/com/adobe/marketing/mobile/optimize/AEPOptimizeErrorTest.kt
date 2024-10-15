@@ -45,6 +45,12 @@ class AEPOptimizeErrorTest {
         )
         assertEquals(reportData, eventData[AEPOptimizeError.REPORT])
         assertNotNull(eventData[AEPOptimizeError.ADOBE_ERROR])
+
+        val adobeErrorData = eventData[AEPOptimizeError.ADOBE_ERROR]
+        val errorMap = adobeErrorData as? Map<String, Any>
+        assertNotNull(errorMap)
+        val errorName = errorMap?.get("errorName") as? String
+        assertEquals(AdobeError.UNEXPECTED_ERROR.errorName, errorName)
     }
 
     @Test

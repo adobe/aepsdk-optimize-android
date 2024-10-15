@@ -1302,6 +1302,129 @@ public class OptimizeExtensionTests {
 
             Assert.assertEquals(0, extension.getPropositionsInProgress().size());
             Assert.assertEquals(0, extension.getCachedPropositions().size());
+            extension.clearUpdateRequestEventIdsErrors();
+        }
+    }
+
+    @Test
+    public void testHandleEdgeErrorResponse_nonRecoverableError() throws Exception {
+        try (MockedStatic<Log> logMockedStatic = Mockito.mockStatic(Log.class)) {
+            // setup
+            final Map<String, Object> edgeErrorResponseData =
+                    new ObjectMapper()
+                            .readValue(
+                                    getClass()
+                                            .getClassLoader()
+                                            .getResource(
+                                                    "json/EVENT_DATA_EDGE_ERROR_RESPONSE.json"),
+                                    HashMap.class);
+
+            extension.setUpdateRequestEventIdsInProgress(
+                    "AAAAAAAA-AAAA-AAAA-AAAA-AAAAAAAAAAAA",
+                    new ArrayList<DecisionScope>() {
+                        {
+                            add(
+                                    new DecisionScope(
+                                            "eydhY3Rpdml0eUlkIjoieGNvcmU6b2ZmZXItYWN0aXZpdHk6MTExMTExMTExMTExMTExMSIsInBsYWNlbWVudElkIjoieGNvcmU6b2ZmZXItcGxhY2VtZW50OjExMTExMTExMTExMTExMTEifQ=="));
+                        }
+                    });
+
+            final Event testEvent =
+                    new Event.Builder(
+                                    "AEP Error Response",
+                                    "com.adobe.eventType.edge",
+                                    "com.adobe.eventSource.errorResponseContent")
+                            .setEventData(edgeErrorResponseData)
+                            .build();
+
+            // test
+            extension.handleEdgeErrorResponse(testEvent);
+
+            // verify
+            logMockedStatic.verify(
+                    () ->
+                            Log.warning(
+                                    ArgumentMatchers.anyString(),
+                                    ArgumentMatchers.anyString(),
+                                    ArgumentMatchers.anyString(),
+                                    ArgumentMatchers.any()));
+
+            Assert.assertEquals(0, extension.getPropositionsInProgress().size());
+            Assert.assertEquals(0, extension.getCachedPropositions().size());
+            Assert.assertEquals(1, extension.getUpdateRequestEventIdsErrors().size());
+
+            // validate AEPOptimizeError is created correctly
+
+            Map.Entry<String, AEPOptimizeError> firstEntry =
+                    extension.getUpdateRequestEventIdsErrors().entrySet().iterator().next();
+            AEPOptimizeError aepOptimizeError = firstEntry.getValue();
+
+            Assert.assertEquals(
+                    "https://ns.adobe.com/aep/errors/ODE-0001-404", aepOptimizeError.getType());
+            Assert.assertEquals(
+                    "The following scope was not found:"
+                        + " xcore:offer-activity:1111111111111111/xcore:offer-placement:1111111111111111",
+                    aepOptimizeError.getDetail());
+            Assert.assertEquals("Not Found", aepOptimizeError.getTitle());
+            extension.clearUpdateRequestEventIdsErrors();
+        }
+    }
+
+    @Test
+    public void testHandleEdgeErrorResponse_recoverableError() throws Exception {
+        try (MockedStatic<Log> logMockedStatic = Mockito.mockStatic(Log.class)) {
+            // setup
+            final Map<String, Object> edgeErrorResponseData =
+                    new ObjectMapper()
+                            .readValue(
+                                    getClass()
+                                            .getClassLoader()
+                                            .getResource(
+                                                    "json/EVENT_DATA_EDGE_ERROR_RESPONSE_RECOVERABLE_ERROR.json"),
+                                    HashMap.class);
+
+            extension.setUpdateRequestEventIdsInProgress(
+                    "AAAAAAAA-AAAA-AAAA-AAAA-AAAAAAAAAAAA",
+                    new ArrayList<DecisionScope>() {
+                        {
+                            add(
+                                    new DecisionScope(
+                                            "eydhY3Rpdml0eUlkIjoieGNvcmU6b2ZmZXItYWN0aXZpdHk6MTExMTExMTExMTExMTExMSIsInBsYWNlbWVudElkIjoieGNvcmU6b2ZmZXItcGxhY2VtZW50OjExMTExMTExMTExMTExMTEifQ=="));
+                        }
+                    });
+
+            final Event testEvent =
+                    new Event.Builder(
+                                    "AEP Error Response",
+                                    "com.adobe.eventType.edge",
+                                    "com.adobe.eventSource.errorResponseContent")
+                            .setEventData(edgeErrorResponseData)
+                            .build();
+
+            // test
+            extension.handleEdgeErrorResponse(testEvent);
+
+            // verify
+            logMockedStatic.verify(
+                    () ->
+                            Log.warning(
+                                    ArgumentMatchers.anyString(),
+                                    ArgumentMatchers.anyString(),
+                                    ArgumentMatchers.anyString(),
+                                    ArgumentMatchers.any()));
+
+            Assert.assertEquals(0, extension.getPropositionsInProgress().size());
+            Assert.assertEquals(0, extension.getCachedPropositions().size());
+            Assert.assertEquals(0, extension.getUpdateRequestEventIdsErrors().size());
+
+            logMockedStatic.verify(
+                    () ->
+                            Log.debug(
+                                    ArgumentMatchers.anyString(),
+                                    ArgumentMatchers.anyString(),
+                                    ArgumentMatchers.anyString(),
+                                    ArgumentMatchers.eq(502)));
+            extension.clearUpdateRequestEventIdsErrors();
         }
     }
 
@@ -1333,6 +1456,8 @@ public class OptimizeExtensionTests {
                     extension.getCachedPropositions();
             Assert.assertNotNull(cachedPropositions);
             Assert.assertTrue(cachedPropositions.isEmpty());
+            Assert.assertEquals(0, extension.getUpdateRequestEventIdsErrors().size());
+            extension.clearUpdateRequestEventIdsErrors();
         }
     }
 
@@ -1362,6 +1487,8 @@ public class OptimizeExtensionTests {
 
             Assert.assertEquals(0, extension.getPropositionsInProgress().size());
             Assert.assertEquals(0, extension.getCachedPropositions().size());
+            Assert.assertEquals(0, extension.getUpdateRequestEventIdsErrors().size());
+            extension.clearUpdateRequestEventIdsErrors();
         }
     }
 
