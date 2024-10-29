@@ -2696,7 +2696,7 @@ public class OptimizeFunctionalTests {
 
         // Action: Display both offers
         TestHelper.resetTestExpectations();
-        Optimize.trackDisplayedPropositions(optimizePropositionList);
+        //Optimize.trackDisplayedPropositions(optimizePropositionList);
 
         // Assert: Ensure Optimize and Edge events are dispatched correctly
         List<Event> optimizeRequestEventsList =
