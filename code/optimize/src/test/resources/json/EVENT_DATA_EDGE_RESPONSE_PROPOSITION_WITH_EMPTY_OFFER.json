@@ -1,0 +1,20 @@
+{
+  "payload": [
+    {
+      "id": "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+      "scope": "eyJhY3Rpdml0eUlkIjoieGNvcmU6b2ZmZXItYWN0aXZpdHk6MTExMTExMTExMTExMTExMSIsInBsYWNlbWVudElkIjoieGNvcmU6b2ZmZXItcGxhY2VtZW50OjExMTExMTExMTExMTExMTEifQ==",
+      "activity": {
+        "etag": "8",
+        "id": "xcore:offer-activity:1111111111111111"
+      },
+      "placement": {
+        "etag": "1",
+        "id": "xcore:offer-placement:1111111111111111"
+      },
+      "items": []
+    }
+  ],
+  "requestEventId": "AAAAAAAA-AAAA-AAAA-AAAA-AAAAAAAAAAAA",
+  "requestId": "BBBBBBBB-BBBB-BBBB-BBBB-BBBBBBBBBBBB",
+  "type": "personalization:decisions"
+}

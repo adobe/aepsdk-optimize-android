@@ -2484,4 +2484,258 @@ public class OptimizeExtensionTests {
         final ArgumentCaptor<Event> eventCaptor = ArgumentCaptor.forClass(Event.class);
         Mockito.verify(mockExtensionApi, Mockito.never()).dispatch(eventCaptor.capture());
     }
+
+    @Test
+    public void testHandleDebugEvent_validProposition() throws Exception {
+        // setup
+        final Map<String, Object> edgeResponseData =
+                new ObjectMapper()
+                        .readValue(
+                                getClass()
+                                        .getClassLoader()
+                                        .getResource("json/EVENT_DATA_EDGE_RESPONSE_VALID.json"),
+                                HashMap.class);
+        final Event testEvent =
+                new Event.Builder(
+                                "AEP Response Event Handle (Spoof)",
+                                "com.adobe.eventType.system",
+                                "com.adobe.eventSource.debug")
+                        .setEventData(edgeResponseData)
+                        .build();
+
+        final ArgumentCaptor<Event> eventCaptor = ArgumentCaptor.forClass(Event.class);
+
+        // test
+        extension.handleDebugEvent(testEvent);
+
+        // verify
+        Mockito.verify(mockExtensionApi, Mockito.times(1)).dispatch(eventCaptor.capture());
+
+        final Event dispatchedEvent = eventCaptor.getValue();
+        Assert.assertEquals("com.adobe.eventType.optimize", dispatchedEvent.getType());
+        Assert.assertEquals("com.adobe.eventSource.notification", dispatchedEvent.getSource());
+
+        final List<Map<String, Object>> propositionsList =
+                (List<Map<String, Object>>) dispatchedEvent.getEventData().get("propositions");
+        Assert.assertNotNull(propositionsList);
+        Assert.assertEquals(1, propositionsList.size());
+
+        final Map<String, Object> propositionsData = propositionsList.get(0);
+        Assert.assertNotNull(propositionsData);
+        final OptimizeProposition optimizeProposition =
+                OptimizeProposition.fromEventData(propositionsData);
+        Assert.assertNotNull(optimizeProposition);
+
+        Assert.assertEquals("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa", optimizeProposition.getId());
+        Assert.assertEquals(
+                "eyJhY3Rpdml0eUlkIjoieGNvcmU6b2ZmZXItYWN0aXZpdHk6MTExMTExMTExMTExMTExMSIsInBsYWNlbWVudElkIjoieGNvcmU6b2ZmZXItcGxhY2VtZW50OjExMTExMTExMTExMTExMTEifQ==",
+                optimizeProposition.getScope());
+        Assert.assertTrue(optimizeProposition.getScopeDetails().isEmpty());
+        Assert.assertEquals(1, optimizeProposition.getOffers().size());
+
+        final Offer offer = optimizeProposition.getOffers().get(0);
+        Assert.assertEquals("xcore:personalized-offer:1111111111111111", offer.getId());
+        Assert.assertEquals("10", offer.getEtag());
+        Assert.assertEquals(
+                "https://ns.adobe.com/experience/offer-management/content-component-html",
+                offer.getSchema());
+        Assert.assertEquals(OfferType.HTML, offer.getType());
+        Assert.assertEquals("<h1>This is a HTML content</h1>", offer.getContent());
+        Assert.assertEquals(1, offer.getCharacteristics().size());
+        Assert.assertEquals("true", offer.getCharacteristics().get("testing"));
+        Assert.assertNull(offer.getLanguage());
+    }
+
+    @Test
+    public void testHandleDebugEvent_InvalidEventType() throws Exception {
+
+        try (MockedStatic<Log> logMockedStatic = Mockito.mockStatic(Log.class)) {
+            // setup
+            final Map<String, Object> edgeResponseData =
+                    new ObjectMapper()
+                            .readValue(
+                                    getClass()
+                                            .getClassLoader()
+                                            .getResource(
+                                                    "json/EVENT_DATA_EDGE_RESPONSE_VALID.json"),
+                                    HashMap.class);
+            final Event testEvent =
+                    new Event.Builder(
+                                    "AEP Response Event Handle (Spoof)",
+                                    "com.adobe.eventType.edge",
+                                    "com.adobe.eventSource.debug")
+                            .setEventData(edgeResponseData)
+                            .build();
+
+            // test
+            extension.handleDebugEvent(testEvent);
+
+            // verify
+            logMockedStatic.verify(
+                    () ->
+                            Log.debug(
+                                    ArgumentMatchers.anyString(),
+                                    ArgumentMatchers.anyString(),
+                                    ArgumentMatchers.anyString(),
+                                    ArgumentMatchers.any()));
+        }
+    }
+
+    @Test
+    public void testHandleDebugEvent_InvalidEventSource() throws Exception {
+
+        try (MockedStatic<Log> logMockedStatic = Mockito.mockStatic(Log.class)) {
+            // setup
+            final Map<String, Object> edgeResponseData =
+                    new ObjectMapper()
+                            .readValue(
+                                    getClass()
+                                            .getClassLoader()
+                                            .getResource(
+                                                    "json/EVENT_DATA_EDGE_RESPONSE_VALID.json"),
+                                    HashMap.class);
+            final Event testEvent =
+                    new Event.Builder(
+                                    "AEP Response Event Handle (Spoof)",
+                                    "com.adobe.eventType.system",
+                                    "com.adobe.eventSource.personalization:decisions")
+                            .setEventData(edgeResponseData)
+                            .build();
+
+            // test
+            extension.handleDebugEvent(testEvent);
+
+            // verify
+            logMockedStatic.verify(
+                    () ->
+                            Log.debug(
+                                    ArgumentMatchers.anyString(),
+                                    ArgumentMatchers.anyString(),
+                                    ArgumentMatchers.anyString(),
+                                    ArgumentMatchers.any()));
+        }
+    }
+
+    @Test
+    public void testHandleDebugEvent_emptyPayload() throws Exception {
+        try (MockedStatic<Log> logMockedStatic = Mockito.mockStatic(Log.class)) {
+            // setup
+            final Map<String, Object> edgeResponseData =
+                    new ObjectMapper()
+                            .readValue(
+                                    getClass()
+                                            .getClassLoader()
+                                            .getResource(
+                                                    "json/EVENT_DATA_EDGE_RESPONSE_EMPTY_PAYLOAD.json"),
+                                    HashMap.class);
+
+            final Event testEvent =
+                    new Event.Builder(
+                                    "AEP Response Event Handle (Spoof)",
+                                    "com.adobe.eventType.system",
+                                    "com.adobe.eventSource.debug")
+                            .setEventData(edgeResponseData)
+                            .build();
+
+            // test
+            extension.handleDebugEvent(testEvent);
+
+            // verify
+            logMockedStatic.verify(
+                    () ->
+                            Log.debug(
+                                    ArgumentMatchers.anyString(),
+                                    ArgumentMatchers.anyString(),
+                                    ArgumentMatchers.anyString()));
+        }
+    }
+
+    @Test
+    public void testHandleDebugEvent_emptyProposition() throws Exception {
+        try (MockedStatic<Log> logMockedStatic = Mockito.mockStatic(Log.class)) {
+
+            final Map<String, Object> edgeResponseData =
+                    new ObjectMapper()
+                            .readValue(
+                                    getClass()
+                                            .getClassLoader()
+                                            .getResource(
+                                                    "json/EVENT_DATA_EDGE_RESPONSE_PROPOSITION_WITH_EMPTY_OFFER.json"),
+                                    HashMap.class);
+
+            final Event testEvent =
+                    new Event.Builder(
+                                    "Test Event",
+                                    "com.adobe.eventType.edge",
+                                    "com.adobe.eventSource.responseContent")
+                            .setEventData(edgeResponseData)
+                            .build();
+
+            // test
+            extension.handleDebugEvent(testEvent);
+
+            // verify
+            logMockedStatic.verify(
+                    () ->
+                            Log.debug(
+                                    ArgumentMatchers.anyString(),
+                                    ArgumentMatchers.anyString(),
+                                    ArgumentMatchers.anyString(),
+                                    ArgumentMatchers.any()));
+        }
+    }
+
+    @Test
+    public void testDebugEvent_nullEventData() {
+        try (MockedStatic<Log> logMockedStatic = Mockito.mockStatic(Log.class)) {
+
+            // setup
+            final Event testEvent =
+                    new Event.Builder(
+                                    "AEP Response Event Handle (Spoof)",
+                                    "com.adobe.eventType.system",
+                                    "com.adobe.eventSource.debug")
+                            .setEventData(null)
+                            .build();
+
+            // test
+            extension.handleDebugEvent(testEvent);
+
+            // verify
+            logMockedStatic.verify(
+                    () ->
+                            Log.debug(
+                                    ArgumentMatchers.anyString(),
+                                    ArgumentMatchers.anyString(),
+                                    ArgumentMatchers.anyString(),
+                                    ArgumentMatchers.any()));
+        }
+    }
+
+    @Test
+    public void testDebugEvent_emptyEventData() {
+        try (MockedStatic<Log> logMockedStatic = Mockito.mockStatic(Log.class)) {
+
+            // setup
+            final Event testEvent =
+                    new Event.Builder(
+                                    "AEP Response Event Handle (Spoof)",
+                                    "com.adobe.eventType.system",
+                                    "com.adobe.eventSource.debug")
+                            .setEventData(new HashMap<>())
+                            .build();
+
+            // test
+            extension.handleDebugEvent(testEvent);
+
+            // verify
+            logMockedStatic.verify(
+                    () ->
+                            Log.debug(
+                                    ArgumentMatchers.anyString(),
+                                    ArgumentMatchers.anyString(),
+                                    ArgumentMatchers.anyString(),
+                                    ArgumentMatchers.any()));
+        }
+    }
 }

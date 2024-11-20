@@ -64,6 +64,7 @@ class OptimizeConstants {
         static final String NOTIFICATION = "com.adobe.eventSource.notification";
         static final String EDGE_PERSONALIZATION_DECISIONS = "personalization:decisions";
         static final String CONTENT_COMPLETE = "com.adobe.eventSource.contentComplete";
+        static final String DEBUG = "com.adobe.eventSource.debug";
 
         private EventSource() {}
     }
