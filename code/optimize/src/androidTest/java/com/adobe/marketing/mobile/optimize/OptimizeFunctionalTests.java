@@ -2672,7 +2672,7 @@ public class OptimizeFunctionalTests {
                 Collections.singletonList(new DecisionScope(decisionScopeName)),
                 null,
                 null,
-                100,
+                0.1,
                 new AdobeCallbackWithOptimizeError<Map<DecisionScope, OptimizeProposition>>() {
                     @Override
                     public void fail(AEPOptimizeError error) {
