@@ -144,6 +144,11 @@ class OptimizeExtension extends Extension {
     protected void onRegistered() {
         getApi().registerEventListener(
                         OptimizeConstants.EventType.OPTIMIZE,
+                        OptimizeConstants.EventSource.REQUEST_CONFIGURATION,
+                        this::handleConfigurationUpdateRequest);
+
+        getApi().registerEventListener(
+                        OptimizeConstants.EventType.OPTIMIZE,
                         OptimizeConstants.EventSource.REQUEST_CONTENT,
                         this::handleOptimizeRequestContent);
 
@@ -357,13 +362,25 @@ class OptimizeExtension extends Extension {
     void handleUpdatePropositions(@NonNull final Event event) {
         final Map<String, Object> eventData = event.getEventData();
 
-        final Map<String, Object> configData = retrieveConfigurationSharedState(event);
-        if (OptimizeUtils.isNullOrEmpty(configData)) {
+        String overrideDatasetId =
+                ConfigsExtension.getConfigValue(
+                        getApi(),
+                        null,
+                        OptimizeConstants.Configuration.OPTIMIZE_OVERRIDE_DATASET_ID,
+                        "",
+                        (sharedState, key) -> {
+                            try {
+                                return DataReader.getString(sharedState, key);
+                            } catch (DataReaderException e) {
+                                return "";
+                            }
+                        });
+        if (OptimizeUtils.isNullOrEmpty(overrideDatasetId)) {
             Log.debug(
                     OptimizeConstants.LOG_TAG,
                     SELF_TAG,
                     "handleUpdatePropositions - Cannot process the update propositions request"
-                            + " event, Configuration shared state is not available.");
+                            + " event, dataset Id is not available.");
             return;
         }
 
@@ -430,18 +447,7 @@ class OptimizeExtension extends Extension {
             final Map<String, Object> request = new HashMap<>();
             request.put(OptimizeConstants.JsonKeys.REQUEST_SEND_COMPLETION, true);
             edgeEventData.put(OptimizeConstants.JsonKeys.REQUEST, request);
-
-            // Add override datasetId
-            if (configData.containsKey(
-                    OptimizeConstants.Configuration.OPTIMIZE_OVERRIDE_DATASET_ID)) {
-                final String overrideDatasetId =
-                        DataReader.getString(
-                                configData,
-                                OptimizeConstants.Configuration.OPTIMIZE_OVERRIDE_DATASET_ID);
-                if (!OptimizeUtils.isNullOrEmpty(overrideDatasetId)) {
-                    edgeEventData.put(OptimizeConstants.JsonKeys.DATASET_ID, overrideDatasetId);
-                }
-            }
+            edgeEventData.put(OptimizeConstants.JsonKeys.DATASET_ID, overrideDatasetId);
 
             final Event edgeEvent =
                     new Event.Builder(
@@ -921,13 +927,25 @@ class OptimizeExtension extends Extension {
     void handleTrackPropositions(@NonNull final Event event) {
         final Map<String, Object> eventData = event.getEventData();
 
-        final Map<String, Object> configData = retrieveConfigurationSharedState(event);
-        if (OptimizeUtils.isNullOrEmpty(configData)) {
+        String overrideDatasetId =
+                ConfigsExtension.getConfigValue(
+                        getApi(),
+                        null,
+                        OptimizeConstants.Configuration.OPTIMIZE_OVERRIDE_DATASET_ID,
+                        "",
+                        (sharedState, key) -> {
+                            try {
+                                return DataReader.getString(sharedState, key);
+                            } catch (DataReaderException e) {
+                                return "";
+                            }
+                        });
+        if (OptimizeUtils.isNullOrEmpty(overrideDatasetId)) {
             Log.debug(
                     OptimizeConstants.LOG_TAG,
                     SELF_TAG,
                     "handleTrackPropositions - Cannot process the track propositions request event,"
-                            + " Configuration shared state is not available.");
+                            + "dataset Id is not available.");
             return;
         }
 
@@ -948,18 +966,7 @@ class OptimizeExtension extends Extension {
 
             final Map<String, Object> edgeEventData = new HashMap<>();
             edgeEventData.put(OptimizeConstants.JsonKeys.XDM, propositionInteractionsXdm);
-
-            // Add override datasetId
-            if (configData.containsKey(
-                    OptimizeConstants.Configuration.OPTIMIZE_OVERRIDE_DATASET_ID)) {
-                final String overrideDatasetId =
-                        DataReader.getString(
-                                configData,
-                                OptimizeConstants.Configuration.OPTIMIZE_OVERRIDE_DATASET_ID);
-                if (!OptimizeUtils.isNullOrEmpty(overrideDatasetId)) {
-                    edgeEventData.put(OptimizeConstants.JsonKeys.DATASET_ID, overrideDatasetId);
-                }
-            }
+            edgeEventData.put(OptimizeConstants.JsonKeys.DATASET_ID, overrideDatasetId);
 
             final Event edgeEvent =
                     new Event.Builder(
@@ -1086,20 +1093,40 @@ class OptimizeExtension extends Extension {
         }
     }
 
-    /**
-     * Retrieves the {@code Configuration} shared state versioned at the current {@code event}.
-     *
-     * @param event incoming {@link Event} instance.
-     * @return {@code Map<String, Object>} containing configuration data.
-     */
-    private Map<String, Object> retrieveConfigurationSharedState(final Event event) {
-        SharedStateResult configurationSharedState =
-                getApi().getSharedState(
-                                OptimizeConstants.Configuration.EXTENSION_NAME,
-                                event,
-                                false,
-                                SharedStateResolution.ANY);
-        return configurationSharedState != null ? configurationSharedState.getValue() : null;
+    void handleConfigurationUpdateRequest(@NonNull final Event event) {
+        try {
+            double configurableTimeout =
+                    ConfigsExtension.getConfigValue(
+                            getApi(),
+                            OptimizeConstants.EventDataKeys.TIMEOUT,
+                            OptimizeConstants.DEFAULT_CONFIGURABLE_TIMEOUT_CONFIG,
+                            (sharedState, key) -> {
+                                try {
+                                    return DataReader.getDouble(sharedState, key);
+                                } catch (DataReaderException e) {
+                                    return OptimizeConstants.DEFAULT_CONFIGURABLE_TIMEOUT_CONFIG;
+                                }
+                            });
+            final Map<String, Object> responseEventData = new HashMap<>();
+            responseEventData.put(OptimizeConstants.EventDataKeys.TIMEOUT, configurableTimeout);
+            final Event responseEvent =
+                    new Event.Builder(
+                                    OptimizeConstants.EventNames.OPTIMIZE_RESPONSE,
+                                    OptimizeConstants.EventType.OPTIMIZE,
+                                    OptimizeConstants.EventSource.RESPONSE_CONTENT)
+                            .setEventData(responseEventData)
+                            .inResponseToEvent(event)
+                            .build();
+            getApi().dispatch(responseEvent);
+        } catch (Exception e) {
+            Log.warning(
+                    OptimizeConstants.LOG_TAG,
+                    SELF_TAG,
+                    "handleConfigurationUpdateRequest - Failed to process get configurations"
+                            + " request event due to an exception (%s)!",
+                    e.getLocalizedMessage());
+            getApi().dispatch(createResponseEventWithError(event, AdobeError.UNEXPECTED_ERROR));
+        }
     }
 
     /**

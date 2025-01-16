@@ -18,6 +18,7 @@ class OptimizeConstants {
     static final String FRIENDLY_NAME = "Optimize";
     static final double GET_RESPONSE_CALLBACK_TIMEOUT = 10;
     static final double EDGE_CONTENT_COMPLETE_RESPONSE_TIMEOUT = 10;
+    static final double DEFAULT_CONFIGURABLE_TIMEOUT_CONFIG = 10;
     static final long TIMEOUT_CONVERSION_FACTOR = 1000;
 
     static final String ACTIVITY_ID = "activityId";
@@ -65,6 +66,7 @@ class OptimizeConstants {
         static final String EDGE_PERSONALIZATION_DECISIONS = "personalization:decisions";
         static final String CONTENT_COMPLETE = "com.adobe.eventSource.contentComplete";
         static final String DEBUG = "com.adobe.eventSource.debug";
+        static final String REQUEST_CONFIGURATION = "com.adobe.module.requestConfiguration";
 
         private EventSource() {}
     }

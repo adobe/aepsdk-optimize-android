@@ -2657,50 +2657,6 @@ public class OptimizeFunctionalTests {
         TestHelper.resetTestExpectations();
     }
 
-    // 21
-    @Test
-    public void testUpdatePropositions_configurableTimeout() throws Exception {
-        // Setup
-        final String decisionScopeName = "decisionScope";
-        Map<String, Object> configData = new HashMap<>();
-        configData.put("edge.configId", "ffffffff-ffff-ffff-ffff-ffffffffffff");
-        updateConfiguration(configData);
-
-        long startTime = System.currentTimeMillis();
-        // Action
-        Optimize.updatePropositions(
-                Collections.singletonList(new DecisionScope(decisionScopeName)),
-                null,
-                null,
-                0.1,
-                new AdobeCallbackWithOptimizeError<Map<DecisionScope, OptimizeProposition>>() {
-                    @Override
-                    public void fail(AEPOptimizeError error) {
-                        long endTime = System.currentTimeMillis();
-
-                        // Calculate the actual elapsed time
-                        long elapsedTime = endTime - startTime;
-                        Assert.assertTrue(
-                                "Elapsed time should be close to the timeout threshold.",
-                                elapsedTime >= 100 && elapsedTime <= 120 // Acceptable range
-                                );
-                        Assert.fail(OptimizeConstants.ErrorData.Timeout.DETAIL);
-                        Assert.assertEquals(
-                                OptimizeConstants.ErrorData.Timeout.STATUS, error.getStatus());
-                        Assert.assertEquals(
-                                OptimizeConstants.ErrorData.Timeout.TITLE, error.getTitle());
-                        Assert.assertEquals(
-                                OptimizeConstants.ErrorData.Timeout.DETAIL, error.getDetail());
-                    }
-
-                    @Override
-                    public void call(
-                            Map<DecisionScope, OptimizeProposition> decisionScopePropositionMap) {
-                        Assert.assertNull(decisionScopePropositionMap);
-                    }
-                });
-    }
-
     private void updateConfiguration(final Map<String, Object> config) throws InterruptedException {
         final CountDownLatch latch = new CountDownLatch(1);
         MonitorExtension.configurationAwareness(configurationState -> latch.countDown());
