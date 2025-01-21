@@ -11,6 +11,11 @@
 
 package com.adobe.marketing.mobile.optimize;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyDouble;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mockStatic;
+import static org.mockito.Mockito.verify;
 import android.util.Base64;
 import com.adobe.marketing.mobile.AdobeError;
 import com.adobe.marketing.mobile.Event;
@@ -52,6 +57,8 @@ public class OptimizeExtensionTests {
     @Mock ExtensionApi mockExtensionApi;
 
     @Mock SerialWorkDispatcher<Event> mockEventsDispatcher;
+
+    @Mock Event mockEvent;
 
     @Before
     public void setup() {
@@ -107,6 +114,11 @@ public class OptimizeExtensionTests {
         extension.onRegistered();
 
         // verify
+        Mockito.verify(mockExtensionApi, Mockito.times(1))
+                .registerEventListener(
+                        ArgumentMatchers.eq("com.adobe.eventType.optimize"),
+                        ArgumentMatchers.eq("com.adobe.module.requestConfiguration"),
+                        ArgumentMatchers.any(ExtensionEventListener.class));
         Mockito.verify(mockExtensionApi, Mockito.times(1))
                 .registerEventListener(
                         ArgumentMatchers.eq("com.adobe.eventType.optimize"),
@@ -2843,5 +2855,35 @@ public class OptimizeExtensionTests {
         // verify
         final ArgumentCaptor<Event> eventCaptor = ArgumentCaptor.forClass(Event.class);
         Mockito.verify(mockExtensionApi, Mockito.never()).dispatch(eventCaptor.capture());
+    }
+
+    @Test
+    public void testHandleConfigurationUpdateRequest_Success() {
+        // Arrange
+        try (MockedStatic<ConfigsExtension> mockedStatic = mockStatic(ConfigsExtension.class)) {
+            mockedStatic
+                    .when(
+                            () ->
+                                    ConfigsExtension.getConfigValue(
+                                            eq(mockExtensionApi),
+                                            eq("timeout"),
+                                            anyDouble(),
+                                            any()))
+                    .thenReturn(5.0);
+
+            ArgumentCaptor<Event> eventCaptor = ArgumentCaptor.forClass(Event.class);
+
+            extension.handleConfigurationUpdateRequest(mockEvent);
+
+            verify(mockExtensionApi).dispatch(eventCaptor.capture());
+            Event dispatchedEvent = eventCaptor.getValue();
+
+            Assert.assertNotNull(dispatchedEvent);
+            Assert.assertEquals("Optimize Response", dispatchedEvent.getName());
+            Assert.assertEquals("com.adobe.eventType.optimize", dispatchedEvent.getType());
+            Assert.assertEquals(
+                    "com.adobe.eventSource.responseContent", dispatchedEvent.getSource());
+            Assert.assertEquals(5.0, dispatchedEvent.getEventData().get("timeout"));
+        }
     }
 }
