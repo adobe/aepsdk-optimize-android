@@ -78,27 +78,12 @@ object ConfigsManager {
         onSuccess: (Double) -> Unit
     ) = fetchConfigurations { configurations ->
         val timeout = try {
-            val timeoutValue = configurations[OptimizeConstants.EventDataKeys.TIMEOUT]
-            if (timeoutValue is Double) {
-                Log.debug(
-                    OptimizeConstants.LOG_TAG,
-                    SELF_TAG,
-                    "Timeout configuration retrieved: $timeoutValue"
-                )
-                timeoutValue
-            } else {
-                Log.warning(
-                    OptimizeConstants.LOG_TAG,
-                    SELF_TAG,
-                    "Timeout configuration not found or invalid. Using default value: 3.0"
-                )
-                OptimizeConstants.DEFAULT_CONFIGURABLE_TIMEOUT_CONFIG
-            }
+            configurations[OptimizeConstants.EventDataKeys.TIMEOUT] as Double
         } catch (e: Exception) {
             Log.error(
                 OptimizeConstants.LOG_TAG,
                 SELF_TAG,
-                "Error retrieving timeout configuration: ${e.message}. Using default value: 3.0"
+                "Error retrieving timeout configuration: ${e.message}. Using default value: ${OptimizeConstants.DEFAULT_CONFIGURABLE_TIMEOUT_CONFIG}"
             )
             OptimizeConstants.DEFAULT_CONFIGURABLE_TIMEOUT_CONFIG
         }
