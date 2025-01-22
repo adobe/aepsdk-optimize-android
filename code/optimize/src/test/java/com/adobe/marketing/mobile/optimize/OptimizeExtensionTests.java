@@ -1910,39 +1910,49 @@ public class OptimizeExtensionTests {
     }
 
     @Test
-    public void testHandleOptimizeRequestContent_HandleTrackPropositions_configurationNotAvailable()
-            throws Exception {
-        try (MockedStatic<Log> logMockedStatic = Mockito.mockStatic(Log.class)) {
-            // setup
-            final Map<String, Object> optimizeTrackRequestData =
-                    new ObjectMapper()
-                            .readValue(
-                                    getClass()
-                                            .getClassLoader()
-                                            .getResource(
-                                                    "json/EVENT_DATA_OPTIMIZE_TRACK_REQUEST_VALID_DISPLAY.json"),
-                                    HashMap.class);
-            final Event testEvent =
-                    new Event.Builder(
-                                    "Optimize Track Propositions Request",
-                                    "com.adobe.eventType.optimize",
-                                    "com.adobe.eventSource.requestContent")
-                            .setEventData(optimizeTrackRequestData)
-                            .build();
+    public void
+            testHandleOptimizeRequestContent_HandleTrackPropositions_validPropositionInteractionsWithoutDatasetIdInConfig()
+                    throws Exception {
+        final Map<String, Object> optimizeTrackRequestData =
+                new ObjectMapper()
+                        .readValue(
+                                getClass()
+                                        .getClassLoader()
+                                        .getResource(
+                                                "json/EVENT_DATA_OPTIMIZE_TRACK_REQUEST_VALID_DISPLAY.json"),
+                                HashMap.class);
+        final Event testEvent =
+                new Event.Builder(
+                                "Optimize Track Propositions Request",
+                                "com.adobe.eventType.optimize",
+                                "com.adobe.eventSource.requestContent")
+                        .setEventData(optimizeTrackRequestData)
+                        .build();
+        try (MockedStatic<ConfigsExtension> configsExtensionMock =
+                Mockito.mockStatic(ConfigsExtension.class)) {
+            configsExtensionMock
+                    .when(
+                            () ->
+                                    ConfigsExtension.getConfigValue(
+                                            ArgumentMatchers.any(ExtensionApi.class),
+                                            ArgumentMatchers.any(),
+                                            ArgumentMatchers.eq(
+                                                    OptimizeConstants.Configuration
+                                                            .OPTIMIZE_OVERRIDE_DATASET_ID),
+                                            ArgumentMatchers.eq(""),
+                                            ArgumentMatchers.any()))
+                    .thenReturn(null);
 
-            // test
             extension.handleOptimizeRequestContent(testEvent);
 
-            // verify
-            Mockito.verify(mockExtensionApi, Mockito.times(0)).dispatch(ArgumentMatchers.any());
+            final ArgumentCaptor<Event> eventCaptor = ArgumentCaptor.forClass(Event.class);
 
-            logMockedStatic.verify(
-                    () ->
-                            Log.debug(
-                                    ArgumentMatchers.anyString(),
-                                    ArgumentMatchers.anyString(),
-                                    ArgumentMatchers.anyString(),
-                                    ArgumentMatchers.any()));
+            Mockito.verify(mockExtensionApi, Mockito.times(1)).dispatch(eventCaptor.capture());
+            final Event capturedEdgeEvent = eventCaptor.getValue();
+            Assert.assertFalse(
+                    capturedEdgeEvent
+                            .getEventData()
+                            .containsKey(OptimizeConstants.JsonKeys.DATASET_ID));
         }
     }
 
