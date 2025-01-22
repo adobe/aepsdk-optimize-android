@@ -482,7 +482,7 @@ public class Optimize {
         MobileCore.dispatchEvent(event);
     }
 
-    private static void getConfigurableTimeoutConfig(AdobeCallback<Double> callback) {
+    private static void getConfigurableTimeoutConfig(final AdobeCallback<Double> callback) {
         ConfigsManager.INSTANCE.getConfigurableTimeoutConfig(
                 timeout -> {
                     callback.call(timeout);
