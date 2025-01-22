@@ -375,14 +375,6 @@ class OptimizeExtension extends Extension {
                                 return "";
                             }
                         });
-        if (OptimizeUtils.isNullOrEmpty(overrideDatasetId)) {
-            Log.debug(
-                    OptimizeConstants.LOG_TAG,
-                    SELF_TAG,
-                    "handleUpdatePropositions - Cannot process the update propositions request"
-                            + " event, dataset Id is not available.");
-            return;
-        }
 
         try {
             final List<Map<String, Object>> decisionScopesData =
@@ -447,7 +439,9 @@ class OptimizeExtension extends Extension {
             final Map<String, Object> request = new HashMap<>();
             request.put(OptimizeConstants.JsonKeys.REQUEST_SEND_COMPLETION, true);
             edgeEventData.put(OptimizeConstants.JsonKeys.REQUEST, request);
-            edgeEventData.put(OptimizeConstants.JsonKeys.DATASET_ID, overrideDatasetId);
+            if (!OptimizeUtils.isNullOrEmpty(overrideDatasetId)) {
+                edgeEventData.put(OptimizeConstants.JsonKeys.DATASET_ID, overrideDatasetId);
+            }
 
             final Event edgeEvent =
                     new Event.Builder(
@@ -940,14 +934,6 @@ class OptimizeExtension extends Extension {
                                 return "";
                             }
                         });
-        if (OptimizeUtils.isNullOrEmpty(overrideDatasetId)) {
-            Log.debug(
-                    OptimizeConstants.LOG_TAG,
-                    SELF_TAG,
-                    "handleTrackPropositions - Cannot process the track propositions request event,"
-                            + "dataset Id is not available.");
-            return;
-        }
 
         try {
             final Map<String, Object> propositionInteractionsXdm =
@@ -966,7 +952,9 @@ class OptimizeExtension extends Extension {
 
             final Map<String, Object> edgeEventData = new HashMap<>();
             edgeEventData.put(OptimizeConstants.JsonKeys.XDM, propositionInteractionsXdm);
-            edgeEventData.put(OptimizeConstants.JsonKeys.DATASET_ID, overrideDatasetId);
+            if (!OptimizeUtils.isNullOrEmpty(overrideDatasetId)) {
+                edgeEventData.put(OptimizeConstants.JsonKeys.DATASET_ID, overrideDatasetId);
+            }
 
             final Event edgeEvent =
                     new Event.Builder(
