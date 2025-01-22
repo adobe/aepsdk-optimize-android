@@ -476,7 +476,7 @@ public class OptimizeFunctionalTests {
 
         Assert.assertNotNull(eventsListOptimize);
         Assert.assertEquals(1, eventsListOptimize.size());
-        Assert.assertTrue(eventsListEdge.isEmpty());
+        Assert.assertFalse(eventsListEdge.isEmpty());
     }
 
     // 6
