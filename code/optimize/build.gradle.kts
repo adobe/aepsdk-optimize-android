@@ -9,6 +9,8 @@
  * OF ANY KIND, either express or implied. See the License for the specific language
  * governing permissions and limitations under the License.
  */
+
+import com.adobe.marketing.mobile.gradle.BuildConstants
 plugins {
     id("aep-library")
 }
@@ -35,7 +37,7 @@ dependencies {
     // testImplementation dependencies provided by aep-library:
     // MOCKITO_CORE, MOCKITO_INLINE, JSON
     testImplementation("com.fasterxml.jackson.core:jackson-databind:2.12.7.1")
-    testImplementation("io.mockk:mockk:1.13.11")
+    testImplementation(BuildConstants.Dependencies.MOCKK)
 
     // androidTestImplementation dependencies provided by aep-library:
     // ANDROIDX_TEST_EXT_JUNIT, ESPRESSO_CORE
