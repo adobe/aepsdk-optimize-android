@@ -11,11 +11,8 @@
 
 package com.adobe.marketing.mobile.optimize;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyDouble;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import android.util.Base64;
 import com.adobe.marketing.mobile.AdobeError;
@@ -26,6 +23,7 @@ import com.adobe.marketing.mobile.SharedStateResolution;
 import com.adobe.marketing.mobile.SharedStateResult;
 import com.adobe.marketing.mobile.SharedStateStatus;
 import com.adobe.marketing.mobile.services.Log;
+import com.adobe.marketing.mobile.util.DataReaderException;
 import com.adobe.marketing.mobile.util.SerialWorkDispatcher;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
@@ -1910,49 +1908,39 @@ public class OptimizeExtensionTests {
     }
 
     @Test
-    public void
-            testHandleOptimizeRequestContent_HandleTrackPropositions_validPropositionInteractionsWithoutDatasetIdInConfig()
-                    throws Exception {
-        final Map<String, Object> optimizeTrackRequestData =
-                new ObjectMapper()
-                        .readValue(
-                                getClass()
-                                        .getClassLoader()
-                                        .getResource(
-                                                "json/EVENT_DATA_OPTIMIZE_TRACK_REQUEST_VALID_DISPLAY.json"),
-                                HashMap.class);
-        final Event testEvent =
-                new Event.Builder(
-                                "Optimize Track Propositions Request",
-                                "com.adobe.eventType.optimize",
-                                "com.adobe.eventSource.requestContent")
-                        .setEventData(optimizeTrackRequestData)
-                        .build();
-        try (MockedStatic<ConfigsExtension> configsExtensionMock =
-                Mockito.mockStatic(ConfigsExtension.class)) {
-            configsExtensionMock
-                    .when(
-                            () ->
-                                    ConfigsExtension.getConfigValue(
-                                            ArgumentMatchers.any(ExtensionApi.class),
-                                            ArgumentMatchers.any(),
-                                            ArgumentMatchers.eq(
-                                                    OptimizeConstants.Configuration
-                                                            .OPTIMIZE_OVERRIDE_DATASET_ID),
-                                            ArgumentMatchers.eq(""),
-                                            ArgumentMatchers.any()))
-                    .thenReturn(null);
+    public void testHandleOptimizeRequestContent_HandleTrackPropositions_configurationNotAvailable()
+            throws Exception {
+        try (MockedStatic<Log> logMockedStatic = Mockito.mockStatic(Log.class)) {
+            // setup
+            final Map<String, Object> optimizeTrackRequestData =
+                    new ObjectMapper()
+                            .readValue(
+                                    getClass()
+                                            .getClassLoader()
+                                            .getResource(
+                                                    "json/EVENT_DATA_OPTIMIZE_TRACK_REQUEST_VALID_DISPLAY.json"),
+                                    HashMap.class);
+            final Event testEvent =
+                    new Event.Builder(
+                                    "Optimize Track Propositions Request",
+                                    "com.adobe.eventType.optimize",
+                                    "com.adobe.eventSource.requestContent")
+                            .setEventData(optimizeTrackRequestData)
+                            .build();
 
+            // test
             extension.handleOptimizeRequestContent(testEvent);
 
-            final ArgumentCaptor<Event> eventCaptor = ArgumentCaptor.forClass(Event.class);
+            // verify
+            Mockito.verify(mockExtensionApi, Mockito.times(0)).dispatch(ArgumentMatchers.any());
 
-            Mockito.verify(mockExtensionApi, Mockito.times(1)).dispatch(eventCaptor.capture());
-            final Event capturedEdgeEvent = eventCaptor.getValue();
-            Assert.assertFalse(
-                    capturedEdgeEvent
-                            .getEventData()
-                            .containsKey(OptimizeConstants.JsonKeys.DATASET_ID));
+            logMockedStatic.verify(
+                    () ->
+                            Log.debug(
+                                    ArgumentMatchers.anyString(),
+                                    ArgumentMatchers.anyString(),
+                                    ArgumentMatchers.anyString(),
+                                    ArgumentMatchers.any()));
         }
     }
 
@@ -2608,7 +2596,7 @@ public class OptimizeExtensionTests {
     // Helper methods
     private void setConfigurationSharedState(
             final SharedStateStatus status, final Map<String, Object> data) {
-        Mockito.when(
+        when(
                         mockExtensionApi.getSharedState(
                                 ArgumentMatchers.eq(OptimizeConstants.Configuration.EXTENSION_NAME),
                                 ArgumentMatchers.any(),
@@ -2869,32 +2857,24 @@ public class OptimizeExtensionTests {
     }
 
     @Test
-    public void testHandleConfigurationUpdateRequest_Success() {
+    public void testHandleConfigurationUpdateRequest_Success() throws DataReaderException {
         // Arrange
-        try (MockedStatic<ConfigsExtension> mockedStatic = mockStatic(ConfigsExtension.class)) {
-            mockedStatic
-                    .when(
-                            () ->
-                                    ConfigsExtension.getConfigValue(
-                                            eq(mockExtensionApi),
-                                            eq("timeout"),
-                                            anyDouble(),
-                                            any()))
-                    .thenReturn(5.0);
+        double expectedTimeout = 5.0;
 
-            ArgumentCaptor<Event> eventCaptor = ArgumentCaptor.forClass(Event.class);
+        ArgumentCaptor<Event> eventCaptor = ArgumentCaptor.forClass(Event.class);
 
-            extension.handleConfigurationUpdateRequest(mockEvent);
+        // Act
+        extension.handleConfigurationUpdateRequest(mockEvent);
 
-            verify(mockExtensionApi).dispatch(eventCaptor.capture());
-            Event dispatchedEvent = eventCaptor.getValue();
+        // Assert
+        verify(mockExtensionApi).dispatch(eventCaptor.capture());
+        Event dispatchedEvent = eventCaptor.getValue();
 
-            Assert.assertNotNull(dispatchedEvent);
-            Assert.assertEquals("Optimize Response", dispatchedEvent.getName());
-            Assert.assertEquals("com.adobe.eventType.optimize", dispatchedEvent.getType());
-            Assert.assertEquals(
-                    "com.adobe.eventSource.responseContent", dispatchedEvent.getSource());
-            Assert.assertEquals(5.0, dispatchedEvent.getEventData().get("timeout"));
-        }
+        Assert.assertNotNull(dispatchedEvent);
+        Assert.assertEquals(OptimizeConstants.EventNames.OPTIMIZE_RESPONSE, dispatchedEvent.getName());
+        Assert.assertEquals(OptimizeConstants.EventType.OPTIMIZE, dispatchedEvent.getType());
+        Assert.assertEquals(OptimizeConstants.EventSource.RESPONSE_CONTENT, dispatchedEvent.getSource());
+        Assert.assertEquals(expectedTimeout, dispatchedEvent.getEventData().get(OptimizeConstants.EventDataKeys.TIMEOUT));
     }
+
 }
