@@ -33,6 +33,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
 class OptimizeExtension extends Extension {
@@ -362,19 +363,15 @@ class OptimizeExtension extends Extension {
     void handleUpdatePropositions(@NonNull final Event event) {
         final Map<String, Object> eventData = event.getEventData();
 
-        String overrideDatasetId =
-                ConfigsExtension.getConfigValue(
-                        getApi(),
-                        null,
-                        OptimizeConstants.Configuration.OPTIMIZE_OVERRIDE_DATASET_ID,
-                        "",
-                        (sharedState, key) -> {
-                            try {
-                                return DataReader.getString(sharedState, key);
-                            } catch (DataReaderException e) {
-                                return "";
-                            }
-                        });
+        final Map<String, Object> configData = retrieveConfigurationSharedState(event);
+        if (OptimizeUtils.isNullOrEmpty(configData)) {
+            Log.debug(
+                    OptimizeConstants.LOG_TAG,
+                    SELF_TAG,
+                    "handleUpdatePropositions - Cannot process the update propositions request"
+                            + " event, Configuration shared state is not available.");
+            return;
+        }
 
         try {
             final List<Map<String, Object>> decisionScopesData =
@@ -439,8 +436,17 @@ class OptimizeExtension extends Extension {
             final Map<String, Object> request = new HashMap<>();
             request.put(OptimizeConstants.JsonKeys.REQUEST_SEND_COMPLETION, true);
             edgeEventData.put(OptimizeConstants.JsonKeys.REQUEST, request);
-            if (!OptimizeUtils.isNullOrEmpty(overrideDatasetId)) {
-                edgeEventData.put(OptimizeConstants.JsonKeys.DATASET_ID, overrideDatasetId);
+
+            // Add override datasetId
+            if (configData.containsKey(
+                    OptimizeConstants.Configuration.OPTIMIZE_OVERRIDE_DATASET_ID)) {
+                final String overrideDatasetId =
+                        DataReader.getString(
+                                configData,
+                                OptimizeConstants.Configuration.OPTIMIZE_OVERRIDE_DATASET_ID);
+                if (!OptimizeUtils.isNullOrEmpty(overrideDatasetId)) {
+                    edgeEventData.put(OptimizeConstants.JsonKeys.DATASET_ID, overrideDatasetId);
+                }
             }
 
             final Event edgeEvent =
@@ -921,19 +927,15 @@ class OptimizeExtension extends Extension {
     void handleTrackPropositions(@NonNull final Event event) {
         final Map<String, Object> eventData = event.getEventData();
 
-        String overrideDatasetId =
-                ConfigsExtension.getConfigValue(
-                        getApi(),
-                        null,
-                        OptimizeConstants.Configuration.OPTIMIZE_OVERRIDE_DATASET_ID,
-                        "",
-                        (sharedState, key) -> {
-                            try {
-                                return DataReader.getString(sharedState, key);
-                            } catch (DataReaderException e) {
-                                return "";
-                            }
-                        });
+        final Map<String, Object> configData = retrieveConfigurationSharedState(event);
+        if (OptimizeUtils.isNullOrEmpty(configData)) {
+            Log.debug(
+                    OptimizeConstants.LOG_TAG,
+                    SELF_TAG,
+                    "handleTrackPropositions - Cannot process the track propositions request event,"
+                            + " Configuration shared state is not available.");
+            return;
+        }
 
         try {
             final Map<String, Object> propositionInteractionsXdm =
@@ -952,8 +954,17 @@ class OptimizeExtension extends Extension {
 
             final Map<String, Object> edgeEventData = new HashMap<>();
             edgeEventData.put(OptimizeConstants.JsonKeys.XDM, propositionInteractionsXdm);
-            if (!OptimizeUtils.isNullOrEmpty(overrideDatasetId)) {
-                edgeEventData.put(OptimizeConstants.JsonKeys.DATASET_ID, overrideDatasetId);
+
+            // Add override datasetId
+            if (configData.containsKey(
+                    OptimizeConstants.Configuration.OPTIMIZE_OVERRIDE_DATASET_ID)) {
+                final String overrideDatasetId =
+                        DataReader.getString(
+                                configData,
+                                OptimizeConstants.Configuration.OPTIMIZE_OVERRIDE_DATASET_ID);
+                if (!OptimizeUtils.isNullOrEmpty(overrideDatasetId)) {
+                    edgeEventData.put(OptimizeConstants.JsonKeys.DATASET_ID, overrideDatasetId);
+                }
             }
 
             final Event edgeEvent =
@@ -1081,20 +1092,30 @@ class OptimizeExtension extends Extension {
         }
     }
 
+    /**
+     * Retrieves the {@code Configuration} shared state versioned at the current {@code event}.
+     *
+     * @param event incoming {@link Event} instance.
+     * @return {@code Map<String, Object>} containing configuration data.
+     */
+    private Map<String, Object> retrieveConfigurationSharedState(final Event event) {
+        SharedStateResult configurationSharedState =
+                getApi().getSharedState(
+                        OptimizeConstants.Configuration.EXTENSION_NAME,
+                        event,
+                        false,
+                        SharedStateResolution.ANY);
+        return configurationSharedState != null ? configurationSharedState.getValue() : null;
+    }
+
     void handleConfigurationUpdateRequest(@NonNull final Event event) {
         try {
-            double configurableTimeout =
-                    ConfigsExtension.getConfigValue(
-                            getApi(),
-                            OptimizeConstants.EventDataKeys.TIMEOUT,
-                            OptimizeConstants.DEFAULT_CONFIGURABLE_TIMEOUT_CONFIG,
-                            (sharedState, key) -> {
-                                try {
-                                    return DataReader.getDouble(sharedState, key);
-                                } catch (DataReaderException e) {
-                                    return OptimizeConstants.DEFAULT_CONFIGURABLE_TIMEOUT_CONFIG;
-                                }
-                            });
+            double configurableTimeout;
+            try {
+                configurableTimeout = DataReader.getDouble(Objects.requireNonNull(retrieveConfigurationSharedState(event)), OptimizeConstants.EventDataKeys.TIMEOUT);
+            } catch (DataReaderException e) {
+                configurableTimeout = OptimizeConstants.DEFAULT_CONFIGURABLE_TIMEOUT_CONFIG;
+            }
             final Map<String, Object> responseEventData = new HashMap<>();
             responseEventData.put(OptimizeConstants.EventDataKeys.TIMEOUT, configurableTimeout);
             final Event responseEvent =
