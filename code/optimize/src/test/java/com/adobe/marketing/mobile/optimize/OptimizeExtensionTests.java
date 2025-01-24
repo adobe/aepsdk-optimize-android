@@ -11,9 +11,6 @@
 
 package com.adobe.marketing.mobile.optimize;
 
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
 import android.util.Base64;
 import com.adobe.marketing.mobile.AdobeError;
 import com.adobe.marketing.mobile.Event;
@@ -23,6 +20,7 @@ import com.adobe.marketing.mobile.SharedStateResolution;
 import com.adobe.marketing.mobile.SharedStateResult;
 import com.adobe.marketing.mobile.SharedStateStatus;
 import com.adobe.marketing.mobile.services.Log;
+import com.adobe.marketing.mobile.util.DataReader;
 import com.adobe.marketing.mobile.util.DataReaderException;
 import com.adobe.marketing.mobile.util.SerialWorkDispatcher;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -2596,7 +2594,7 @@ public class OptimizeExtensionTests {
     // Helper methods
     private void setConfigurationSharedState(
             final SharedStateStatus status, final Map<String, Object> data) {
-        when(
+        Mockito.when(
                         mockExtensionApi.getSharedState(
                                 ArgumentMatchers.eq(OptimizeConstants.Configuration.EXTENSION_NAME),
                                 ArgumentMatchers.any(),
@@ -2857,24 +2855,65 @@ public class OptimizeExtensionTests {
     }
 
     @Test
-    public void testHandleConfigurationUpdateRequest_Success() throws DataReaderException {
-        // Arrange
-        double expectedTimeout = 5.0;
+    public void testHandleConfigurationUpdateRequest_HappyPath() throws Exception {
+        Map<String, Object> sharedState = new HashMap<>();
+        sharedState.put(OptimizeConstants.EventDataKeys.TIMEOUT, 5.0);
+        try (MockedStatic<ConfigUtils> mockConfigUtils = Mockito.mockStatic(ConfigUtils.class)) {
+            mockConfigUtils
+                    .when(() -> ConfigUtils.retrieveConfigurationSharedState(mockExtensionApi))
+                    .thenReturn(sharedState);
+            extension.handleConfigurationUpdateRequest(mockEvent);
 
-        ArgumentCaptor<Event> eventCaptor = ArgumentCaptor.forClass(Event.class);
+            ArgumentCaptor<Event> eventCaptor = ArgumentCaptor.forClass(Event.class);
+            Mockito.verify(mockExtensionApi).dispatch(eventCaptor.capture());
 
-        // Act
-        extension.handleConfigurationUpdateRequest(mockEvent);
+            Event dispatchedEvent = eventCaptor.getValue();
+            Assert.assertNotNull(dispatchedEvent);
+            Assert.assertEquals(
+                    OptimizeConstants.EventNames.OPTIMIZE_RESPONSE, dispatchedEvent.getName());
+            Assert.assertEquals(OptimizeConstants.EventType.OPTIMIZE, dispatchedEvent.getType());
+            Assert.assertEquals(
+                    OptimizeConstants.EventSource.RESPONSE_CONTENT, dispatchedEvent.getSource());
 
-        // Assert
-        verify(mockExtensionApi).dispatch(eventCaptor.capture());
-        Event dispatchedEvent = eventCaptor.getValue();
-
-        Assert.assertNotNull(dispatchedEvent);
-        Assert.assertEquals(OptimizeConstants.EventNames.OPTIMIZE_RESPONSE, dispatchedEvent.getName());
-        Assert.assertEquals(OptimizeConstants.EventType.OPTIMIZE, dispatchedEvent.getType());
-        Assert.assertEquals(OptimizeConstants.EventSource.RESPONSE_CONTENT, dispatchedEvent.getSource());
-        Assert.assertEquals(expectedTimeout, dispatchedEvent.getEventData().get(OptimizeConstants.EventDataKeys.TIMEOUT));
+            Map<String, Object> eventData = dispatchedEvent.getEventData();
+            Assert.assertNotNull(eventData);
+            Assert.assertEquals(5.0, eventData.get(OptimizeConstants.EventDataKeys.TIMEOUT));
+        }
     }
 
+    @Test
+    public void testHandleConfigurationUpdateRequest_FallbackToDefaultTimeout()
+            throws DataReaderException {
+        Map<String, Object> sharedState = new HashMap<>();
+        sharedState.put(OptimizeConstants.EventDataKeys.TIMEOUT, 5.0);
+        try (MockedStatic<ConfigUtils> mockConfigUtils = Mockito.mockStatic(ConfigUtils.class)) {
+            mockConfigUtils
+                    .when(() -> ConfigUtils.retrieveConfigurationSharedState(mockExtensionApi))
+                    .thenReturn(new HashMap<>());
+            try (MockedStatic<DataReader> mockedDataReader = Mockito.mockStatic(DataReader.class)) {
+                mockedDataReader
+                        .when(
+                                () ->
+                                        DataReader.getDouble(
+                                                sharedState,
+                                                OptimizeConstants.EventDataKeys.TIMEOUT))
+                        .thenThrow(new DataReaderException("Test exception"));
+
+                Mockito.doThrow(new DataReaderException("Test exception")).when(DataReader.class);
+                DataReader.getDouble(
+                        Mockito.anyMap(), Mockito.eq(OptimizeConstants.EventDataKeys.TIMEOUT));
+                extension.handleConfigurationUpdateRequest(mockEvent);
+                ArgumentCaptor<Event> eventCaptor = ArgumentCaptor.forClass(Event.class);
+                Mockito.verify(mockExtensionApi).dispatch(eventCaptor.capture());
+
+                Event dispatchedEvent = eventCaptor.getValue();
+                Assert.assertNotNull(dispatchedEvent);
+                Assert.assertEquals(
+                        OptimizeConstants.DEFAULT_CONFIGURABLE_TIMEOUT_CONFIG,
+                        dispatchedEvent
+                                .getEventData()
+                                .get(OptimizeConstants.EventDataKeys.TIMEOUT));
+            }
+        }
+    }
 }

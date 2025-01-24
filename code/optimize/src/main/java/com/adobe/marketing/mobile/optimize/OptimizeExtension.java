@@ -363,7 +363,8 @@ class OptimizeExtension extends Extension {
     void handleUpdatePropositions(@NonNull final Event event) {
         final Map<String, Object> eventData = event.getEventData();
 
-        final Map<String, Object> configData = retrieveConfigurationSharedState(event);
+        final Map<String, Object> configData =
+                ConfigUtils.retrieveConfigurationSharedState(getApi(), event);
         if (OptimizeUtils.isNullOrEmpty(configData)) {
             Log.debug(
                     OptimizeConstants.LOG_TAG,
@@ -927,7 +928,8 @@ class OptimizeExtension extends Extension {
     void handleTrackPropositions(@NonNull final Event event) {
         final Map<String, Object> eventData = event.getEventData();
 
-        final Map<String, Object> configData = retrieveConfigurationSharedState(event);
+        final Map<String, Object> configData =
+                ConfigUtils.retrieveConfigurationSharedState(getApi(), event);
         if (OptimizeUtils.isNullOrEmpty(configData)) {
             Log.debug(
                     OptimizeConstants.LOG_TAG,
@@ -1092,29 +1094,14 @@ class OptimizeExtension extends Extension {
         }
     }
 
-    /**
-     * Retrieves the {@code Configuration} shared state versioned at the current {@code event}.
-     *
-     * @param event incoming {@link Event} instance.
-     * @return {@code Map<String, Object>} containing configuration data.
-     */
-    private Map<String, Object> retrieveConfigurationSharedState(final Event event) {
-        SharedStateResult configurationSharedState =
-                getApi().getSharedState(
-                                OptimizeConstants.Configuration.EXTENSION_NAME,
-                                event,
-                                false,
-                                SharedStateResolution.ANY);
-        return configurationSharedState != null ? configurationSharedState.getValue() : null;
-    }
-
     void handleConfigurationUpdateRequest(@NonNull final Event event) {
         try {
             double configurableTimeout;
             try {
                 configurableTimeout =
                         DataReader.getDouble(
-                                Objects.requireNonNull(retrieveConfigurationSharedState(event)),
+                                Objects.requireNonNull(
+                                        ConfigUtils.retrieveConfigurationSharedState(getApi())),
                                 OptimizeConstants.EventDataKeys.TIMEOUT);
             } catch (DataReaderException e) {
                 configurableTimeout = OptimizeConstants.DEFAULT_CONFIGURABLE_TIMEOUT_CONFIG;
