@@ -15,7 +15,7 @@ import com.adobe.marketing.mobile.Event
 import com.adobe.marketing.mobile.ExtensionApi
 import com.adobe.marketing.mobile.SharedStateResolution
 
-object ConfigUtils {
+object ConfigsUtils {
     /**
      * Retrieves the `Configuration` shared state versioned at the current `event`.
      *

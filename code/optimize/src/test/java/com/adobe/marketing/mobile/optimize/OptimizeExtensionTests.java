@@ -2858,9 +2858,9 @@ public class OptimizeExtensionTests {
     public void testHandleConfigurationUpdateRequest_HappyPath() throws Exception {
         Map<String, Object> sharedState = new HashMap<>();
         sharedState.put(OptimizeConstants.EventDataKeys.TIMEOUT, 5.0);
-        try (MockedStatic<ConfigUtils> mockConfigUtils = Mockito.mockStatic(ConfigUtils.class)) {
+        try (MockedStatic<ConfigsUtils> mockConfigUtils = Mockito.mockStatic(ConfigsUtils.class)) {
             mockConfigUtils
-                    .when(() -> ConfigUtils.retrieveConfigurationSharedState(mockExtensionApi))
+                    .when(() -> ConfigsUtils.retrieveConfigurationSharedState(mockExtensionApi))
                     .thenReturn(sharedState);
             extension.handleConfigurationUpdateRequest(mockEvent);
 
@@ -2886,9 +2886,9 @@ public class OptimizeExtensionTests {
             throws DataReaderException {
         Map<String, Object> sharedState = new HashMap<>();
         sharedState.put(OptimizeConstants.EventDataKeys.TIMEOUT, 5.0);
-        try (MockedStatic<ConfigUtils> mockConfigUtils = Mockito.mockStatic(ConfigUtils.class)) {
+        try (MockedStatic<ConfigsUtils> mockConfigUtils = Mockito.mockStatic(ConfigsUtils.class)) {
             mockConfigUtils
-                    .when(() -> ConfigUtils.retrieveConfigurationSharedState(mockExtensionApi))
+                    .when(() -> ConfigsUtils.retrieveConfigurationSharedState(mockExtensionApi))
                     .thenReturn(new HashMap<>());
             try (MockedStatic<DataReader> mockedDataReader = Mockito.mockStatic(DataReader.class)) {
                 mockedDataReader

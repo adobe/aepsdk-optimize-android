@@ -364,7 +364,7 @@ class OptimizeExtension extends Extension {
         final Map<String, Object> eventData = event.getEventData();
 
         final Map<String, Object> configData =
-                ConfigUtils.retrieveConfigurationSharedState(getApi(), event);
+                ConfigsUtils.retrieveConfigurationSharedState(getApi(), event);
         if (OptimizeUtils.isNullOrEmpty(configData)) {
             Log.debug(
                     OptimizeConstants.LOG_TAG,
@@ -929,7 +929,7 @@ class OptimizeExtension extends Extension {
         final Map<String, Object> eventData = event.getEventData();
 
         final Map<String, Object> configData =
-                ConfigUtils.retrieveConfigurationSharedState(getApi(), event);
+                ConfigsUtils.retrieveConfigurationSharedState(getApi(), event);
         if (OptimizeUtils.isNullOrEmpty(configData)) {
             Log.debug(
                     OptimizeConstants.LOG_TAG,
@@ -1101,7 +1101,7 @@ class OptimizeExtension extends Extension {
                 configurableTimeout =
                         DataReader.getDouble(
                                 Objects.requireNonNull(
-                                        ConfigUtils.retrieveConfigurationSharedState(getApi())),
+                                        ConfigsUtils.retrieveConfigurationSharedState(getApi())),
                                 OptimizeConstants.EventDataKeys.TIMEOUT);
             } catch (DataReaderException e) {
                 configurableTimeout = OptimizeConstants.DEFAULT_CONFIGURABLE_TIMEOUT_CONFIG;
