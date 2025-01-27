@@ -57,6 +57,30 @@ public class Optimize {
      *     the personalization query request.
      * @param data {@code Map<String, Object>} containing additional free-form data to be sent in
      *     the personalization query request.
+     */
+    @Deprecated
+    public static void updatePropositions(
+            @NonNull final List<DecisionScope> decisionScopes,
+            @Nullable final Map<String, Object> xdm,
+            @Nullable final Map<String, Object> data) {
+
+        updatePropositions(decisionScopes, xdm, data, null);
+    }
+
+    /**
+     * This API dispatches an Event for the Edge network extension to fetch decision propositions,
+     * for the provided decision scopes list, from the decisioning services enabled in the
+     * Experience Edge network.
+     *
+     * <p>The returned decision propositions are cached in-memory in the Optimize SDK extension and
+     * can be retrieved using {@link #getPropositions(List, AdobeCallback)} API.
+     *
+     * @param decisionScopes {@code List<DecisionScope>} containing scopes for which offers need to
+     *     be updated.
+     * @param xdm {@code Map<String, Object>} containing additional XDM-formatted data to be sent in
+     *     the personalization query request.
+     * @param data {@code Map<String, Object>} containing additional free-form data to be sent in
+     *     the personalization query request.
      * @param callback {@code AdobeCallback<Map<DecisionScope, OptimizeProposition>>} which will be
      *     invoked when decision propositions are received from the Edge network.
      */
@@ -399,7 +423,7 @@ public class Optimize {
      * query.
      *
      * <p>The personalization query requests can be triggered by the {@link
-     * Optimize#updatePropositions(List, Map, Map, AdobeCallback)} API, Edge extension {@code
+     * Optimize#updatePropositions(List, Map, Map)} API, Edge extension {@code
      * sendEvent(ExperienceEvent, EdgeCallback)} API or launch consequence rules.
      *
      * @param callback {@code AdobeCallbackWithError<Map<DecisionScope, OptimizeProposition>>} which
