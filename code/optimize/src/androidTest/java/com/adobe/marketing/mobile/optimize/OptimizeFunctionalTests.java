@@ -87,10 +87,11 @@ public class OptimizeFunctionalTests {
         updateConfiguration(configData);
 
         // Action
-        Optimize.updatePropositions(
+        Optimize.updatePropositionsInternal(
                 Collections.singletonList(new DecisionScope(decisionScopeName)),
                 null,
                 null,
+                10.0,
                 new AdobeCallbackWithOptimizeError<Map<DecisionScope, OptimizeProposition>>() {
                     @Override
                     public void fail(AEPOptimizeError error) {
@@ -122,8 +123,12 @@ public class OptimizeFunctionalTests {
         updateConfiguration(configData);
 
         // Action
-        Optimize.updatePropositions(
-                Collections.singletonList(new DecisionScope(decisionScopeName)), null, null);
+        Optimize.updatePropositionsInternal(
+                Collections.singletonList(new DecisionScope(decisionScopeName)),
+                null,
+                null,
+                10.0,
+                null);
 
         // Assert
         List<Event> eventsListOptimize =
@@ -182,8 +187,12 @@ public class OptimizeFunctionalTests {
         updateConfiguration(configData);
 
         // Action
-        Optimize.updatePropositions(
-                Collections.singletonList(new DecisionScope(activityId, placementId)), null, null);
+        Optimize.updatePropositionsInternal(
+                Collections.singletonList(new DecisionScope(activityId, placementId)),
+                null,
+                null,
+                10.0,
+                null);
 
         // Assert
         List<Event> eventsListOptimize =
@@ -248,9 +257,11 @@ public class OptimizeFunctionalTests {
         updateConfiguration(configData);
 
         // Action
-        Optimize.updatePropositions(
+        Optimize.updatePropositionsInternal(
                 Collections.singletonList(new DecisionScope(activityId, placementId, itemCount)),
                 null,
+                null,
+                10.0,
                 null);
 
         // Assert
@@ -329,8 +340,12 @@ public class OptimizeFunctionalTests {
         configData.put("optimize.datasetId", optimizeDatasetId);
         updateConfiguration(configData);
 
-        Optimize.updatePropositions(
-                Collections.singletonList(new DecisionScope(decisionScopeName)), xdmMap, dataMap);
+        Optimize.updatePropositionsInternal(
+                Collections.singletonList(new DecisionScope(decisionScopeName)),
+                xdmMap,
+                dataMap,
+                10.0,
+                null);
 
         // Assert
         List<Event> eventsListOptimize =
@@ -398,11 +413,13 @@ public class OptimizeFunctionalTests {
         updateConfiguration(configData);
 
         // Action
-        Optimize.updatePropositions(
+        Optimize.updatePropositionsInternal(
                 Arrays.asList(
                         new DecisionScope(decisionScopeName1),
                         new DecisionScope(decisionScopeName2)),
                 null,
+                null,
+                10.0,
                 null);
 
         // Assert
@@ -461,8 +478,12 @@ public class OptimizeFunctionalTests {
         clearUpdatedConfiguration();
 
         // Action
-        Optimize.updatePropositions(
-                Collections.singletonList(new DecisionScope(decisionScopeName)), null, null);
+        Optimize.updatePropositionsInternal(
+                Collections.singletonList(new DecisionScope(decisionScopeName)),
+                null,
+                null,
+                10.0,
+                null);
 
         // Assert
         List<Event> eventsListOptimize =
@@ -493,11 +514,13 @@ public class OptimizeFunctionalTests {
         updateConfiguration(configData);
 
         // Action
-        Optimize.updatePropositions(
+        Optimize.updatePropositionsInternal(
                 Arrays.asList(
                         new DecisionScope(decisionScopeName1),
                         new DecisionScope(decisionScopeName2)),
                 null,
+                null,
+                10.0,
                 null);
 
         // Assert
@@ -556,8 +579,12 @@ public class OptimizeFunctionalTests {
 
         final String decisionScopeString =
                 "eyJhY3Rpdml0eUlkIjoieGNvcmU6b2ZmZXItYWN0aXZpdHk6MTExMTExMTExMTExMTExMSIsInBsYWNlbWVudElkIjoieGNvcmU6b2ZmZXItcGxhY2VtZW50OjExMTExMTExMTExMTExMTEifQ==";
-        Optimize.updatePropositions(
-                Collections.singletonList(new DecisionScope(decisionScopeString)), null, null);
+        Optimize.updatePropositionsInternal(
+                Collections.singletonList(new DecisionScope(decisionScopeString)),
+                null,
+                null,
+                10.0,
+                null);
         List<Event> eventsListEdge =
                 TestHelper.getDispatchedEventsWith(
                         OptimizeTestConstants.EventType.EDGE,
@@ -661,8 +688,9 @@ public class OptimizeFunctionalTests {
         DecisionScope decisionScope = new DecisionScope(decisionScopeString);
         final Map<DecisionScope, OptimizeProposition> propositionMap = new HashMap<>();
         final ADBCountDownLatch countDownLatch = new ADBCountDownLatch(1);
-        Optimize.getPropositions(
+        Optimize.getPropositionsInternal(
                 Collections.singletonList(decisionScope),
+                10.0,
                 new AdobeCallbackWithError<Map<DecisionScope, OptimizeProposition>>() {
                     @Override
                     public void fail(AdobeError adobeError) {
@@ -717,8 +745,12 @@ public class OptimizeFunctionalTests {
         updateConfiguration(configData);
 
         final String decisionScopeString = "someDecisionScope";
-        Optimize.updatePropositions(
-                Collections.singletonList(new DecisionScope(decisionScopeString)), null, null);
+        Optimize.updatePropositionsInternal(
+                Collections.singletonList(new DecisionScope(decisionScopeString)),
+                null,
+                null,
+                10.0,
+                null);
         List<Event> eventsListEdge =
                 TestHelper.getDispatchedEventsWith(
                         OptimizeTestConstants.EventType.EDGE,
@@ -830,8 +862,9 @@ public class OptimizeFunctionalTests {
         DecisionScope decisionScope = new DecisionScope(decisionScopeString);
         final Map<DecisionScope, OptimizeProposition> propositionMap = new HashMap<>();
         final ADBCountDownLatch countDownLatch = new ADBCountDownLatch(1);
-        Optimize.getPropositions(
+        Optimize.getPropositionsInternal(
                 Collections.singletonList(decisionScope),
+                10.0,
                 new AdobeCallbackWithError<Map<DecisionScope, OptimizeProposition>>() {
                     @Override
                     public void fail(AdobeError adobeError) {
@@ -886,8 +919,12 @@ public class OptimizeFunctionalTests {
         updateConfiguration(configData);
 
         final String decisionScopeString = "myMbox1";
-        Optimize.updatePropositions(
-                Collections.singletonList(new DecisionScope(decisionScopeString)), null, null);
+        Optimize.updatePropositionsInternal(
+                Collections.singletonList(new DecisionScope(decisionScopeString)),
+                null,
+                null,
+                10.0,
+                null);
         List<Event> eventsListEdge =
                 TestHelper.getDispatchedEventsWith(
                         OptimizeTestConstants.EventType.EDGE,
@@ -1020,8 +1057,9 @@ public class OptimizeFunctionalTests {
         final DecisionScope decisionScope = new DecisionScope(decisionScopeString);
         final Map<DecisionScope, OptimizeProposition> propositionMap = new HashMap<>();
         final ADBCountDownLatch countDownLatch = new ADBCountDownLatch(1);
-        Optimize.getPropositions(
+        Optimize.getPropositionsInternal(
                 Collections.singletonList(decisionScope),
+                10.0,
                 new AdobeCallbackWithError<Map<DecisionScope, OptimizeProposition>>() {
                     @Override
                     public void fail(AdobeError adobeError) {
@@ -1119,8 +1157,12 @@ public class OptimizeFunctionalTests {
 
         final String decisionScopeString =
                 "eyJhY3Rpdml0eUlkIjoieGNvcmU6b2ZmZXItYWN0aXZpdHk6MTExMTExMTExMTExMTExMSIsInBsYWNlbWVudElkIjoieGNvcmU6b2ZmZXItcGxhY2VtZW50OjExMTExMTExMTExMTExMTEifQ==";
-        Optimize.updatePropositions(
-                Collections.singletonList(new DecisionScope(decisionScopeString)), null, null);
+        Optimize.updatePropositionsInternal(
+                Collections.singletonList(new DecisionScope(decisionScopeString)),
+                null,
+                null,
+                10.0,
+                null);
         List<Event> eventsListEdge =
                 TestHelper.getDispatchedEventsWith(
                         OptimizeTestConstants.EventType.EDGE,
@@ -1222,8 +1264,9 @@ public class OptimizeFunctionalTests {
         DecisionScope decisionScope2 = new DecisionScope("myMbox");
         final Map<DecisionScope, OptimizeProposition> propositionMap = new HashMap<>();
         final ADBCountDownLatch countDownLatch = new ADBCountDownLatch(1);
-        Optimize.getPropositions(
+        Optimize.getPropositionsInternal(
                 Arrays.asList(decisionScope1, decisionScope2),
+                10.0,
                 new AdobeCallbackWithError<Map<DecisionScope, OptimizeProposition>>() {
                     @Override
                     public void fail(AdobeError adobeError) {
@@ -1360,8 +1403,9 @@ public class OptimizeFunctionalTests {
         DecisionScope decisionScope2 = new DecisionScope("myMbox2");
         final Map<DecisionScope, OptimizeProposition> propositionMap = new HashMap<>();
         final ADBCountDownLatch countDownLatch = new ADBCountDownLatch(1);
-        Optimize.getPropositions(
+        Optimize.getPropositionsInternal(
                 Arrays.asList(decisionScope1, decisionScope2),
+                10.0,
                 new AdobeCallbackWithError<Map<DecisionScope, OptimizeProposition>>() {
                     @Override
                     public void fail(AdobeError adobeError) {
@@ -1412,8 +1456,9 @@ public class OptimizeFunctionalTests {
         final ADBCountDownLatch countDownLatch = new ADBCountDownLatch(1);
         final Map<DecisionScope, OptimizeProposition> propositionMap = new HashMap<>();
         TestHelper.resetTestExpectations();
-        Optimize.getPropositions(
+        Optimize.getPropositionsInternal(
                 Arrays.asList(decisionScope1, decisionScope2),
+                10.0,
                 new AdobeCallbackWithError<Map<DecisionScope, OptimizeProposition>>() {
                     @Override
                     public void fail(AdobeError adobeError) {
@@ -1707,8 +1752,12 @@ public class OptimizeFunctionalTests {
 
         final String decisionScopeString =
                 "eyJhY3Rpdml0eUlkIjoieGNvcmU6b2ZmZXItYWN0aXZpdHk6MTExMTExMTExMTExMTExMSIsInBsYWNlbWVudElkIjoieGNvcmU6b2ZmZXItcGxhY2VtZW50OjExMTExMTExMTExMTExMTEifQ==";
-        Optimize.updatePropositions(
-                Collections.singletonList(new DecisionScope(decisionScopeString)), null, null);
+        Optimize.updatePropositionsInternal(
+                Collections.singletonList(new DecisionScope(decisionScopeString)),
+                null,
+                null,
+                10.0,
+                null);
         List<Event> eventsListEdge =
                 TestHelper.getDispatchedEventsWith(
                         OptimizeTestConstants.EventType.EDGE,
@@ -1811,8 +1860,9 @@ public class OptimizeFunctionalTests {
         DecisionScope decisionScope = new DecisionScope(decisionScopeString);
         final Map<DecisionScope, OptimizeProposition> propositionMap = new HashMap<>();
         final ADBCountDownLatch countDownLatch = new ADBCountDownLatch(1);
-        Optimize.getPropositions(
+        Optimize.getPropositionsInternal(
                 Collections.singletonList(decisionScope),
+                10.0,
                 new AdobeCallbackWithError<Map<DecisionScope, OptimizeProposition>>() {
                     @Override
                     public void fail(AdobeError adobeError) {
@@ -1838,8 +1888,9 @@ public class OptimizeFunctionalTests {
 
         final ADBCountDownLatch countDownLatch1 = new ADBCountDownLatch(1);
         propositionMap.clear();
-        Optimize.getPropositions(
+        Optimize.getPropositionsInternal(
                 Collections.singletonList(decisionScope),
+                10.0,
                 new AdobeCallbackWithError<Map<DecisionScope, OptimizeProposition>>() {
                     @Override
                     public void fail(AdobeError adobeError) {
@@ -1868,8 +1919,12 @@ public class OptimizeFunctionalTests {
 
         final String decisionScopeString =
                 "eyJhY3Rpdml0eUlkIjoieGNvcmU6b2ZmZXItYWN0aXZpdHk6MTExMTExMTExMTExMTExMSIsInBsYWNlbWVudElkIjoieGNvcmU6b2ZmZXItcGxhY2VtZW50OjExMTExMTExMTExMTExMTEifQ==";
-        Optimize.updatePropositions(
-                Collections.singletonList(new DecisionScope(decisionScopeString)), null, null);
+        Optimize.updatePropositionsInternal(
+                Collections.singletonList(new DecisionScope(decisionScopeString)),
+                null,
+                null,
+                10.0,
+                null);
         List<Event> eventsListEdge =
                 TestHelper.getDispatchedEventsWith(
                         OptimizeTestConstants.EventType.EDGE,
@@ -1972,8 +2027,9 @@ public class OptimizeFunctionalTests {
         DecisionScope decisionScope = new DecisionScope(decisionScopeString);
         final Map<DecisionScope, OptimizeProposition> propositionMap = new HashMap<>();
         final ADBCountDownLatch countDownLatch = new ADBCountDownLatch(1);
-        Optimize.getPropositions(
+        Optimize.getPropositionsInternal(
                 Collections.singletonList(decisionScope),
+                10.0,
                 new AdobeCallbackWithError<Map<DecisionScope, OptimizeProposition>>() {
                     @Override
                     public void fail(AdobeError adobeError) {
@@ -2001,8 +2057,9 @@ public class OptimizeFunctionalTests {
         TestHelper.resetTestExpectations();
         propositionMap.clear();
         final ADBCountDownLatch countDownLatch1 = new ADBCountDownLatch(1);
-        Optimize.getPropositions(
+        Optimize.getPropositionsInternal(
                 Collections.singletonList(decisionScope),
+                10.0,
                 new AdobeCallbackWithError<Map<DecisionScope, OptimizeProposition>>() {
                     @Override
                     public void fail(AdobeError adobeError) {
@@ -2246,8 +2303,12 @@ public class OptimizeFunctionalTests {
                 "eyJhY3Rpdml0eUlkIjoieGNvcmU6b2ZmZXItYWN0aXZpdHk6MTExMTExMTExMTExMTExMSIsInBsYWNlbWVudElkIjoieGNvcmU6b2ZmZXItcGxhY2VtZW50OjExMTExMTExMTExMTExMTEifQ==";
 
         // Setting up the cache with a decision scope and a proposition.
-        Optimize.updatePropositions(
-                Collections.singletonList(new DecisionScope(decisionScopeString)), null, null);
+        Optimize.updatePropositionsInternal(
+                Collections.singletonList(new DecisionScope(decisionScopeString)),
+                null,
+                null,
+                10.0,
+                null);
         List<Event> eventsListEdge =
                 TestHelper.getDispatchedEventsWith(
                         OptimizeTestConstants.EventType.EDGE,
@@ -2345,8 +2406,12 @@ public class OptimizeFunctionalTests {
         TestHelper.resetTestExpectations();
 
         // Firing another update event with same decision scope but different proposition data.
-        Optimize.updatePropositions(
-                Collections.singletonList(new DecisionScope(decisionScopeString)), null, null);
+        Optimize.updatePropositionsInternal(
+                Collections.singletonList(new DecisionScope(decisionScopeString)),
+                null,
+                null,
+                10.0,
+                null);
 
         List<Event> secondEventsListEdge =
                 TestHelper.getDispatchedEventsWith(
@@ -2432,8 +2497,9 @@ public class OptimizeFunctionalTests {
         DecisionScope decisionScope = new DecisionScope(decisionScopeString);
         final Map<DecisionScope, OptimizeProposition> propositionMap = new HashMap<>();
 
-        Optimize.getPropositions(
+        Optimize.getPropositionsInternal(
                 Collections.singletonList(decisionScope),
+                10.0,
                 new AdobeCallbackWithError<Map<DecisionScope, OptimizeProposition>>() {
                     @Override
                     public void fail(AdobeError adobeError) {
@@ -2492,8 +2558,12 @@ public class OptimizeFunctionalTests {
                 "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhY3Rpdml0eUlkIjoic2NvcGUtYiIsInBsYWNlbWVudElkIjoic2NvcGUtYl9wbGFjZW1lbnQifQ.QzNxT1dBZ1Z1M0Z5dW84SjdKak1nY2c1";
 
         // Setting up the cache with decisionScopeA and a proposition.
-        Optimize.updatePropositions(
-                Collections.singletonList(new DecisionScope(decisionScopeAString)), null, null);
+        Optimize.updatePropositionsInternal(
+                Collections.singletonList(new DecisionScope(decisionScopeAString)),
+                null,
+                null,
+                10.0,
+                null);
         List<Event> eventsListEdge =
                 TestHelper.getDispatchedEventsWith(
                         OptimizeTestConstants.EventType.EDGE,
@@ -2554,8 +2624,12 @@ public class OptimizeFunctionalTests {
         TestHelper.resetTestExpectations();
 
         // Update event with decisionScopeB
-        Optimize.updatePropositions(
-                Collections.singletonList(new DecisionScope(decisionScopeBString)), null, null);
+        Optimize.updatePropositionsInternal(
+                Collections.singletonList(new DecisionScope(decisionScopeBString)),
+                null,
+                null,
+                10.0,
+                null);
 
         List<Event> secondEventsListEdge =
                 TestHelper.getDispatchedEventsWith(
@@ -2598,10 +2672,11 @@ public class OptimizeFunctionalTests {
         Thread.sleep(1000);
 
         // Execute get proposition event with both decisionScopeA and decisionScopeB
-        Optimize.getPropositions(
+        Optimize.getPropositionsInternal(
                 Arrays.asList(
                         new DecisionScope(decisionScopeAString),
                         new DecisionScope(decisionScopeBString)),
+                10.0,
                 new AdobeCallbackWithError<Map<DecisionScope, OptimizeProposition>>() {
                     @Override
                     public void fail(AdobeError adobeError) {
@@ -2670,7 +2745,7 @@ public class OptimizeFunctionalTests {
 
         long startTime = System.currentTimeMillis();
         // Action
-        Optimize.updatePropositions(
+        Optimize.updatePropositionsInternal(
                 Collections.singletonList(new DecisionScope(decisionScopeName)),
                 null,
                 null,
