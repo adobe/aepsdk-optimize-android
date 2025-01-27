@@ -1101,10 +1101,10 @@ class OptimizeExtension extends Extension {
     private Map<String, Object> retrieveConfigurationSharedState(final Event event) {
         SharedStateResult configurationSharedState =
                 getApi().getSharedState(
-                        OptimizeConstants.Configuration.EXTENSION_NAME,
-                        event,
-                        false,
-                        SharedStateResolution.ANY);
+                                OptimizeConstants.Configuration.EXTENSION_NAME,
+                                event,
+                                false,
+                                SharedStateResolution.ANY);
         return configurationSharedState != null ? configurationSharedState.getValue() : null;
     }
 
@@ -1112,7 +1112,10 @@ class OptimizeExtension extends Extension {
         try {
             double configurableTimeout;
             try {
-                configurableTimeout = DataReader.getDouble(Objects.requireNonNull(retrieveConfigurationSharedState(event)), OptimizeConstants.EventDataKeys.TIMEOUT);
+                configurableTimeout =
+                        DataReader.getDouble(
+                                Objects.requireNonNull(retrieveConfigurationSharedState(event)),
+                                OptimizeConstants.EventDataKeys.TIMEOUT);
             } catch (DataReaderException e) {
                 configurableTimeout = OptimizeConstants.DEFAULT_CONFIGURABLE_TIMEOUT_CONFIG;
             }

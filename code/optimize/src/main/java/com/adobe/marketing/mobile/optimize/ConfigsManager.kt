@@ -74,8 +74,11 @@ object ConfigsManager {
         )
     }
 
+    @JvmStatic
+    @JvmOverloads
     fun getConfigurableTimeoutConfig(
-        onSuccess: (Double) -> Unit
+        defaultTimeout: Double = OptimizeConstants.DEFAULT_CONFIGURABLE_TIMEOUT_CONFIG,
+        onComplete: (Double) -> Unit
     ) = fetchConfigurations { configurations ->
         val timeout = try {
             configurations[OptimizeConstants.EventDataKeys.TIMEOUT] as Double
@@ -83,10 +86,10 @@ object ConfigsManager {
             Log.error(
                 OptimizeConstants.LOG_TAG,
                 SELF_TAG,
-                "Error retrieving timeout configuration: ${e.message}. Using default value: ${OptimizeConstants.DEFAULT_CONFIGURABLE_TIMEOUT_CONFIG}"
+                "Error retrieving timeout configuration: ${e.message}. Using default value: $defaultTimeout"
             )
-            OptimizeConstants.DEFAULT_CONFIGURABLE_TIMEOUT_CONFIG
+            defaultTimeout
         }
-        onSuccess(timeout)
+        onComplete(timeout)
     }
 }
