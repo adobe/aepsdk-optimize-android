@@ -36,6 +36,7 @@ import androidx.constraintlayout.compose.Dimension
 import com.adobe.marketing.mobile.Assurance
 import com.adobe.marketing.optimizeapp.R
 import com.adobe.marketing.optimizeapp.models.OptimizePair
+import com.adobe.marketing.optimizeapp.ui.components.TimeoutConfigsCard
 import com.adobe.marketing.optimizeapp.viewmodels.MainViewModel
 
 @Composable
@@ -83,8 +84,24 @@ fun SettingsView(viewModel: MainViewModel) {
             SettingsTextField(value = viewModel.textTargetProductId, placeholder = "Enter Product Id") { viewModel.textTargetProductId = it }
             SettingsTextField(value = viewModel.textTargetProductCategoryId, placeholder = "Enter Product Category id") { viewModel.textTargetProductCategoryId = it }
             SettingsLabel(text = "Preferences", align = TextAlign.Center, textStyle = MaterialTheme.typography.subtitle2)
-            SettingsDoubleField(state = viewModel.timeoutConfig)
-            SettingsLabel(text = "About", align = TextAlign.Start, textStyle = MaterialTheme.typography.subtitle1)
+            TimeoutConfigsCard(
+                data = viewModel.timeoutConfig.value,
+                onOptionSelected = {
+                    if(!it){
+                        viewModel.updateTimeoutConfig(viewModel.timeoutConfig.value.copy(value = "10.0"))
+                    }
+                    viewModel.updateTimeoutConfig(
+                        viewModel.timeoutConfig.value.copy(isCustomTimeoutOpted = !viewModel.timeoutConfig.value.isCustomTimeoutOpted)
+                    )
+                },
+                onTextChange = {
+                    viewModel.updateTimeoutConfig(viewModel.timeoutConfig.value.copy(value = it))
+                })
+            SettingsLabel(
+                text = "About",
+                align = TextAlign.Start,
+                textStyle = MaterialTheme.typography.subtitle1
+            )
             VersionLabel(viewModel.getOptimizeExtensionVersion())
         }
     }
