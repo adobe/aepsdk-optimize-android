@@ -77,7 +77,7 @@ class OptimizeConstants {
         static final String DECISION_SCOPE_NAME = "name";
         static final String XDM = "xdm";
         static final String DATA = "data";
-        static final String TIMEOUT = "timeout";
+        static final String TIMEOUT = "optimize.timeout";
         static final String PROPOSITIONS = "propositions";
         static final String RESPONSE_ERROR = "responseerror";
         static final String PROPOSITION_INTERACTIONS = "propositioninteractions";
