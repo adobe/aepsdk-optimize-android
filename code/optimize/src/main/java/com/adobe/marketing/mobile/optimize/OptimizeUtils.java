@@ -12,6 +12,8 @@
 package com.adobe.marketing.mobile.optimize;
 
 import android.util.Base64;
+import com.adobe.marketing.mobile.AdobeCallback;
+import com.adobe.marketing.mobile.AdobeCallbackWithError;
 import com.adobe.marketing.mobile.AdobeError;
 import com.adobe.marketing.mobile.Event;
 import com.adobe.marketing.mobile.EventType;
@@ -200,5 +202,30 @@ class OptimizeUtils {
                             null);
         }
         return requestEventId;
+    }
+
+    static void failWithError(final AdobeCallback<?> callback, final AdobeError error) {
+
+        final AdobeCallbackWithError<?> callbackWithError =
+                callback instanceof AdobeCallbackWithError
+                        ? (AdobeCallbackWithError<?>) callback
+                        : null;
+
+        if (callbackWithError != null) {
+            callbackWithError.fail(error);
+        }
+    }
+
+    static void failWithOptimizeError(
+            final AdobeCallback<?> callback, final AEPOptimizeError error) {
+
+        final AdobeCallbackWithOptimizeError<?> callbackWithError =
+                callback instanceof AdobeCallbackWithOptimizeError
+                        ? (AdobeCallbackWithOptimizeError<?>) callback
+                        : null;
+
+        if (callbackWithError != null) {
+            callbackWithError.fail(error);
+        }
     }
 }

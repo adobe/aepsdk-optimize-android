@@ -328,7 +328,17 @@ public class OptimizeFunctionalTests {
         updateConfiguration(configData);
 
         Optimize.updatePropositions(
-                Collections.singletonList(new DecisionScope(decisionScopeName)), xdmMap, dataMap);
+                Collections.singletonList(new DecisionScope(decisionScopeName)), xdmMap, dataMap, new AdobeCallbackWithOptimizeError<Map<DecisionScope, OptimizeProposition>>() {
+                    @Override
+                    public void call(Map<DecisionScope, OptimizeProposition> decisionScopeOptimizePropositionMap) {
+
+                    }
+
+                    @Override
+                    public void fail(AEPOptimizeError error) {
+
+                    }
+                });
 
         // Assert
         List<Event> eventsListOptimize =

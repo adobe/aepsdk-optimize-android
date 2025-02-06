@@ -944,7 +944,7 @@ public class OptimizeTests {
                     .thenAnswer(
                             (Answer<Void>)
                                     invocation -> {
-                                        Optimize.failWithOptimizeError(
+                                        OptimizeUtils.failWithOptimizeError(
                                                 callbackMockEvent,
                                                 AEPOptimizeError.Companion.getTimeoutError());
                                         return null;
@@ -1001,7 +1001,7 @@ public class OptimizeTests {
                     .thenAnswer(
                             (Answer<Void>)
                                     invocation -> {
-                                        Optimize.failWithOptimizeError(
+                                        OptimizeUtils.failWithOptimizeError(
                                                 callbackMockEvent,
                                                 AEPOptimizeError.Companion.getTimeoutError());
                                         return null;
