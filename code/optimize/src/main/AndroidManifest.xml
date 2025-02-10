@@ -12,4 +12,13 @@
     governing permissions and limitations under the License.
 
 -->
-<manifest xmlns:android="http://schemas.android.com/apk/res/android" />
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <application>
+        <service android:name="com.adobe.marketing.mobile.ExtensionDiscoveryService"
+            android:exported="false">
+            <meta-data
+                android:name="com.adobe.marketing.mobile.optimize.OptimizeExtension"
+                android:value="Extension" />
+        </service>
+    </application>
+</manifest>
