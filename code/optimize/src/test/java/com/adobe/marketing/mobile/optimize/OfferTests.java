@@ -325,7 +325,7 @@ public class OfferTests {
 
         Assert.assertEquals("xcore:personalized-offer:1111111111111111", offer.getId());
         Assert.assertEquals("8", offer.getEtag());
-        Assert.assertEquals(0, offer.getScore());
+        Assert.assertEquals(0, offer.getScore(), doubleAccuracy);
         Assert.assertEquals(
                 "https://ns.adobe.com/experience/offer-management/content-component-json",
                 offer.getSchema());
