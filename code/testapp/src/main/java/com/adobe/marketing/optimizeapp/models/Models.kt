@@ -13,3 +13,5 @@
 package com.adobe.marketing.optimizeapp.models
 
 data class OptimizePair(var key: String, var value: String)
+
+data class LogEntry(val timestamp: String, val text: String)

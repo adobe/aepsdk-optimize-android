@@ -312,6 +312,34 @@ public class OfferTests {
     }
 
     @Test
+    public void testFromEventData_validArrayOffer() throws Exception {
+        Map<String, Object> offerData =
+                new ObjectMapper()
+                        .readValue(
+                                getClass()
+                                        .getClassLoader()
+                                        .getResource("json/OFFER_VALID_LIST.json"),
+                                HashMap.class);
+        final Offer offer = Offer.fromEventData(offerData);
+        Assert.assertNotNull(offer);
+
+        Assert.assertEquals("xcore:personalized-offer:1111111111111111", offer.getId());
+        Assert.assertEquals("8", offer.getEtag());
+        Assert.assertEquals(0, offer.getScore(), doubleAccuracy);
+        Assert.assertEquals(
+                "https://ns.adobe.com/experience/offer-management/content-component-json",
+                offer.getSchema());
+        Assert.assertEquals(OfferType.JSON, offer.getType());
+        Assert.assertEquals(1, offer.getLanguage().size());
+        Assert.assertEquals("en-us", offer.getLanguage().get(0));
+        Assert.assertEquals(
+                "[{\"cars\":[\"Ford\",\"BMW\",\"Fiat\"],\"name\":\"John\",\"age\":30}]",
+                offer.getContent());
+        Assert.assertEquals(1, offer.getCharacteristics().size());
+        Assert.assertEquals("true", offer.getCharacteristics().get("mobile"));
+    }
+
+    @Test
     public void testFromEventData_emptyOffer() throws Exception {
         Map<String, Object> offerData =
                 new ObjectMapper()
@@ -345,6 +373,19 @@ public class OfferTests {
                                 getClass()
                                         .getClassLoader()
                                         .getResource("json/OFFER_INVALID_MISSING_CONTENT.json"),
+                                HashMap.class);
+        final Offer offer = Offer.fromEventData(offerData);
+        Assert.assertNull(offer);
+    }
+
+    @Test
+    public void testFromEventData_invalidOfferInvalidContent() throws Exception {
+        Map<String, Object> offerData =
+                new ObjectMapper()
+                        .readValue(
+                                getClass()
+                                        .getClassLoader()
+                                        .getResource("json/OFFER_INVALID_INVALID_CONTENT.json"),
                                 HashMap.class);
         final Offer offer = Offer.fromEventData(offerData);
         Assert.assertNull(offer);

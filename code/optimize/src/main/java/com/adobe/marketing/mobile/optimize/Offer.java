@@ -22,6 +22,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 public class Offer {
@@ -601,15 +602,24 @@ public class Offer {
     }
 
     private static String getContentFromOfferData(final Map<String, Object> offerData) {
-        final String content;
-        final Object offerContent =
-                offerData.get(OptimizeConstants.JsonKeys.PAYLOAD_ITEM_DATA_CONTENT);
-        if (offerContent instanceof String) {
-            content = (String) offerContent;
-        } else {
-            final JSONObject offerContentJson = new JSONObject((Map<String, Object>) offerContent);
-            content = offerContentJson.toString();
+        try {
+            Object data;
+
+            Object offerContent =
+                    offerData.get(OptimizeConstants.JsonKeys.PAYLOAD_ITEM_DATA_CONTENT);
+            if (offerContent instanceof List) {
+                data = new JSONArray((List<?>) offerContent);
+            } else if (offerContent instanceof Map) {
+                data = new JSONObject((Map<?, ?>) offerContent);
+            } else if (offerContent instanceof String) {
+                data = offerContent;
+            } else {
+                throw new ClassCastException();
+            }
+
+            return data.toString();
+        } catch (Exception e) {
+            throw new ClassCastException();
         }
-        return content;
     }
 }

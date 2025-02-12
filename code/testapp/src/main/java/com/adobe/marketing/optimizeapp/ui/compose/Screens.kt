@@ -9,16 +9,20 @@
  OF ANY KIND, either express or implied. See the License for the specific language
  governing permissions and limitations under the License.
  */
-package com.adobe.marketing.optimizeapp
+package com.adobe.marketing.optimizeapp.ui.compose
 
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
@@ -26,6 +30,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.adobe.marketing.optimizeapp.R
 import com.adobe.marketing.optimizeapp.viewmodels.MainViewModel
 
 @Composable
@@ -39,18 +44,22 @@ fun MainScreen(viewModel: MainViewModel) {
         BottomNavigationScreen.SettingsScreen
     )
 
-    Scaffold(bottomBar = {
-        OffersBottomNavigation(navController = navController, items = bottomNavigationItems, onNavigationChange = {
-            appBarTitle = when(it){
-                BottomNavigationScreen.SettingsScreen -> "Settings"
-                BottomNavigationScreen.OffersScreen -> "Welcome to Optimize Demo"
-            }
-        })
-    },
+    Scaffold(
+        bottomBar = {
+            OffersBottomNavigation(
+                navController = navController,
+                items = bottomNavigationItems,
+                onNavigationChange = {
+                    appBarTitle = when (it) {
+                        BottomNavigationScreen.SettingsScreen -> "Settings"
+                        BottomNavigationScreen.OffersScreen -> "Welcome to Optimize Demo"
+                    }
+                })
+        },
         topBar = {
             TopAppBar {
                 Text(
-                    text = "$appBarTitle",
+                    text = appBarTitle,
                     modifier = Modifier.fillMaxWidth(),
                     textAlign = TextAlign.Center,
                     style = MaterialTheme.typography.h6
@@ -60,6 +69,25 @@ fun MainScreen(viewModel: MainViewModel) {
     ) {
         Box(modifier = Modifier.padding(it)) {
             NavigationConfiguration(navController = navController, viewModel = viewModel)
+        }
+
+        if (viewModel.dialogContent.value.isNotBlank()) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.Black.copy(alpha = 0.5f))
+            ) {
+                AlertDialog(
+                    onDismissRequest = { viewModel.hideDialog() },
+                    title = { Text(text = "Alert") },
+                    text = { Text(text = viewModel.dialogContent.value) },
+                    confirmButton = {
+                        Button(onClick = { viewModel.hideDialog() }) {
+                            Text("OK")
+                        }
+                    }
+                )
+            }
         }
     }
 }
