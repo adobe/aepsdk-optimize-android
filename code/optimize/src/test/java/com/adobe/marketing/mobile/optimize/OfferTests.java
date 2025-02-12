@@ -32,6 +32,8 @@ import org.mockito.junit.MockitoJUnitRunner;
 @SuppressWarnings("unchecked")
 public class OfferTests {
 
+    double doubleAccuracy = 0.001;
+
     @Test
     public void testBuilder_validOffer() {
         final Offer offer =
@@ -59,7 +61,7 @@ public class OfferTests {
 
         Assert.assertEquals("xcore:personalized-offer:2222222222222222", offer.getId());
         Assert.assertEquals("7", offer.getEtag());
-        Assert.assertEquals(2, offer.getScore());
+        Assert.assertEquals(2, offer.getScore(), doubleAccuracy);
         Assert.assertEquals(
                 "https://ns.adobe.com/experience/offer-management/content-component-text",
                 offer.getSchema());
@@ -85,7 +87,7 @@ public class OfferTests {
 
         Assert.assertEquals("xcore:personalized-offer:1111111111111111", offer.getId());
         Assert.assertEquals("8", offer.getEtag());
-        Assert.assertEquals(0, offer.getScore());
+        Assert.assertEquals(0, offer.getScore(), doubleAccuracy);
         Assert.assertEquals(
                 "https://ns.adobe.com/experience/offer-management/content-component-json",
                 offer.getSchema());
@@ -111,7 +113,7 @@ public class OfferTests {
 
         Assert.assertEquals("xcore:personalized-offer:2222222222222222", offer.getId());
         Assert.assertEquals("7", offer.getEtag());
-        Assert.assertEquals(0, offer.getScore());
+        Assert.assertEquals(0, offer.getScore(), doubleAccuracy);
         Assert.assertEquals(
                 "https://ns.adobe.com/experience/offer-management/content-component-text",
                 offer.getSchema());
@@ -137,7 +139,7 @@ public class OfferTests {
 
         Assert.assertEquals("xcore:personalized-offer:3333333333333333", offer.getId());
         Assert.assertEquals("8", offer.getEtag());
-        Assert.assertEquals(0, offer.getScore());
+        Assert.assertEquals(0, offer.getScore(), doubleAccuracy);
         Assert.assertEquals(
                 "https://ns.adobe.com/experience/offer-management/content-component-html",
                 offer.getSchema());
@@ -163,7 +165,7 @@ public class OfferTests {
 
         Assert.assertEquals("xcore:personalized-offer:4444444444444444", offer.getId());
         Assert.assertEquals("8", offer.getEtag());
-        Assert.assertEquals(0, offer.getScore());
+        Assert.assertEquals(0, offer.getScore(), doubleAccuracy);
         Assert.assertEquals(
                 "https://ns.adobe.com/experience/offer-management/content-component-imagelink",
                 offer.getSchema());
@@ -189,7 +191,38 @@ public class OfferTests {
 
         Assert.assertEquals("xcore:personalized-offer:2222222222222222", offer.getId());
         Assert.assertEquals("7", offer.getEtag());
-        Assert.assertEquals(1, offer.getScore());
+        Assert.assertEquals(1, offer.getScore(), doubleAccuracy);
+        Assert.assertEquals(
+                "https://ns.adobe.com/experience/offer-management/content-component-text",
+                offer.getSchema());
+        Assert.assertEquals(OfferType.TEXT, offer.getType());
+        Assert.assertEquals(1, offer.getLanguage().size());
+        Assert.assertEquals("en-us", offer.getLanguage().get(0));
+        Assert.assertEquals("This is a plain text content!", offer.getContent());
+        Assert.assertEquals(1, offer.getCharacteristics().size());
+        Assert.assertEquals("true", offer.getCharacteristics().get("mobile"));
+    }
+
+    @Test
+    public void testFromEventData_withDoubleScore() throws Exception {
+        Map<String, Object> offerData =
+                new ObjectMapper()
+                        .readValue(
+                                getClass()
+                                        .getClassLoader()
+                                        .getResource("json/OFFER_VALID_WITH_DOUBLE_SCORE.json"),
+                                HashMap.class);
+        final Offer offer = Offer.fromEventData(offerData);
+        Assert.assertNotNull(offer);
+
+        Assert.assertEquals("xcore:personalized-offer:2222222222222222", offer.getId());
+        Assert.assertEquals("7", offer.getEtag());
+
+        // validate that the score is of type double and has the correct value
+        Object offerScore = offer.getScore();
+        Assert.assertTrue(offerScore instanceof Double);
+        Assert.assertEquals(6.43, offer.getScore(), doubleAccuracy);
+
         Assert.assertEquals(
                 "https://ns.adobe.com/experience/offer-management/content-component-text",
                 offer.getSchema());
