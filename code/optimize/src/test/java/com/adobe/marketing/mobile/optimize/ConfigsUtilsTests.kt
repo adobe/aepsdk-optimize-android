@@ -16,16 +16,24 @@ import com.adobe.marketing.mobile.ExtensionApi
 import com.adobe.marketing.mobile.SharedStateResolution
 import com.adobe.marketing.mobile.SharedStateResult
 import com.adobe.marketing.mobile.optimize.ConfigsUtils.retrieveConfigurationSharedState
+import com.adobe.marketing.mobile.optimize.ConfigsUtils.retrieveOptimizeRequestTimeout
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.unmockkAll
+import org.junit.After
 import org.junit.Assert
 import org.junit.Test
 
 class ConfigsUtilsTests {
 
     private val mockExtensionApi: ExtensionApi = mockk()
-    private val mockEvent: Event = mockk()
+    private val mockEvent: Event = mockk<Event>(relaxed = true)
     private val mockSharedState: SharedStateResult = mockk()
+
+    @After
+    fun tearDown() {
+        unmockkAll()
+    }
 
     @Test
     fun `test retrieveConfigurationSharedState returns valid configuration`() {
@@ -92,5 +100,61 @@ class ConfigsUtilsTests {
         val result = mockExtensionApi.retrieveConfigurationSharedState()
         Assert.assertNotNull(result)
         Assert.assertEquals(expectedConfig, result)
+    }
+
+    @Test
+    fun `returns default timeout when eventData is null`() {
+        every { mockEvent.eventData } returns null
+        val configData = mapOf<String, Any?>()
+
+        Assert.assertEquals(10, mockEvent.retrieveOptimizeRequestTimeout(configData))
+    }
+
+    @Test
+    fun `returns timeout from eventData when present`() {
+        val eventData = mapOf(OptimizeConstants.EventDataKeys.TIMEOUT to 3000L)
+        every { mockEvent.eventData } returns eventData
+        val configData = mapOf<String, Any?>()
+
+        Assert.assertEquals(3000L, mockEvent.retrieveOptimizeRequestTimeout(configData))
+    }
+
+    @Test
+    fun `returns timeout from configData when eventData contains Long_MAX_VALUE`() {
+        val eventData = mapOf(OptimizeConstants.EventDataKeys.TIMEOUT to Long.MAX_VALUE)
+        val configData =
+            mapOf<String, Any?>(OptimizeConstants.EventDataKeys.CONFIGS_TIMEOUT to 7000L)
+        every { mockEvent.eventData } returns eventData
+
+        Assert.assertEquals(7000L, mockEvent.retrieveOptimizeRequestTimeout(configData))
+    }
+
+    @Test
+    fun `returns default timeout when configData does not contain timeout and eventData contains Long_MAX_VALUE`() {
+        val eventData = mapOf(OptimizeConstants.EventDataKeys.TIMEOUT to Long.MAX_VALUE)
+        val configData = mapOf<String, Any?>()
+        every { mockEvent.eventData } returns eventData
+
+        Assert.assertEquals(10, mockEvent.retrieveOptimizeRequestTimeout(configData))
+    }
+
+    @Test
+    fun `returns default timeout when DataReaderException is thrown`() {
+        val eventData = mapOf(OptimizeConstants.EventDataKeys.TIMEOUT to "invalid_value")
+        val configData =
+            mapOf<String, Any?>(OptimizeConstants.EventDataKeys.CONFIGS_TIMEOUT to 7000L)
+        every { mockEvent.eventData } returns eventData
+
+        Assert.assertEquals(10, mockEvent.retrieveOptimizeRequestTimeout(configData))
+    }
+
+    @Test
+    fun `returns default timeout when eventData contains Long_MAX_VALUE and configData timeout is invalid`() {
+        val eventData = mapOf(OptimizeConstants.EventDataKeys.TIMEOUT to Long.MAX_VALUE)
+        val configData =
+            mapOf<String, Any?>(OptimizeConstants.EventDataKeys.CONFIGS_TIMEOUT to "invalid_value")
+        every { mockEvent.eventData } returns eventData
+
+        Assert.assertEquals(10, mockEvent.retrieveOptimizeRequestTimeout(configData))
     }
 }

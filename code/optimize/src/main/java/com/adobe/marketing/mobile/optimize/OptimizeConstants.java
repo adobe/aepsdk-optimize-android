@@ -66,7 +66,6 @@ class OptimizeConstants {
         static final String EDGE_PERSONALIZATION_DECISIONS = "personalization:decisions";
         static final String CONTENT_COMPLETE = "com.adobe.eventSource.contentComplete";
         static final String DEBUG = "com.adobe.eventSource.debug";
-        static final String REQUEST_CONFIGURATION = "com.adobe.module.requestConfiguration";
 
         private EventSource() {}
     }
@@ -77,7 +76,8 @@ class OptimizeConstants {
         static final String DECISION_SCOPE_NAME = "name";
         static final String XDM = "xdm";
         static final String DATA = "data";
-        static final String TIMEOUT = "optimize.timeout";
+        static final String TIMEOUT = "timeout";
+        static final String CONFIGS_TIMEOUT = "optimize.timeout";
         static final String PROPOSITIONS = "propositions";
         static final String RESPONSE_ERROR = "responseerror";
         static final String PROPOSITION_INTERACTIONS = "propositioninteractions";

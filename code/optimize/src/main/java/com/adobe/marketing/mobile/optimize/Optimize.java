@@ -90,12 +90,7 @@ public class Optimize {
             @Nullable final Map<String, Object> xdm,
             @Nullable final Map<String, Object> data,
             @Nullable final AdobeCallback<Map<DecisionScope, OptimizeProposition>> callback) {
-        ConfigsManager.getConfigurableTimeoutConfig(
-                OptimizeConstants.EDGE_CONTENT_COMPLETE_RESPONSE_TIMEOUT,
-                configTimeout -> {
-                    updatePropositionsInternal(decisionScopes, xdm, data, configTimeout, callback);
-                    return null;
-                });
+        updatePropositionsInternal(decisionScopes, xdm, data, Long.MAX_VALUE, callback);
     }
 
     /**
@@ -285,12 +280,8 @@ public class Optimize {
     public static void getPropositions(
             @NonNull final List<DecisionScope> decisionScopes,
             @NonNull final AdobeCallback<Map<DecisionScope, OptimizeProposition>> callback) {
-        ConfigsManager.getConfigurableTimeoutConfig(
-                OptimizeConstants.GET_RESPONSE_CALLBACK_TIMEOUT,
-                configTimeout -> {
-                    getPropositionsInternal(decisionScopes, configTimeout, callback);
-                    return null;
-                });
+        getPropositionsInternal(
+                decisionScopes, OptimizeConstants.GET_RESPONSE_CALLBACK_TIMEOUT, callback);
     }
 
     /**

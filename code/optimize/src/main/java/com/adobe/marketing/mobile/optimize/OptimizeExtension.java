@@ -33,7 +33,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
 class OptimizeExtension extends Extension {
@@ -143,11 +142,6 @@ class OptimizeExtension extends Extension {
 
     @Override
     protected void onRegistered() {
-        getApi().registerEventListener(
-                        OptimizeConstants.EventType.OPTIMIZE,
-                        OptimizeConstants.EventSource.REQUEST_CONFIGURATION,
-                        this::handleConfigurationUpdateRequest);
-
         getApi().registerEventListener(
                         OptimizeConstants.EventType.OPTIMIZE,
                         OptimizeConstants.EventSource.REQUEST_CONTENT,
@@ -467,8 +461,7 @@ class OptimizeExtension extends Extension {
 
             // add the Edge event to update propositions in the events queue.
             eventsDispatcher.offer(edgeEvent);
-            long timeoutMillis =
-                    DataReader.getLong(eventData, OptimizeConstants.EventDataKeys.TIMEOUT);
+            long timeoutMillis = ConfigsUtils.retrieveOptimizeRequestTimeout(event, configData);
             MobileCore.dispatchEventWithResponseCallback(
                     edgeEvent,
                     timeoutMillis,
@@ -1091,40 +1084,6 @@ class OptimizeExtension extends Extension {
                     SELF_TAG,
                     "handleDebugEvent - Cannot process the Debug event due to an exception (%s)!",
                     e.getLocalizedMessage());
-        }
-    }
-
-    void handleConfigurationUpdateRequest(@NonNull final Event event) {
-        try {
-            double configurableTimeout;
-            try {
-                configurableTimeout =
-                        DataReader.getDouble(
-                                Objects.requireNonNull(
-                                        ConfigsUtils.retrieveConfigurationSharedState(getApi())),
-                                OptimizeConstants.EventDataKeys.TIMEOUT);
-            } catch (DataReaderException e) {
-                configurableTimeout = OptimizeConstants.DEFAULT_CONFIGURABLE_TIMEOUT_CONFIG;
-            }
-            final Map<String, Object> responseEventData = new HashMap<>();
-            responseEventData.put(OptimizeConstants.EventDataKeys.TIMEOUT, configurableTimeout);
-            final Event responseEvent =
-                    new Event.Builder(
-                                    OptimizeConstants.EventNames.OPTIMIZE_RESPONSE,
-                                    OptimizeConstants.EventType.OPTIMIZE,
-                                    OptimizeConstants.EventSource.RESPONSE_CONTENT)
-                            .setEventData(responseEventData)
-                            .inResponseToEvent(event)
-                            .build();
-            getApi().dispatch(responseEvent);
-        } catch (Exception e) {
-            Log.warning(
-                    OptimizeConstants.LOG_TAG,
-                    SELF_TAG,
-                    "handleConfigurationUpdateRequest - Failed to process get configurations"
-                            + " request event due to an exception (%s)!",
-                    e.getLocalizedMessage());
-            getApi().dispatch(createResponseEventWithError(event, AdobeError.UNEXPECTED_ERROR));
         }
     }
 

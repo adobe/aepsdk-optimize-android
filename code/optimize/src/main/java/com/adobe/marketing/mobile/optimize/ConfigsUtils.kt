@@ -14,6 +14,8 @@ package com.adobe.marketing.mobile.optimize
 import com.adobe.marketing.mobile.Event
 import com.adobe.marketing.mobile.ExtensionApi
 import com.adobe.marketing.mobile.SharedStateResolution
+import com.adobe.marketing.mobile.util.DataReader
+import com.adobe.marketing.mobile.util.DataReaderException
 
 object ConfigsUtils {
     /**
@@ -32,4 +34,24 @@ object ConfigsUtils {
         false,
         SharedStateResolution.ANY
     )?.value
+
+    @JvmStatic
+    fun Event.retrieveOptimizeRequestTimeout(configData: Map<String, Any?>): Long {
+        val defaultTimeout = OptimizeConstants.DEFAULT_CONFIGURABLE_TIMEOUT_CONFIG.toLong()
+
+        return try {
+            val timeout = eventData?.takeIf {
+                it.containsKey(OptimizeConstants.EventDataKeys.TIMEOUT)
+            }?.let {
+                DataReader.getLong(it, OptimizeConstants.EventDataKeys.TIMEOUT)
+            } ?: return defaultTimeout
+
+            if (timeout == Long.MAX_VALUE) DataReader.getLong(
+                configData,
+                OptimizeConstants.EventDataKeys.CONFIGS_TIMEOUT
+            ) else timeout
+        } catch (e: DataReaderException) {
+            defaultTimeout
+        }
+    }
 }

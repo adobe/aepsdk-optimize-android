@@ -12,7 +12,6 @@
 package com.adobe.marketing.mobile.optimize;
 
 import android.util.Base64;
-import com.adobe.marketing.mobile.AdobeError;
 import com.adobe.marketing.mobile.Event;
 import com.adobe.marketing.mobile.ExtensionApi;
 import com.adobe.marketing.mobile.ExtensionEventListener;
@@ -20,8 +19,6 @@ import com.adobe.marketing.mobile.SharedStateResolution;
 import com.adobe.marketing.mobile.SharedStateResult;
 import com.adobe.marketing.mobile.SharedStateStatus;
 import com.adobe.marketing.mobile.services.Log;
-import com.adobe.marketing.mobile.util.DataReader;
-import com.adobe.marketing.mobile.util.DataReaderException;
 import com.adobe.marketing.mobile.util.SerialWorkDispatcher;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
@@ -30,7 +27,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -47,15 +43,10 @@ import org.mockito.stubbing.Answer;
 @SuppressWarnings("unchecked")
 public class OptimizeExtensionTests {
     private OptimizeExtension extension;
-    private Map<DecisionScope, OptimizeProposition> responseMap;
-    private AdobeError responseError;
 
-    // Mocks
     @Mock ExtensionApi mockExtensionApi;
 
     @Mock SerialWorkDispatcher<Event> mockEventsDispatcher;
-
-    @Mock Event mockEvent;
 
     @Before
     public void setup() {
@@ -63,12 +54,6 @@ public class OptimizeExtensionTests {
         extension.onRegistered();
 
         Mockito.clearInvocations(mockExtensionApi);
-    }
-
-    @After
-    public void teardown() {
-        responseMap = null;
-        responseError = null;
     }
 
     @Test
@@ -110,12 +95,6 @@ public class OptimizeExtensionTests {
         extension = new OptimizeExtension(mockExtensionApi);
         extension.onRegistered();
 
-        // verify
-        Mockito.verify(mockExtensionApi, Mockito.times(1))
-                .registerEventListener(
-                        ArgumentMatchers.eq("com.adobe.eventType.optimize"),
-                        ArgumentMatchers.eq("com.adobe.module.requestConfiguration"),
-                        ArgumentMatchers.any(ExtensionEventListener.class));
         Mockito.verify(mockExtensionApi, Mockito.times(1))
                 .registerEventListener(
                         ArgumentMatchers.eq("com.adobe.eventType.optimize"),
@@ -2852,68 +2831,5 @@ public class OptimizeExtensionTests {
         // verify
         final ArgumentCaptor<Event> eventCaptor = ArgumentCaptor.forClass(Event.class);
         Mockito.verify(mockExtensionApi, Mockito.never()).dispatch(eventCaptor.capture());
-    }
-
-    @Test
-    public void testHandleConfigurationUpdateRequest_HappyPath() throws Exception {
-        Map<String, Object> sharedState = new HashMap<>();
-        sharedState.put(OptimizeConstants.EventDataKeys.TIMEOUT, 5.0);
-        try (MockedStatic<ConfigsUtils> mockConfigUtils = Mockito.mockStatic(ConfigsUtils.class)) {
-            mockConfigUtils
-                    .when(() -> ConfigsUtils.retrieveConfigurationSharedState(mockExtensionApi))
-                    .thenReturn(sharedState);
-            extension.handleConfigurationUpdateRequest(mockEvent);
-
-            ArgumentCaptor<Event> eventCaptor = ArgumentCaptor.forClass(Event.class);
-            Mockito.verify(mockExtensionApi).dispatch(eventCaptor.capture());
-
-            Event dispatchedEvent = eventCaptor.getValue();
-            Assert.assertNotNull(dispatchedEvent);
-            Assert.assertEquals(
-                    OptimizeConstants.EventNames.OPTIMIZE_RESPONSE, dispatchedEvent.getName());
-            Assert.assertEquals(OptimizeConstants.EventType.OPTIMIZE, dispatchedEvent.getType());
-            Assert.assertEquals(
-                    OptimizeConstants.EventSource.RESPONSE_CONTENT, dispatchedEvent.getSource());
-
-            Map<String, Object> eventData = dispatchedEvent.getEventData();
-            Assert.assertNotNull(eventData);
-            Assert.assertEquals(5.0, eventData.get(OptimizeConstants.EventDataKeys.TIMEOUT));
-        }
-    }
-
-    @Test
-    public void testHandleConfigurationUpdateRequest_FallbackToDefaultTimeout()
-            throws DataReaderException {
-        Map<String, Object> sharedState = new HashMap<>();
-        sharedState.put(OptimizeConstants.EventDataKeys.TIMEOUT, 5.0);
-        try (MockedStatic<ConfigsUtils> mockConfigUtils = Mockito.mockStatic(ConfigsUtils.class)) {
-            mockConfigUtils
-                    .when(() -> ConfigsUtils.retrieveConfigurationSharedState(mockExtensionApi))
-                    .thenReturn(new HashMap<>());
-            try (MockedStatic<DataReader> mockedDataReader = Mockito.mockStatic(DataReader.class)) {
-                mockedDataReader
-                        .when(
-                                () ->
-                                        DataReader.getDouble(
-                                                sharedState,
-                                                OptimizeConstants.EventDataKeys.TIMEOUT))
-                        .thenThrow(new DataReaderException("Test exception"));
-
-                Mockito.doThrow(new DataReaderException("Test exception")).when(DataReader.class);
-                DataReader.getDouble(
-                        Mockito.anyMap(), Mockito.eq(OptimizeConstants.EventDataKeys.TIMEOUT));
-                extension.handleConfigurationUpdateRequest(mockEvent);
-                ArgumentCaptor<Event> eventCaptor = ArgumentCaptor.forClass(Event.class);
-                Mockito.verify(mockExtensionApi).dispatch(eventCaptor.capture());
-
-                Event dispatchedEvent = eventCaptor.getValue();
-                Assert.assertNotNull(dispatchedEvent);
-                Assert.assertEquals(
-                        OptimizeConstants.DEFAULT_CONFIGURABLE_TIMEOUT_CONFIG,
-                        dispatchedEvent
-                                .getEventData()
-                                .get(OptimizeConstants.EventDataKeys.TIMEOUT));
-            }
-        }
     }
 }
