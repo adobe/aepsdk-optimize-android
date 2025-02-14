@@ -2233,33 +2233,6 @@ public class OptimizeExtensionTests {
     }
 
     @Test
-    public void testHandleDebugEvent_debugDataUnavailable() throws Exception {
-        // setup
-        final Map<String, Object> edgeResponseData =
-                new ObjectMapper()
-                        .readValue(
-                                getClass()
-                                        .getClassLoader()
-                                        .getResource("json/EVENT_DATA_EDGE_RESPONSE_VALID.json"),
-                                HashMap.class);
-        final Event testEvent =
-                new Event.Builder(
-                                "AEP Response Event Handle (Spoof)",
-                                "com.adobe.eventType.system",
-                                "com.adobe.eventSource.debug")
-                        .setEventData(edgeResponseData)
-                        .build();
-
-        final ArgumentCaptor<Event> eventCaptor = ArgumentCaptor.forClass(Event.class);
-
-        // test
-        extension.handleDebugEvent(testEvent);
-
-        // verify
-        Mockito.verify(mockExtensionApi, Mockito.never()).dispatch(eventCaptor.capture());
-    }
-
-    @Test
     public void testHandleDebugEvent_validProposition() throws Exception {
         // setup
         final Map<String, Object> edgeResponseData =
@@ -2267,8 +2240,7 @@ public class OptimizeExtensionTests {
                         .readValue(
                                 getClass()
                                         .getClassLoader()
-                                        .getResource(
-                                                "json/EVENT_DEBUG_DATA_EDGE_RESPONSE_VALID.json"),
+                                        .getResource("json/EVENT_DATA_EDGE_RESPONSE_VALID.json"),
                                 HashMap.class);
         final Event testEvent =
                 new Event.Builder(
@@ -2369,8 +2341,7 @@ public class OptimizeExtensionTests {
                         .readValue(
                                 getClass()
                                         .getClassLoader()
-                                        .getResource(
-                                                "json/EVENT_DEBUG_DATA_EDGE_RESPONSE_VALID.json"),
+                                        .getResource("json/EVENT_DATA_EDGE_RESPONSE_VALID.json"),
                                 HashMap.class);
         final Event testEvent =
                 new Event.Builder(
