@@ -155,14 +155,30 @@ class OptimizeUtils {
     }
 
     /**
-     * Checks whether the given event is a Debug Event returned from the Edge network.
+     * Checks whether the given event is a Personaliztion Debug Event returned from the Edge
+     * network.
      *
      * @param event instance of {@link Event}
      * @return {@code boolean} return true if event is a debug event, false otherwise.
      */
-    static boolean isDebugEvent(final Event event) {
-        return EventType.SYSTEM.equalsIgnoreCase(event.getType())
-                && OptimizeConstants.EventSource.DEBUG.equalsIgnoreCase(event.getSource());
+    static boolean isPersonalizationDebugEvent(final Event event) {
+        try {
+            final Map<String, String> debugData =
+                    DataReader.getStringMap(event.getEventData(), OptimizeConstants.Edge.DEBUG);
+            return OptimizeConstants.EventSource.EDGE_PERSONALIZATION_DECISIONS.equalsIgnoreCase(
+                            debugData.get(OptimizeConstants.Edge.EVENT_SOURCE))
+                    && EventType.EDGE.equalsIgnoreCase(
+                            debugData.get(OptimizeConstants.Edge.EVENT_TYPE));
+        } catch (Exception e) {
+            Log.trace(
+                    OptimizeConstants.LOG_TAG,
+                    SELF_TAG,
+                    String.format(
+                            "Exception occurred while checking if event is a personalization debug"
+                                    + " event: %s",
+                            e.getLocalizedMessage()));
+            return false;
+        }
     }
 
     /**

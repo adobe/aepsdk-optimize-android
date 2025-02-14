@@ -98,6 +98,9 @@ class OptimizeConstants {
         static final String EVENT_HANDLE = "type";
         static final String EVENT_HANDLE_TYPE_PERSONALIZATION = "personalization:decisions";
         static final String PAYLOAD = "payload";
+        static final String DEBUG = "debug";
+        static final String EVENT_SOURCE = "eventSource";
+        static final String EVENT_TYPE = "eventType";
 
         static final class ErrorKeys {
             static final String TYPE = "type";
