@@ -1014,7 +1014,7 @@ class OptimizeExtension extends Extension {
                 return;
             }
 
-            if (!OptimizeUtils.isPersonalizationDebugEvent(event)) {
+            if (!OptimizeUtils.isDebugEvent(event)) {
                 Log.debug(
                         OptimizeConstants.LOG_TAG,
                         SELF_TAG,
