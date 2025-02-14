@@ -43,6 +43,8 @@ import org.junit.runner.RunWith;
 @RunWith(AndroidJUnit4.class)
 public class OptimizeFunctionalTests {
 
+    double doubleAccuracy = 0.001;
+
     @Rule
     public RuleChain ruleChain =
             RuleChain.outerRule(new TestHelper.SetupCoreRule())
@@ -697,7 +699,7 @@ public class OptimizeFunctionalTests {
         Offer offer = optimizeProposition.getOffers().get(0);
         Assert.assertEquals("xcore:personalized-offer:1111111111111111", offer.getId());
         Assert.assertEquals("10", offer.getEtag());
-        Assert.assertEquals(1, offer.getScore());
+        Assert.assertEquals(1, offer.getScore(), doubleAccuracy);
         Assert.assertEquals(
                 "https://ns.adobe.com/experience/offer-management/content-component-html",
                 offer.getSchema());
@@ -867,7 +869,7 @@ public class OptimizeFunctionalTests {
         Offer offer = optimizeProposition.getOffers().get(0);
         Assert.assertEquals("0", offer.getId());
         Assert.assertEquals(null, offer.getEtag());
-        Assert.assertEquals(0, offer.getScore());
+        Assert.assertEquals(0, offer.getScore(), doubleAccuracy);
         Assert.assertEquals(
                 "https://ns.adobe.com/personalization/default-content-item", offer.getSchema());
         Assert.assertEquals(OfferType.UNKNOWN, offer.getType());

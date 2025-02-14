@@ -30,7 +30,7 @@ public class Offer {
     private static final String SELF_TAG = "Offer";
     private String id;
     private String etag;
-    private int score;
+    private double score;
     private String schema;
     private Map<String, Object> meta;
     private OfferType type;
@@ -67,7 +67,7 @@ public class Offer {
             offer.type = type != null ? type : OfferType.UNKNOWN;
             offer.content = content != null ? content : "";
             offer.etag = "";
-            offer.score = 0;
+            offer.score = 0.0;
             offer.schema = "";
             offer.meta = new HashMap<>();
             offer.language = new ArrayList<>();
@@ -93,12 +93,12 @@ public class Offer {
         /**
          * Sets the score for this {@code Offer}.
          *
-         * @param score {@code int} containing {@link Offer} score.
+         * @param score {@code double} containing {@link Offer} score.
          * @return this Offer {@link Builder}
          * @throws UnsupportedOperationException if this method is invoked after {@link
          *     Builder#build()}.
          */
-        public Builder setScore(final int score) {
+        public Builder setScore(final double score) {
             throwIfAlreadyBuilt();
 
             offer.score = score;
@@ -207,9 +207,9 @@ public class Offer {
     /**
      * Gets the {@code Offer} score.
      *
-     * @return {@code int} containing the {@link Offer} score.
+     * @return {@code double} containing the {@link Offer} score.
      */
-    public int getScore() {
+    public double getScore() {
         return score;
     }
 
@@ -447,8 +447,8 @@ public class Offer {
                     DataReader.getString(data, OptimizeConstants.JsonKeys.PAYLOAD_ITEM_ID);
             final String etag =
                     DataReader.getString(data, OptimizeConstants.JsonKeys.PAYLOAD_ITEM_ETAG);
-            final int score =
-                    DataReader.optInt(data, OptimizeConstants.JsonKeys.PAYLOAD_ITEM_SCORE, 0);
+            final double score =
+                    DataReader.optDouble(data, OptimizeConstants.JsonKeys.PAYLOAD_ITEM_SCORE, 0.0);
             final String schema =
                     DataReader.getString(data, OptimizeConstants.JsonKeys.PAYLOAD_ITEM_SCHEMA);
 
@@ -535,7 +535,7 @@ public class Offer {
                                 + " empty string.");
                 return new Builder(id, OfferType.UNKNOWN, "")
                         .setEtag(null)
-                        .setScore(0)
+                        .setScore(0.0)
                         .setSchema(schema)
                         .setMeta(meta)
                         .setLanguage(null)
