@@ -357,7 +357,8 @@ class OptimizeExtension extends Extension {
     void handleUpdatePropositions(@NonNull final Event event) {
         final Map<String, Object> eventData = event.getEventData();
 
-        final Map<String, Object> configData = retrieveConfigurationSharedState(event);
+        final Map<String, Object> configData =
+                ConfigsUtils.retrieveConfigurationSharedState(getApi(), event);
         if (OptimizeUtils.isNullOrEmpty(configData)) {
             Log.debug(
                     OptimizeConstants.LOG_TAG,
@@ -460,8 +461,7 @@ class OptimizeExtension extends Extension {
 
             // add the Edge event to update propositions in the events queue.
             eventsDispatcher.offer(edgeEvent);
-            long timeoutMillis =
-                    DataReader.getLong(eventData, OptimizeConstants.EventDataKeys.TIMEOUT);
+            long timeoutMillis = ConfigsUtils.retrieveOptimizeRequestTimeout(event, configData);
             MobileCore.dispatchEventWithResponseCallback(
                     edgeEvent,
                     timeoutMillis,
@@ -921,7 +921,8 @@ class OptimizeExtension extends Extension {
     void handleTrackPropositions(@NonNull final Event event) {
         final Map<String, Object> eventData = event.getEventData();
 
-        final Map<String, Object> configData = retrieveConfigurationSharedState(event);
+        final Map<String, Object> configData =
+                ConfigsUtils.retrieveConfigurationSharedState(getApi(), event);
         if (OptimizeUtils.isNullOrEmpty(configData)) {
             Log.debug(
                     OptimizeConstants.LOG_TAG,
@@ -1084,22 +1085,6 @@ class OptimizeExtension extends Extension {
                     "handleDebugEvent - Cannot process the Debug event due to an exception (%s)!",
                     e.getLocalizedMessage());
         }
-    }
-
-    /**
-     * Retrieves the {@code Configuration} shared state versioned at the current {@code event}.
-     *
-     * @param event incoming {@link Event} instance.
-     * @return {@code Map<String, Object>} containing configuration data.
-     */
-    private Map<String, Object> retrieveConfigurationSharedState(final Event event) {
-        SharedStateResult configurationSharedState =
-                getApi().getSharedState(
-                                OptimizeConstants.Configuration.EXTENSION_NAME,
-                                event,
-                                false,
-                                SharedStateResolution.ANY);
-        return configurationSharedState != null ? configurationSharedState.getValue() : null;
     }
 
     /**

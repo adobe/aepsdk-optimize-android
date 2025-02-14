@@ -13,6 +13,7 @@ package com.adobe.marketing.mobile.optimize;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.VisibleForTesting;
 import com.adobe.marketing.mobile.AdobeCallback;
 import com.adobe.marketing.mobile.AdobeCallbackWithError;
 import com.adobe.marketing.mobile.AdobeError;
@@ -89,9 +90,7 @@ public class Optimize {
             @Nullable final Map<String, Object> xdm,
             @Nullable final Map<String, Object> data,
             @Nullable final AdobeCallback<Map<DecisionScope, OptimizeProposition>> callback) {
-        final double defaultTimeoutSeconds =
-                OptimizeConstants.EDGE_CONTENT_COMPLETE_RESPONSE_TIMEOUT;
-        updatePropositionsInternal(decisionScopes, xdm, data, defaultTimeoutSeconds, callback);
+        updatePropositionsInternal(decisionScopes, xdm, data, Long.MAX_VALUE, callback);
     }
 
     /**
@@ -122,7 +121,8 @@ public class Optimize {
         updatePropositionsInternal(decisionScopes, xdm, data, timeoutSeconds, callback);
     }
 
-    private static void updatePropositionsInternal(
+    @VisibleForTesting
+    static void updatePropositionsInternal(
             @NonNull final List<DecisionScope> decisionScopes,
             @Nullable final Map<String, Object> xdm,
             @Nullable final Map<String, Object> data,
@@ -280,8 +280,8 @@ public class Optimize {
     public static void getPropositions(
             @NonNull final List<DecisionScope> decisionScopes,
             @NonNull final AdobeCallback<Map<DecisionScope, OptimizeProposition>> callback) {
-        final double defaultTimeoutSeconds = OptimizeConstants.GET_RESPONSE_CALLBACK_TIMEOUT;
-        getPropositionsInternal(decisionScopes, defaultTimeoutSeconds, callback);
+        getPropositionsInternal(
+                decisionScopes, OptimizeConstants.GET_RESPONSE_CALLBACK_TIMEOUT, callback);
     }
 
     /**
@@ -300,7 +300,8 @@ public class Optimize {
         getPropositionsInternal(decisionScopes, timeoutSeconds, callback);
     }
 
-    private static void getPropositionsInternal(
+    @VisibleForTesting
+    static void getPropositionsInternal(
             @NonNull final List<DecisionScope> decisionScopes,
             final double timeoutSeconds,
             @NonNull final AdobeCallback<Map<DecisionScope, OptimizeProposition>> callback) {

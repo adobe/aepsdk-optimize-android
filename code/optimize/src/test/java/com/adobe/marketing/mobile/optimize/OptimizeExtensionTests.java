@@ -12,7 +12,6 @@
 package com.adobe.marketing.mobile.optimize;
 
 import android.util.Base64;
-import com.adobe.marketing.mobile.AdobeError;
 import com.adobe.marketing.mobile.Event;
 import com.adobe.marketing.mobile.ExtensionApi;
 import com.adobe.marketing.mobile.ExtensionEventListener;
@@ -28,7 +27,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -45,10 +43,7 @@ import org.mockito.stubbing.Answer;
 @SuppressWarnings("unchecked")
 public class OptimizeExtensionTests {
     private OptimizeExtension extension;
-    private Map<DecisionScope, OptimizeProposition> responseMap;
-    private AdobeError responseError;
 
-    // Mocks
     @Mock ExtensionApi mockExtensionApi;
 
     @Mock SerialWorkDispatcher<Event> mockEventsDispatcher;
@@ -59,12 +54,6 @@ public class OptimizeExtensionTests {
         extension.onRegistered();
 
         Mockito.clearInvocations(mockExtensionApi);
-    }
-
-    @After
-    public void teardown() {
-        responseMap = null;
-        responseError = null;
     }
 
     @Test
@@ -106,7 +95,6 @@ public class OptimizeExtensionTests {
         extension = new OptimizeExtension(mockExtensionApi);
         extension.onRegistered();
 
-        // verify
         Mockito.verify(mockExtensionApi, Mockito.times(1))
                 .registerEventListener(
                         ArgumentMatchers.eq("com.adobe.eventType.optimize"),
