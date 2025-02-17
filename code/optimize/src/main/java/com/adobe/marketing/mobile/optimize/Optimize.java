@@ -90,7 +90,7 @@ public class Optimize {
             @Nullable final Map<String, Object> data,
             @Nullable final AdobeCallback<Map<DecisionScope, OptimizeProposition>> callback) {
         final double defaultTimeoutSeconds =
-                OptimizeConstants.EDGE_CONTENT_COMPLETE_RESPONSE_TIMEOUT;
+                (double) Long.MAX_VALUE / OptimizeConstants.TIMEOUT_CONVERSION_FACTOR;
         updatePropositionsInternal(decisionScopes, xdm, data, defaultTimeoutSeconds, callback);
     }
 

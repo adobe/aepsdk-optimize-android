@@ -19,6 +19,6 @@ buildscript {
         mavenLocal()
     }
     dependencies {
-        classpath("com.github.adobe:aepsdk-commons:gp-3.0.0")
+        classpath("com.github.adobe:aepsdk-commons:gp-3.0.2")
     }
 }
