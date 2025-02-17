@@ -27,6 +27,7 @@ import com.adobe.marketing.mobile.optimize.Optimize
 import com.adobe.marketing.mobile.optimize.OptimizeProposition
 import com.adobe.marketing.optimizeapp.impl.LogManager
 import com.adobe.marketing.optimizeapp.models.OptimizePair
+import com.adobe.marketing.optimizeapp.ui.model.TimeoutConfigsCardData
 
 class MainViewModel : ViewModel() {
 
@@ -49,16 +50,25 @@ class MainViewModel : ViewModel() {
 
     var optimizePropositionStateMap = mutableStateMapOf<String, OptimizeProposition>()
 
-    //Preferences
-    var timeoutConfig = mutableDoubleStateOf(5.0) //Seconds
-
-    //Visible logs for UI
     val showLogs = mutableStateOf(true)
     val logBoxManager = LogManager(maxLogCount = 200)
 
-    //UI Alert Dialog
     private val _dialogContent = mutableStateOf("")
     val dialogContent: State<String> = _dialogContent
+
+    private val _mutableTimeoutConfig = mutableStateOf(
+        TimeoutConfigsCardData(
+            "10.0",
+            pref1Txt = "Use default timeout",
+            pref2Txt = "Use custom timeout (in seconds)",
+            isCustomTimeoutOpted = false
+        )
+    )
+    val timeoutConfig: State<TimeoutConfigsCardData> = _mutableTimeoutConfig
+
+    fun updateTimeoutConfig(value: TimeoutConfigsCardData) {
+        _mutableTimeoutConfig.value = value
+    }
 
     fun showDialog(content: String) {
         _dialogContent.value = content
@@ -122,11 +132,14 @@ class MainViewModel : ViewModel() {
 
         logBoxManager.addLog("Getting Propositions Called | ${decisionScopeList.size} scopes \n" +
                 "Decision Scopes: ${decisionScopeList.joinToString { it.name }}")
-        Optimize.getPropositions(
-            decisionScopeList,
-            timeoutConfig.doubleValue,
-            callback
-        )
+        val customTimeoutData = _mutableTimeoutConfig.value
+        if (customTimeoutData.isCustomTimeoutOpted && customTimeoutData.value.toDoubleOrNull() != null)
+            Optimize.getPropositions(
+                decisionScopeList,
+                _mutableTimeoutConfig.value.value.toDouble(),
+                callback
+            )
+        else Optimize.getPropositions(decisionScopeList, callback)
     }
 
     /**
@@ -162,13 +175,14 @@ class MainViewModel : ViewModel() {
                 "Decision Scopes: ${decisionScopeList.joinToString { it.name }}\n" +
                 "Data: $data\n" +
                 "XDM Data: $xdmData")
-        Optimize.updatePropositions(
+        val customTimeoutData = _mutableTimeoutConfig.value
+        if (customTimeoutData.isCustomTimeoutOpted && customTimeoutData.value.toDoubleOrNull() != null) Optimize.updatePropositions(
             decisionScopeList,
             xdmData,
             data,
-            timeoutConfig.doubleValue,
+            _mutableTimeoutConfig.value.value.toDouble(),
             callback
-        )
+        ) else Optimize.updatePropositions(decisionScopeList, xdmData, data, callback)
     }
 
     /**
