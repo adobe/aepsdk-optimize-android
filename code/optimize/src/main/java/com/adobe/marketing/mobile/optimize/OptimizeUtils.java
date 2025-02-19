@@ -14,15 +14,10 @@ package com.adobe.marketing.mobile.optimize;
 import android.util.Base64;
 import com.adobe.marketing.mobile.AdobeError;
 import com.adobe.marketing.mobile.Event;
-import com.adobe.marketing.mobile.MobileCore;
 import com.adobe.marketing.mobile.EventType;
 import com.adobe.marketing.mobile.services.Log;
 import com.adobe.marketing.mobile.util.DataReader;
-import com.adobe.marketing.mobile.util.StringUtils;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 class OptimizeUtils {
@@ -221,111 +216,5 @@ class OptimizeUtils {
                             null);
         }
         return requestEventId;
-    }
-
-    /**
-     * Dispatches an event to track propositions with type {@value
-     * OptimizeConstants.EventType#OPTIMIZE} and source {@value
-     * OptimizeConstants.EventSource#REQUEST_CONTENT}.
-     *
-     * <p>No event is dispatched if the provided {@code xdm} is null or empty.
-     *
-     * @param xdm {@code Map<String, Object>} containing the XDM data for the proposition
-     *     interactions.
-     */
-    static void trackWithData(final Map<String, Object> xdm) {
-        if (OptimizeUtils.isNullOrEmpty(xdm)) {
-            Log.debug(
-                    OptimizeConstants.LOG_TAG,
-                    SELF_TAG,
-                    "Failed to dispatch track propositions request event, input xdm is null or"
-                            + " empty.");
-            return;
-        }
-
-        final Map<String, Object> eventData = new HashMap<>();
-        eventData.put(
-                OptimizeConstants.EventDataKeys.REQUEST_TYPE,
-                OptimizeConstants.EventDataValues.REQUEST_TYPE_TRACK);
-        eventData.put(OptimizeConstants.EventDataKeys.PROPOSITION_INTERACTIONS, xdm);
-
-        final Event edgeEvent =
-                new Event.Builder(
-                                OptimizeConstants.EventNames.TRACK_PROPOSITIONS_REQUEST,
-                                OptimizeConstants.EventType.OPTIMIZE,
-                                OptimizeConstants.EventSource.REQUEST_CONTENT)
-                        .setEventData(eventData)
-                        .build();
-
-        MobileCore.dispatchEvent(edgeEvent);
-    }
-
-    /**
-     * Generates a map containing XDM formatted data for `Experience Event - OptimizeProposition
-     * Interactions` field group from this `OptimizeProposition` offer and given
-     * `experienceEventType`.
-     *
-     * <p>
-     *
-     * <p>The method returns null if the proposition reference within the offer is released and no
-     * longer valid.
-     *
-     * @param experienceEventType [String] containing the event type for the Experience Event
-     * @return `Map<String, Object>` containing the XDM data for the proposition interaction.
-     */
-    protected static Map<String, Object> generateInteractionXdm(
-            final String experienceEventType,
-            final List<OptimizeProposition> pendingDisplayedPropositions) {
-        List<Map<String, Object>> propositions = new ArrayList<>();
-        if (!pendingDisplayedPropositions.isEmpty()) {
-            for (OptimizeProposition prop : pendingDisplayedPropositions) {
-                Map<String, Object> proposition = new HashMap<>();
-                proposition.put(
-                        OptimizeConstants.JsonKeys.DECISIONING_PROPOSITIONS_ID, prop.getId());
-                proposition.put(
-                        OptimizeConstants.JsonKeys.DECISIONING_PROPOSITIONS_SCOPE, prop.getScope());
-                proposition.put(
-                        OptimizeConstants.JsonKeys.DECISIONING_PROPOSITIONS_SCOPEDETAILS,
-                        prop.getScopeDetails());
-
-                if (!prop.getOffers().isEmpty()) {
-                    proposition.put(
-                            OptimizeConstants.JsonKeys.DECISIONING_PROPOSITIONS_ITEMS,
-                            getOfferIds(prop));
-                }
-                propositions.add(proposition);
-            }
-        }
-
-        Map<String, Object> experienceDecisioning = new HashMap<>();
-        experienceDecisioning.put(
-                OptimizeConstants.JsonKeys.DECISIONING_PROPOSITIONS, propositions);
-
-        Map<String, Object> experience = new HashMap<>();
-        experience.put(OptimizeConstants.JsonKeys.EXPERIENCE_DECISIONING, experienceDecisioning);
-
-        Map<String, Object> xdm = new HashMap<>();
-        xdm.put(OptimizeConstants.JsonKeys.EXPERIENCE, experience);
-        xdm.put(OptimizeConstants.JsonKeys.EXPERIENCE_EVENT_TYPE, experienceEventType);
-
-        return xdm;
-    }
-
-    private static List<Map<String, Object>> getOfferIds(final OptimizeProposition prop) {
-        List<Map<String, Object>> offersIds = new ArrayList<>();
-        for (Offer offer : prop.getOffers()) {
-            if (!StringUtils.isNullOrEmpty(offer.getId())) {
-                offersIds.add(
-                        new HashMap<String, Object>() {
-                            {
-                                put(
-                                        OptimizeConstants.JsonKeys
-                                                .DECISIONING_PROPOSITIONS_ITEMS_ID,
-                                        offer.getId());
-                            }
-                        });
-            }
-        }
-        return offersIds;
     }
 }

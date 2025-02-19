@@ -50,8 +50,8 @@ public class OptimizeProposition {
         this.offers = offers != null ? offers : new ArrayList<>();
         // Setting a soft reference to OptimizeProposition in each Offer
         for (final Offer o : this.offers) {
-            if (o.getPropositionReference() == null) {
-                o.setPropositionReference(new SoftReference<>(this));
+            if (o.propositionReference == null) {
+                o.propositionReference = new SoftReference<>(this);
             }
         }
     }
@@ -195,7 +195,7 @@ public class OptimizeProposition {
 
         List<Map<String, Object>> offersList = new ArrayList<>();
         for (final Offer offer : this.offers) {
-            offersList.add(Offer.toEventData(offer));
+            offersList.add(offer.toEventData());
         }
         propositionMap.put(OptimizeConstants.JsonKeys.PAYLOAD_ITEMS, offersList);
         return propositionMap;
