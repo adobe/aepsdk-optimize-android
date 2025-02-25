@@ -304,14 +304,13 @@ public class Offer {
      * along with any additional XDM, free-form data, and override dataset identifier.
      *
      * @return {@code Map<String, Object>} containing the XDM data for the proposition interaction.
-     * @see XDMUtils#generateInteractionXdm$optimize_phoneDebug(String,
-     *     XDMUtils.InteractionPropositionType)
+     * @see XDMUtils#generateInteractionXdm(String, XDMUtils.InteractionPropositionType)
      */
     public Map<String, Object> generateDisplayInteractionXdm() {
         if (propositionReference == null || propositionReference.get() == null) {
             return null;
         }
-        return XDMUtils.generateInteractionXdm$optimize_phoneDebug(
+        return XDMUtils.generateInteractionXdm(
                 OptimizeConstants.JsonValues.EE_EVENT_TYPE_PROPOSITION_DISPLAY,
                 new XDMUtils.InteractionPropositionType.SingleProposition(
                         propositionReference.get()));
@@ -328,14 +327,13 @@ public class Offer {
      * along with any additional XDM, free-form data, and override dataset identifier.
      *
      * @return {@code Map<String, Object>} containing the XDM data for the proposition interaction.
-     * @see XDMUtils#generateInteractionXdm$optimize_phoneDebug(String,
-     *     XDMUtils.InteractionPropositionType)
+     * @see XDMUtils#generateInteractionXdm(String, XDMUtils.InteractionPropositionType)
      */
     public Map<String, Object> generateTapInteractionXdm() {
         if (propositionReference == null || propositionReference.get() == null) {
             return null;
         }
-        return XDMUtils.generateInteractionXdm$optimize_phoneDebug(
+        return XDMUtils.generateInteractionXdm(
                 OptimizeConstants.JsonValues.EE_EVENT_TYPE_PROPOSITION_INTERACT,
                 new XDMUtils.InteractionPropositionType.SingleProposition(
                         propositionReference.get()));

@@ -57,12 +57,12 @@ object XDMUtils {
      */
 
     @JvmStatic
-    internal fun generateInteractionXdm(
+    fun generateInteractionXdm(
         experienceEventType: String,
         pendingInteraction: InteractionPropositionType
     ): Map<String, Any> {
 
-        val propositionsWithOfferIds = when (pendingInteraction) {
+        val finalPendingPropositions = when (pendingInteraction) {
             is InteractionPropositionType.MultiplePropositions -> pendingInteraction.propositions
             is InteractionPropositionType.SingleProposition -> listOf(pendingInteraction.proposition)
         }.map { prop ->
@@ -71,7 +71,7 @@ object XDMUtils {
                 OptimizeConstants.JsonKeys.DECISIONING_PROPOSITIONS_SCOPE to prop.scope,
                 OptimizeConstants.JsonKeys.DECISIONING_PROPOSITIONS_SCOPEDETAILS to prop.scopeDetails
             ).apply {
-                if (prop.offers.isNotEmpty() && pendingInteraction is InteractionPropositionType.MultiplePropositions) {
+                if (prop.offers.isNotEmpty() && pendingInteraction is InteractionPropositionType.SingleProposition) {
                     put(OptimizeConstants.JsonKeys.DECISIONING_PROPOSITIONS_ITEMS, getOfferIds(prop))
                 }
             }
@@ -80,7 +80,7 @@ object XDMUtils {
         return mapOf(
             OptimizeConstants.JsonKeys.EXPERIENCE to mapOf(
                 OptimizeConstants.JsonKeys.EXPERIENCE_DECISIONING to mapOf(
-                    OptimizeConstants.JsonKeys.DECISIONING_PROPOSITIONS to propositionsWithOfferIds
+                    OptimizeConstants.JsonKeys.DECISIONING_PROPOSITIONS to finalPendingPropositions
                 )
             ),
             OptimizeConstants.JsonKeys.EXPERIENCE_EVENT_TYPE to experienceEventType

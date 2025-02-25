@@ -15,19 +15,11 @@ import com.adobe.marketing.mobile.optimize.XDMUtils.InteractionPropositionType.M
 
 object OfferUtils {
     fun List<Offer>.displayed() {
+        val uniquePropositions = map { it.proposition }.distinctBy { it.id }
         XDMUtils.trackWithData(
             XDMUtils.generateInteractionXdm(
                 OptimizeConstants.JsonValues.EE_EVENT_TYPE_PROPOSITION_DISPLAY,
-                MultiplePropositions(
-                    map { offer ->
-                        OptimizeProposition(
-                            offer.proposition.id,
-                            offer.proposition.offers.filter { it.id in this.map { it.id } },
-                            offer.proposition.scope,
-                            offer.proposition.scopeDetails
-                        )
-                    }
-                )
+                MultiplePropositions(uniquePropositions)
             )
         )
     }

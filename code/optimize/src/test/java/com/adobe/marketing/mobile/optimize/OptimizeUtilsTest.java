@@ -11,8 +11,6 @@
 
 package com.adobe.marketing.mobile.optimize;
 
-import static com.adobe.marketing.mobile.optimize.OptimizeUtils.generateInteractionXdm;
-
 import android.util.Base64;
 import com.adobe.marketing.mobile.AdobeError;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -224,11 +222,9 @@ public class OptimizeUtilsTest {
             Offer offer = optimizeProposition.getOffers().get(0);
             Assert.assertNotNull(offer);
         }
-        Map<String, Object> xdm =
-                generateInteractionXdm(
-                        OptimizeConstants.JsonValues.EE_EVENT_TYPE_PROPOSITION_DISPLAY,
-                        optimizePropositionList,
-                        false);
+        Map<String, Object> xdm = XDMUtils.generateInteractionXdm(
+                OptimizeConstants.JsonValues.EE_EVENT_TYPE_PROPOSITION_DISPLAY,
+                new XDMUtils.InteractionPropositionType.MultiplePropositions(optimizePropositionList));
         Assert.assertNotNull(xdm);
 
         Assert.assertEquals("decisioning.propositionDisplay", xdm.get("eventType"));

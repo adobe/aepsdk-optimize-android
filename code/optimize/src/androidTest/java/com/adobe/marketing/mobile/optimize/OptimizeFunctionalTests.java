@@ -2696,7 +2696,10 @@ public class OptimizeFunctionalTests {
 
         // Action: Display both offers
         TestHelper.resetTestExpectations();
-        //Optimize.trackDisplayedPropositions(optimizePropositionList);
+        XDMUtils.trackWithData(
+                XDMUtils.generateInteractionXdm(
+                        OptimizeConstants.JsonValues.EE_EVENT_TYPE_PROPOSITION_DISPLAY,
+                        new XDMUtils.InteractionPropositionType.MultiplePropositions(optimizePropositionList)));
 
         // Assert: Ensure Optimize and Edge events are dispatched correctly
         List<Event> optimizeRequestEventsList =
