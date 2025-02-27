@@ -13,12 +13,10 @@ package com.adobe.marketing.mobile.optimize;
 
 import android.util.Base64;
 import com.adobe.marketing.mobile.AdobeError;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -202,89 +200,5 @@ public class OptimizeUtilsTest {
     @Test
     public void testConvertToAdobeError_unknownErrorCode() {
         Assert.assertEquals(AdobeError.UNEXPECTED_ERROR, OptimizeUtils.convertToAdobeError(123));
-    }
-
-    @Test
-    public void testGenerateDisplayInteractionXdm_validPropositionFromTarget() throws Exception {
-        // setup
-        List<Map<String, Object>> propositionsList =
-                new ObjectMapper()
-                        .readValue(
-                                Objects.requireNonNull(getClass().getClassLoader())
-                                        .getResource("json/MULTIPLE_PROPOSITION_VALID_TARGET.json"),
-                                List.class);
-        List<OptimizeProposition> optimizePropositionList =
-                propositionsList.stream().map(OptimizeProposition::fromEventData).toList();
-        Assert.assertNotNull(optimizePropositionList);
-        for (OptimizeProposition optimizeProposition : optimizePropositionList) {
-            Assert.assertNotNull(optimizeProposition.getOffers());
-            Assert.assertEquals(1, optimizeProposition.getOffers().size());
-            Offer offer = optimizeProposition.getOffers().get(0);
-            Assert.assertNotNull(offer);
-        }
-        Map<String, Object> xdm = XDMUtils.generateInteractionXdm(
-                OptimizeConstants.JsonValues.EE_EVENT_TYPE_PROPOSITION_DISPLAY,
-                new XDMUtils.InteractionPropositionType.MultiplePropositions(optimizePropositionList));
-        Assert.assertNotNull(xdm);
-
-        Assert.assertEquals("decisioning.propositionDisplay", xdm.get("eventType"));
-        final Map<String, Object> experience = (Map<String, Object>) xdm.get("_experience");
-        Assert.assertNotNull(experience);
-        final Map<String, Object> decisioning = (Map<String, Object>) experience.get("decisioning");
-        Assert.assertNotNull(decisioning);
-        final List<Map<String, Object>> propositionInteractionDetailsList =
-                (List<Map<String, Object>>) decisioning.get("propositions");
-        Assert.assertNotNull(propositionInteractionDetailsList);
-        Assert.assertEquals(2, propositionInteractionDetailsList.size());
-        final Map<String, Object> propositionInteractionDetailsMap1 =
-                propositionInteractionDetailsList.get(0);
-        Assert.assertEquals(
-                "AT:eyJhY3Rpdml0eUlkIjoiMTI1NTg5IiwiZXhwZXJpZW5jZUlkIjoiMCJ8",
-                propositionInteractionDetailsMap1.get("id"));
-        final Map<String, Object> propositionInteractionDetailsMap2 =
-                propositionInteractionDetailsList.get(1);
-        Assert.assertEquals(
-                "AT:eyJhY3Rpdml0eUlkIjoiMTI1NTg5IiwiZXhwZXJpZW5jZUlkIjoiMCJ9",
-                propositionInteractionDetailsMap2.get("id"));
-        Assert.assertEquals("myMbox1", propositionInteractionDetailsMap1.get("scope"));
-        Assert.assertEquals("myMbox2", propositionInteractionDetailsMap2.get("scope"));
-        final Map<String, Object> scopeDetails1 =
-                (Map<String, Object>) propositionInteractionDetailsMap1.get("scopeDetails");
-        Assert.assertNotNull(scopeDetails1);
-        Assert.assertEquals(4, scopeDetails1.size());
-        Assert.assertEquals("TGT", scopeDetails1.get("decisionProvider"));
-        final Map<String, Object> sdActivity1 = (Map<String, Object>) scopeDetails1.get("activity");
-        Assert.assertEquals("125588", sdActivity1.get("id"));
-        final Map<String, Object> sdExperience1 =
-                (Map<String, Object>) scopeDetails1.get("experience");
-        Assert.assertEquals("0", sdExperience1.get("id"));
-        final List<Map<String, Object>> sdStrategies1 =
-                (List<Map<String, Object>>) scopeDetails1.get("strategies");
-        Assert.assertNotNull(sdStrategies1);
-        Assert.assertEquals(1, sdStrategies1.size());
-        Assert.assertEquals("0", sdStrategies1.get(0).get("algorithmID"));
-        Assert.assertEquals("0", sdStrategies1.get(0).get("trafficType"));
-        final List<Map<String, Object>> items1 =
-                (List<Map<String, Object>>) propositionInteractionDetailsMap1.get("items");
-        Assert.assertNull(items1);
-        final Map<String, Object> scopeDetails2 =
-                (Map<String, Object>) propositionInteractionDetailsMap2.get("scopeDetails");
-        Assert.assertNotNull(scopeDetails2);
-        Assert.assertEquals(4, scopeDetails2.size());
-        Assert.assertEquals("TGT", scopeDetails2.get("decisionProvider"));
-        final Map<String, Object> sdActivity2 = (Map<String, Object>) scopeDetails2.get("activity");
-        Assert.assertEquals("125589", sdActivity2.get("id"));
-        final Map<String, Object> sdExperience2 =
-                (Map<String, Object>) scopeDetails2.get("experience");
-        Assert.assertEquals("1", sdExperience2.get("id"));
-        final List<Map<String, Object>> sdStrategies2 =
-                (List<Map<String, Object>>) scopeDetails2.get("strategies");
-        Assert.assertNotNull(sdStrategies2);
-        Assert.assertEquals(1, sdStrategies2.size());
-        Assert.assertEquals("1", sdStrategies2.get(0).get("algorithmID"));
-        Assert.assertEquals("1", sdStrategies2.get(0).get("trafficType"));
-        final List<Map<String, Object>> items2 =
-                (List<Map<String, Object>>) propositionInteractionDetailsMap2.get("items");
-        Assert.assertNull(items2);
     }
 }

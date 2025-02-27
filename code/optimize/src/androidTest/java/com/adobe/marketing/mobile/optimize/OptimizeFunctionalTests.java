@@ -2663,12 +2663,10 @@ public class OptimizeFunctionalTests {
     @Test
     public void testTrackPropositions_validPropositionInteractionsForDisplay_MultiplePropositions()
             throws InterruptedException {
-        // Setup: Update the configuration
         final Map<String, Object> configData = new HashMap<>();
         configData.put("edge.configId", "ffffffff-ffff-ffff-ffff-ffffffffffff");
         updateConfiguration(configData);
 
-        // Create multiple offers and propositions
         Offer offer1 =
                 new Offer.Builder("xcore:personalized-offer:246314", OfferType.TEXT, "First Offer")
                         .build();
@@ -2694,14 +2692,13 @@ public class OptimizeFunctionalTests {
         optimizePropositionList.add(optimizeProposition1);
         optimizePropositionList.add(optimizeProposition2);
 
-        // Action: Display both offers
         TestHelper.resetTestExpectations();
         XDMUtils.trackWithData(
                 XDMUtils.generateInteractionXdm(
                         OptimizeConstants.JsonValues.EE_EVENT_TYPE_PROPOSITION_DISPLAY,
-                        new XDMUtils.InteractionPropositionType.MultiplePropositions(optimizePropositionList)));
+                        new XDMUtils.InteractionPropositionType.MultiplePropositions(
+                                optimizePropositionList)));
 
-        // Assert: Ensure Optimize and Edge events are dispatched correctly
         List<Event> optimizeRequestEventsList =
                 TestHelper.getDispatchedEventsWith(
                         OptimizeTestConstants.EventType.OPTIMIZE,
@@ -2718,12 +2715,10 @@ public class OptimizeFunctionalTests {
         Assert.assertNotNull(edgeRequestEventList);
         Assert.assertEquals(1, edgeRequestEventList.size());
 
-        // Extract the XDM event data
         Map<String, Object> xdm =
                 (Map<String, Object>) edgeRequestEventList.get(0).getEventData().get("xdm");
         Assert.assertEquals("decisioning.propositionDisplay", xdm.get("eventType"));
 
-        // Validate the proposition list
         List<Map<String, Object>> propositionList =
                 (List<Map<String, Object>>)
                         ((Map<String, Object>)
@@ -2733,7 +2728,6 @@ public class OptimizeFunctionalTests {
         Assert.assertNotNull(propositionList);
         Assert.assertEquals(2, propositionList.size()); // 2 propositions expected
 
-        // Proposition 1 validation
         Map<String, Object> propositionMap1 = propositionList.get(0);
         Assert.assertEquals(
                 "AT:eyJhY3Rpdml0eUlkIjoiMTI1NTg5IiwiZXhwZXJpZW5jZUlkIjoiMCJ8",
@@ -2745,7 +2739,6 @@ public class OptimizeFunctionalTests {
                 (List<Map<String, Object>>) propositionMap1.get("items");
         Assert.assertNull(itemsList1);
 
-        // Proposition 2 validation
         Map<String, Object> propositionMap2 = propositionList.get(1);
         Assert.assertEquals(
                 "AT:eyJhY3Rpdml0eUlkIjoiMTI1NTg5IiwiZXhwZXJpZW5jZUlkIjoiMCJ9",
