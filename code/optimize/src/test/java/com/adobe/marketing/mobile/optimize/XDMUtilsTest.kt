@@ -11,22 +11,16 @@
 
 package com.adobe.marketing.mobile.optimize
 
-import com.fasterxml.jackson.databind.ObjectMapper
+import com.adobe.marketing.mobile.optimize.TestUtils.loadJsonFromFile
 import io.mockk.unmockkAll
 import org.junit.After
 import org.junit.Assert
 import org.junit.Before
-import java.io.File
 import kotlin.test.Test
 
 class XDMUtilsTest {
     private lateinit var singleProposition: XDMUtils.InteractionPropositionType.SingleProposition
     private lateinit var multiplePropositions: XDMUtils.InteractionPropositionType.MultiplePropositions
-
-    private inline fun <reified T> loadJsonFromFile(fileName: String): T? {
-        val filePath = javaClass.classLoader?.getResource(fileName)?.path ?: return null
-        return ObjectMapper().readValue(File(filePath), T::class.java)
-    }
 
     private fun validateStructure(expectedStructure: Any, actual: Any): Boolean {
         return when {

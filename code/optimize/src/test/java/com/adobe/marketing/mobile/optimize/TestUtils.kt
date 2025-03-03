@@ -11,14 +11,12 @@
 
 package com.adobe.marketing.mobile.optimize
 
-object OfferUtils {
-    fun List<Offer>.displayed() {
-        val uniquePropositions = map { it.proposition }.distinctBy { it.id }
-        XDMUtils.trackWithData(
-            XDMUtils.generateInteractionXdm(
-                OptimizeConstants.JsonValues.EE_EVENT_TYPE_PROPOSITION_DISPLAY,
-                XDMUtils.InteractionPropositionType.MultiplePropositions(uniquePropositions)
-            )
-        )
+import com.fasterxml.jackson.databind.ObjectMapper
+import java.io.File
+
+object TestUtils {
+    inline fun <reified T> loadJsonFromFile(fileName: String): T? {
+        val filePath = javaClass.classLoader?.getResource(fileName)?.path ?: return null
+        return ObjectMapper().readValue(File(filePath), T::class.java)
     }
 }
