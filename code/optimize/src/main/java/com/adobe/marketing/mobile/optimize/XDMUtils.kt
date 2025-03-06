@@ -72,7 +72,10 @@ object XDMUtils {
                 OptimizeConstants.JsonKeys.DECISIONING_PROPOSITIONS_SCOPEDETAILS to prop.scopeDetails
             ).apply {
                 if (prop.offers.isNotEmpty() && pendingInteraction is InteractionPropositionType.SingleProposition) {
-                    put(OptimizeConstants.JsonKeys.DECISIONING_PROPOSITIONS_ITEMS, getOfferIds(prop))
+                    put(
+                        OptimizeConstants.JsonKeys.DECISIONING_PROPOSITIONS_ITEMS,
+                        listOf(mapOf(OptimizeConstants.JsonKeys.DECISIONING_PROPOSITIONS_ITEMS_ID to pendingInteraction.offerId))
+                    )
                 }
             }
         }
@@ -87,16 +90,14 @@ object XDMUtils {
         )
     }
 
-    private fun getOfferIds(
-        prop: OptimizeProposition
-    ): List<Map<String, Any>> = prop.offers.mapNotNull { offer ->
-        offer.id?.takeIf { it.isNotEmpty() }?.let {
-            mapOf(OptimizeConstants.JsonKeys.DECISIONING_PROPOSITIONS_ITEMS_ID to it)
-        }
-    }
-
     sealed interface InteractionPropositionType {
-        data class SingleProposition(val proposition: OptimizeProposition) : InteractionPropositionType
-        data class MultiplePropositions(val propositions: List<OptimizeProposition>) : InteractionPropositionType
+        data class SingleProposition(
+            val proposition: OptimizeProposition,
+            val offerId: String
+        ) : InteractionPropositionType
+
+        data class MultiplePropositions(
+            val propositions: List<OptimizeProposition>
+        ) : InteractionPropositionType
     }
 }

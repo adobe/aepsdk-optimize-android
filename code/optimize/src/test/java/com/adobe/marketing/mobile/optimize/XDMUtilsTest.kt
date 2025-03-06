@@ -49,7 +49,7 @@ class XDMUtilsTest {
         val singlePropositionMap: Map<String, Any> =
             loadJsonFromFile("json/PROPOSITION_VALID_TARGET.json") ?: emptyMap()
         singleProposition = XDMUtils.InteractionPropositionType.SingleProposition(
-            OptimizeProposition.fromEventData(singlePropositionMap)
+            OptimizeProposition.fromEventData(singlePropositionMap), "246315"
         )
         multiplePropositions = XDMUtils.InteractionPropositionType.MultiplePropositions(
             multipleItemsList.map { OptimizeProposition.fromEventData(it) }

@@ -313,7 +313,7 @@ public class Offer {
         return XDMUtils.generateInteractionXdm(
                 OptimizeConstants.JsonValues.EE_EVENT_TYPE_PROPOSITION_DISPLAY,
                 new XDMUtils.InteractionPropositionType.SingleProposition(
-                        propositionReference.get()));
+                        propositionReference.get(), id));
     }
 
     /**
@@ -336,7 +336,7 @@ public class Offer {
         return XDMUtils.generateInteractionXdm(
                 OptimizeConstants.JsonValues.EE_EVENT_TYPE_PROPOSITION_INTERACT,
                 new XDMUtils.InteractionPropositionType.SingleProposition(
-                        propositionReference.get()));
+                        propositionReference.get(), id));
     }
 
     /**
