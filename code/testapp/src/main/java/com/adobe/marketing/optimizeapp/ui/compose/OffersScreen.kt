@@ -42,6 +42,7 @@ import coil.annotation.ExperimentalCoilApi
 import coil.compose.rememberImagePainter
 import com.adobe.marketing.mobile.optimize.Offer
 import com.adobe.marketing.mobile.optimize.OfferType
+import com.adobe.marketing.mobile.optimize.OfferUtils.displayed
 import com.adobe.marketing.optimizeapp.R
 import com.adobe.marketing.optimizeapp.viewmodels.MainViewModel
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -52,8 +53,12 @@ private val clickHandler: (Offer) -> Unit = { offer ->
     offer.tapped()
 }
 
-private val displayHandler: (Offer) -> Unit = { offer ->
+private val displayOfferHandler: (Offer) -> Unit = { offer ->
     offer.displayed()
+}
+
+private val displayPropositionsHandler: (List<Offer>) -> Unit = { offers ->
+    offers.displayed()
 }
 
 @Composable
@@ -311,7 +316,7 @@ fun TextOffers(
                 .distinctUntilChanged()
                 .filter { result -> result }
                 .collect {
-                    offers?.forEach(displayHandler)
+                    offers?.forEach(displayOfferHandler)
                 }
         }
     }
@@ -349,7 +354,7 @@ fun JSONOffers(
                 .distinctUntilChanged()
                 .filter { result -> result }
                 .collect {
-                    offers?.forEach(displayHandler)
+                    offers?.forEach(displayOfferHandler)
                 }
         }
     }
@@ -414,7 +419,7 @@ fun ImageOffers(offers: List<Offer>? = null, listState: LazyListState? = null) {
                 .distinctUntilChanged()
                 .filter { result -> result }
                 .collect {
-                    offers?.forEach(displayHandler)
+                    offers?.forEach(displayOfferHandler)
                 }
         }
     }
@@ -452,7 +457,7 @@ fun HTMLOffers(
                 .distinctUntilChanged()
                 .filter { result -> result }
                 .collect {
-                    offers?.forEach(displayHandler)
+                    offers?.forEach(displayOfferHandler)
                 }
         }
     }
@@ -515,7 +520,7 @@ fun TargetOffersView(offers: List<Offer>? = null, listState: LazyListState? = nu
                 .distinctUntilChanged()
                 .filter { result -> result }
                 .collect {
-                    offers?.forEach(displayHandler)
+                    offers?.forEach(displayOfferHandler)
                 }
         }
     }
