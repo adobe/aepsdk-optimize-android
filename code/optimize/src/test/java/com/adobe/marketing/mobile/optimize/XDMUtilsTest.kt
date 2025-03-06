@@ -32,12 +32,14 @@ class XDMUtilsTest {
                         }
                     } ?: false
                 }
+
             expectedStructure is List<*> && actual is List<*> ->
                 expectedStructure.firstOrNull()?.let { expectedValue ->
                     actual.firstOrNull()?.let { actualValue ->
                         validateStructure(expectedValue, actualValue)
                     }
                 } ?: false
+
             else -> expectedStructure::class == actual::class
         }
     }
@@ -123,5 +125,20 @@ class XDMUtilsTest {
         decisioningPropositions.forEach { proposition ->
             Assert.assertTrue(!proposition.containsKey("items"))
         }
+    }
+
+    @Test
+    fun `generateInteractionXdm should contain exactly one item in items array for SingleProposition`() {
+        val experienceEventType = "decisioning.propositionDisplay"
+        val result = XDMUtils.generateInteractionXdm(experienceEventType, singleProposition)
+
+        val propositions =
+            (result["_experience"] as Map<*, *>)["decisioning"] as Map<*, *>
+        val decisioningPropositions =
+            propositions["propositions"] as List<Map<String, Any>>
+        val items = decisioningPropositions.firstOrNull()?.get("items") as? List<*>
+
+        Assert.assertNotNull(items)
+        Assert.assertEquals(1, items?.size)
     }
 }
