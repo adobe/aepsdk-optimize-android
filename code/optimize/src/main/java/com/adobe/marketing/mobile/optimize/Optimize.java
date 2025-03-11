@@ -13,6 +13,7 @@ package com.adobe.marketing.mobile.optimize;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.VisibleForTesting;
 import com.adobe.marketing.mobile.AdobeCallback;
 import com.adobe.marketing.mobile.AdobeCallbackWithError;
 import com.adobe.marketing.mobile.AdobeError;
@@ -41,30 +42,6 @@ public class Optimize {
      */
     @NonNull public static String extensionVersion() {
         return OptimizeConstants.EXTENSION_VERSION;
-    }
-
-    /**
-     * This API dispatches an Event for the Edge network extension to fetch decision propositions,
-     * for the provided decision scopes list, from the decisioning services enabled in the
-     * Experience Edge network.
-     *
-     * <p>The returned decision propositions are cached in-memory in the Optimize SDK extension and
-     * can be retrieved using {@link #getPropositions(List, AdobeCallback)} API.
-     *
-     * @param decisionScopes {@code List<DecisionScope>} containing scopes for which offers need to
-     *     be updated.
-     * @param xdm {@code Map<String, Object>} containing additional XDM-formatted data to be sent in
-     *     the personalization query request.
-     * @param data {@code Map<String, Object>} containing additional free-form data to be sent in
-     *     the personalization query request.
-     */
-    @Deprecated
-    public static void updatePropositions(
-            @NonNull final List<DecisionScope> decisionScopes,
-            @Nullable final Map<String, Object> xdm,
-            @Nullable final Map<String, Object> data) {
-
-        updatePropositions(decisionScopes, xdm, data, null);
     }
 
     /**
@@ -122,7 +99,8 @@ public class Optimize {
         updatePropositionsInternal(decisionScopes, xdm, data, timeoutSeconds, callback);
     }
 
-    private static void updatePropositionsInternal(
+    @VisibleForTesting
+    static void updatePropositionsInternal(
             @NonNull final List<DecisionScope> decisionScopes,
             @Nullable final Map<String, Object> xdm,
             @Nullable final Map<String, Object> data,
@@ -300,7 +278,8 @@ public class Optimize {
         getPropositionsInternal(decisionScopes, timeoutSeconds, callback);
     }
 
-    private static void getPropositionsInternal(
+    @VisibleForTesting
+    static void getPropositionsInternal(
             @NonNull final List<DecisionScope> decisionScopes,
             final double timeoutSeconds,
             @NonNull final AdobeCallback<Map<DecisionScope, OptimizeProposition>> callback) {
@@ -416,7 +395,7 @@ public class Optimize {
      * query.
      *
      * <p>The personalization query requests can be triggered by the {@link
-     * Optimize#updatePropositions(List, Map, Map)} API, Edge extension {@code
+     * Optimize#updatePropositions(List, Map, Map, AdobeCallback)} API, Edge extension {@code
      * sendEvent(ExperienceEvent, EdgeCallback)} API or launch consequence rules.
      *
      * @param callback {@code AdobeCallbackWithError<Map<DecisionScope, OptimizeProposition>>} which
