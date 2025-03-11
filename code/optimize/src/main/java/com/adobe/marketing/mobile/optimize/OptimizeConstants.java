@@ -209,6 +209,15 @@ class OptimizeConstants {
             private Unexpected() {}
         }
 
+        static final class InvalidRequest {
+            static final Integer STATUS = 400;
+            static final String TITLE = "Invalid Request";
+            static final String DETAIL =
+                    "Decision scopes, in event data, is either not present or empty.";
+
+            private InvalidRequest() {}
+        }
+
         private ErrorData() {}
     }
 

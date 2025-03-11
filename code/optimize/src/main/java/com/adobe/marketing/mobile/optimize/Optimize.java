@@ -136,7 +136,7 @@ public class Optimize {
                     "Cannot update propositions, provided list of decision scopes is null or"
                             + " empty.");
 
-            AEPOptimizeError aepOptimizeError = AEPOptimizeError.Companion.getUnexpectedError();
+            AEPOptimizeError aepOptimizeError = AEPOptimizeError.Companion.getInvalidRequestError();
             failWithOptimizeError(callback, aepOptimizeError);
 
             return;
@@ -150,12 +150,14 @@ public class Optimize {
             validScopes.add(scope);
         }
 
-        if (validScopes.size() == 0) {
+        if (validScopes.isEmpty()) {
             Log.warning(
                     OptimizeConstants.LOG_TAG,
                     SELF_TAG,
                     "Cannot update propositions, provided list of decision scopes has no valid"
                             + " scope.");
+            AEPOptimizeError aepOptimizeError = AEPOptimizeError.Companion.getInvalidRequestError();
+            failWithOptimizeError(callback, aepOptimizeError);
             return;
         }
 
@@ -222,16 +224,24 @@ public class Optimize {
                                 Object error =
                                         eventData.get(
                                                 OptimizeConstants.EventDataKeys.RESPONSE_ERROR);
-                                if (error instanceof Map) {
+                                try {
                                     failWithOptimizeError(
                                             callback,
                                             AEPOptimizeError.toAEPOptimizeError(
                                                     (Map<String, ? extends Object>) error));
+                                } catch (Exception e) {
+                                    AEPOptimizeError aepOptimizeError =
+                                            AEPOptimizeError.Companion.getUnexpectedError();
+                                    failWithOptimizeError(callback, aepOptimizeError);
                                 }
+                                return;
                             }
 
                             if (!eventData.containsKey(
                                     OptimizeConstants.EventDataKeys.PROPOSITIONS)) {
+                                AEPOptimizeError aepOptimizeError =
+                                        AEPOptimizeError.Companion.getUnexpectedError();
+                                failWithOptimizeError(callback, aepOptimizeError);
                                 return;
                             }
 
@@ -321,7 +331,7 @@ public class Optimize {
             validScopes.add(scope);
         }
 
-        if (validScopes.size() == 0) {
+        if (validScopes.isEmpty()) {
             Log.warning(
                     OptimizeConstants.LOG_TAG,
                     SELF_TAG,

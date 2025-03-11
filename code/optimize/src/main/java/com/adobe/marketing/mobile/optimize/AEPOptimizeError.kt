@@ -107,6 +107,17 @@ data class AEPOptimizeError(
             )
         }
 
+        fun getInvalidRequestError(): AEPOptimizeError {
+            return AEPOptimizeError(
+                null,
+                OptimizeConstants.ErrorData.InvalidRequest.STATUS,
+                OptimizeConstants.ErrorData.InvalidRequest.TITLE,
+                OptimizeConstants.ErrorData.InvalidRequest.DETAIL,
+                null,
+                AdobeError.INVALID_REQUEST
+            )
+        }
+
         private fun getAdobeErrorFromStatus(status: Int?): AdobeError = when {
             status == OptimizeConstants.HTTPResponseCodes.clientTimeout -> AdobeError.CALLBACK_TIMEOUT
             serverErrors.contains(status) -> AdobeError.SERVER_ERROR
