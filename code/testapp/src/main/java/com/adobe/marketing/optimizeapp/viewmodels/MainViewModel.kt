@@ -23,11 +23,14 @@ import com.adobe.marketing.mobile.edge.identity.IdentityMap
 import com.adobe.marketing.mobile.optimize.AEPOptimizeError
 import com.adobe.marketing.mobile.optimize.AdobeCallbackWithOptimizeError
 import com.adobe.marketing.mobile.optimize.DecisionScope
+import com.adobe.marketing.mobile.optimize.Offer
+import com.adobe.marketing.mobile.optimize.OfferUtils.displayed
 import com.adobe.marketing.mobile.optimize.Optimize
 import com.adobe.marketing.mobile.optimize.OptimizeProposition
 import com.adobe.marketing.optimizeapp.impl.LogManager
 import com.adobe.marketing.optimizeapp.models.OptimizePair
-import com.adobe.marketing.optimizeapp.ui.model.TimeoutConfigsCardData
+import com.adobe.marketing.optimizeapp.ui.model.PreferenceGroupData
+import com.adobe.marketing.optimizeapp.ui.model.PreferenceItemData
 
 class MainViewModel : ViewModel() {
 
@@ -56,19 +59,86 @@ class MainViewModel : ViewModel() {
     private val _dialogContent = mutableStateOf("")
     val dialogContent: State<String> = _dialogContent
 
-    private val _mutableTimeoutConfig = mutableStateOf(
-        TimeoutConfigsCardData(
-            "10.0",
-            pref1Txt = "Default timeout | Config timeout",
-            pref2Txt = "Custom timeout (in seconds)",
-            isCustomTimeoutOpted = false
+    private val _mutablePreferences = mutableStateOf(
+        listOf(
+            PreferenceGroupData(
+                heading = "GET & UPDATE propositions request timeout",
+                options = listOf(
+                    PreferenceItemData(
+                        isSelected = true,
+                        text = "Default timeout | Config timeout",
+                        hasTextField = false
+                    ),
+                    PreferenceItemData(
+                        isSelected = false,
+                        text = "Custom timeout (in seconds)",
+                        hasTextField = true,
+                        inputValue = "30"
+                    )
+                ),
+                selectedOption = 0,
+                preferenceIndex = 0,
+                onSelectionUpdate = { prefIdx, selIdx -> updateSelectedOption(prefIdx, selIdx) },
+                onTextChange = { preferenceIndex, selectionIndex, value ->
+                    updateTextFieldValue(
+                        preferenceIndex,
+                        selectionIndex,
+                        value
+                    )
+                }
+            ),
+            PreferenceGroupData(
+                heading = "Display propositions tracking mode",
+                options = listOf(
+                    PreferenceItemData(
+                        isSelected = true,
+                        text = "Offer wise tracking",
+                        hasTextField = false
+                    ),
+                    PreferenceItemData(
+                        isSelected = false,
+                        text = "Proposition wise tracking",
+                        hasTextField = false
+                    )
+                ),
+                selectedOption = 0,
+                preferenceIndex = 1,
+                onSelectionUpdate = { prefIdx, selIdx -> updateSelectedOption(prefIdx, selIdx) },
+                onTextChange = { preferenceIndex, selectionIndex, value ->
+                    updateTextFieldValue(
+                        preferenceIndex,
+                        selectionIndex,
+                        value
+                    )
+                }
+            )
         )
     )
-    val timeoutConfig: State<TimeoutConfigsCardData> = _mutableTimeoutConfig
+    val preferences: State<List<PreferenceGroupData>> = _mutablePreferences
 
-    fun updateTimeoutConfig(value: TimeoutConfigsCardData) {
-        _mutableTimeoutConfig.value = value
+    private fun updateSelectedOption(preferenceIndex: Int, selectedIndex: Int) {
+        _mutablePreferences.value = _mutablePreferences.value.mapIndexed { index, group ->
+            if (index == preferenceIndex) group.copy(selectedOption = selectedIndex) else group
+        }
     }
+
+    private fun updateTextFieldValue(preferenceIndex: Int, selectedIndex: Int, value: String) {
+        _mutablePreferences.value = _mutablePreferences.value.mapIndexed { index, group ->
+            if (index == preferenceIndex) group.copy(
+                    options = group.options.mapIndexed { optionIndex, preference ->
+                        if (optionIndex == selectedIndex) preference.copy(inputValue = value) else preference
+                    }
+                )
+            else group
+        }
+    }
+
+
+    fun onOfferDisplayed(offers: List<Offer>){
+        val selectionOptionForTracking = preferences.value[1].selectedOption
+        if(selectionOptionForTracking == 0) offers.forEach { it.displayed() } else offers.displayed()
+    }
+
 
     fun showDialog(content: String) {
         _dialogContent.value = content
@@ -83,7 +153,8 @@ class MainViewModel : ViewModel() {
         object : AdobeCallbackWithError<Map<DecisionScope, OptimizeProposition>> {
             override fun call(propositions: Map<DecisionScope, OptimizeProposition>?) {
                 logBoxManager.addLog("onUpdateProposition | Success | ${propositions?.size} propositions: \n" +
-                        "Propositions updated: ${propositions?.keys?.joinToString { it.name }}")
+                        "Propositions updated: ${propositions?.keys?.joinToString { it.name }}"
+                )
                 propositions?.forEach {
                     optimizePropositionStateMap[it.key.name] = it.value
                 }
@@ -117,7 +188,8 @@ class MainViewModel : ViewModel() {
         val callback = object : AdobeCallbackWithError<Map<DecisionScope, OptimizeProposition>> {
             override fun call(propositions: Map<DecisionScope, OptimizeProposition>?) {
                 logBoxManager.addLog("Getting Propositions | Success | ${propositions?.size} propositions: \n" +
-                        "Propositions received: ${propositions?.keys?.joinToString { it.name }}")
+                        "Propositions received: ${propositions?.keys?.joinToString { it.name }}"
+                )
                 propositions?.forEach {
                     optimizePropositionStateMap[it.key.name] = it.value
                 }
@@ -131,15 +203,15 @@ class MainViewModel : ViewModel() {
         }
 
         logBoxManager.addLog("Getting Propositions Called | ${decisionScopeList.size} scopes \n" +
-                "Decision Scopes: ${decisionScopeList.joinToString { it.name }}")
-        val customTimeoutData = _mutableTimeoutConfig.value
-        if (customTimeoutData.isCustomTimeoutOpted && customTimeoutData.value.toDoubleOrNull() != null)
-            Optimize.getPropositions(
-                decisionScopeList,
-                _mutableTimeoutConfig.value.value.toDouble(),
-                callback
-            )
-        else Optimize.getPropositions(decisionScopeList, callback)
+                "Decision Scopes: ${decisionScopeList.joinToString { it.name }}"
+        )
+        val customTimeoutOption = _mutablePreferences.value.firstOrNull()?.options?.getOrNull(1)
+        if (customTimeoutOption?.isSelected == true && customTimeoutOption.hasTextField) {
+            customTimeoutOption.text.toDoubleOrNull()?.let { timeout ->
+                Optimize.getPropositions(decisionScopeList, timeout, callback)
+            } ?: Optimize.getPropositions(decisionScopeList, callback)
+        } else
+            Optimize.getPropositions(decisionScopeList, callback)
     }
 
     /**
@@ -157,7 +229,8 @@ class MainViewModel : ViewModel() {
             object : AdobeCallbackWithOptimizeError<Map<DecisionScope, OptimizeProposition>> {
                 override fun call(propositions: Map<DecisionScope, OptimizeProposition>?) {
                     logBoxManager.addLog("Update Propositions | Success | ${propositions?.size} propositions: \n" +
-                            "Propositions updated: ${propositions?.keys?.joinToString { it.name }}")
+                            "Propositions updated: ${propositions?.keys?.joinToString { it.name }}"
+                    )
                     Log.i("Optimize Test App", "Propositions updated successfully.")
                 }
 
@@ -171,26 +244,35 @@ class MainViewModel : ViewModel() {
                 }
             }
         optimizePropositionStateMap.clear()
-        logBoxManager.addLog("Update Propositions Called | ${decisionScopeList.size} scopes \n" +
-                "Decision Scopes: ${decisionScopeList.joinToString { it.name }}\n" +
-                "Data: $data\n" +
-                "XDM Data: $xdmData")
-        val customTimeoutData = _mutableTimeoutConfig.value
-        if (customTimeoutData.isCustomTimeoutOpted && customTimeoutData.value.toDoubleOrNull() != null) Optimize.updatePropositions(
-            decisionScopeList,
-            xdmData,
-            data,
-            _mutableTimeoutConfig.value.value.toDouble(),
-            callback
-        ) else Optimize.updatePropositions(decisionScopeList, xdmData, data, callback)
+        logBoxManager.addLog(
+            "Update Propositions Called | ${decisionScopeList.size} scopes \n" +
+                    "Decision Scopes: ${decisionScopeList.joinToString { it.name }}\n" +
+                    "Data: $data\n" +
+                    "XDM Data: $xdmData"
+        )
+        val customTimeoutOption = _mutablePreferences.value.firstOrNull()?.options?.getOrNull(1)
+        if (customTimeoutOption?.isSelected == true && customTimeoutOption.hasTextField) {
+            customTimeoutOption.text.toDoubleOrNull()?.let { timeout ->
+                Optimize.updatePropositions(
+                    decisionScopeList,
+                    xdmData,
+                    data,
+                    timeout,
+                    callback
+                )
+            } ?: Optimize.updatePropositions(decisionScopeList, xdmData, data, callback)
+        } else
+            Optimize.updatePropositions(decisionScopeList, xdmData, data, callback)
     }
 
     /**
      * Calls the Optimize SDK API to clear the cached Propositions  [Optimize.clearCachedPropositions]
      */
     fun clearCachedPropositions() {
-        logBoxManager.addLog("Clearing Propositions :\n" +
-                "Propositions before clearing: ${optimizePropositionStateMap.keys}")
+        logBoxManager.addLog(
+            "Clearing Propositions :\n" +
+                    "Propositions before clearing: ${optimizePropositionStateMap.keys}"
+        )
         optimizePropositionStateMap.clear()
         Optimize.clearCachedPropositions()
     }

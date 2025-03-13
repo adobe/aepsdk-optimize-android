@@ -1,0 +1,39 @@
+[
+  {
+    "id": "prop-789",
+    "items": [
+      {
+        "id": "offer1",
+        "schema": "https://ns.adobe.com/personalization/json-content-item",
+        "data": {
+          "id": "offer1",
+          "format": "application/json",
+          "content": {
+            "text": "Offer Content 1"
+          }
+        }
+      },
+      {
+        "id": "offer1",
+        "schema": "https://ns.adobe.com/personalization/json-content-item",
+        "data": {
+          "id": "offer1",
+          "format": "application/json",
+          "content": {
+            "text": "Offer Content 1 (Duplicate)"
+          }
+        }
+      }
+    ],
+    "scope": "myMbox",
+    "scopeDetails": {
+      "decisionProvider": "TGT",
+      "activity": {
+        "id": "789012"
+      },
+      "experience": {
+        "id": "2"
+      }
+    }
+  }
+]

@@ -25,6 +25,7 @@ import com.adobe.marketing.mobile.services.ServiceProvider;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -2657,6 +2658,96 @@ public class OptimizeFunctionalTests {
 
         Thread.sleep(1000);
         TestHelper.resetTestExpectations();
+    }
+
+    @Test
+    public void testTrackPropositions_validPropositionInteractionsForDisplay_MultiplePropositions()
+            throws InterruptedException {
+        final Map<String, Object> configData = new HashMap<>();
+        configData.put("edge.configId", "ffffffff-ffff-ffff-ffff-ffffffffffff");
+        updateConfiguration(configData);
+
+        Offer offer1 =
+                new Offer.Builder("xcore:personalized-offer:246314", OfferType.TEXT, "First Offer")
+                        .build();
+        Offer offer2 =
+                new Offer.Builder("xcore:personalized-offer:246315", OfferType.TEXT, "Second Offer")
+                        .build();
+
+        OptimizeProposition optimizeProposition1 =
+                new OptimizeProposition(
+                        "AT:eyJhY3Rpdml0eUlkIjoiMTI1NTg5IiwiZXhwZXJpZW5jZUlkIjoiMCJ8",
+                        Collections.singletonList(offer1),
+                        "myMbox1",
+                        Collections.emptyMap());
+
+        OptimizeProposition optimizeProposition2 =
+                new OptimizeProposition(
+                        "AT:eyJhY3Rpdml0eUlkIjoiMTI1NTg5IiwiZXhwZXJpZW5jZUlkIjoiMCJ9",
+                        Collections.singletonList(offer2),
+                        "myMbox2",
+                        Collections.emptyMap());
+
+        List<OptimizeProposition> optimizePropositionList = new ArrayList<>();
+        optimizePropositionList.add(optimizeProposition1);
+        optimizePropositionList.add(optimizeProposition2);
+
+        TestHelper.resetTestExpectations();
+        XDMUtils.trackWithData(
+                XDMUtils.generateInteractionXdm(
+                        OptimizeConstants.JsonValues.EE_EVENT_TYPE_PROPOSITION_DISPLAY,
+                        optimizePropositionList));
+
+        List<Event> optimizeRequestEventsList =
+                TestHelper.getDispatchedEventsWith(
+                        OptimizeTestConstants.EventType.OPTIMIZE,
+                        OptimizeTestConstants.EventSource.REQUEST_CONTENT,
+                        1000);
+        List<Event> edgeRequestEventList =
+                TestHelper.getDispatchedEventsWith(
+                        OptimizeTestConstants.EventType.EDGE,
+                        OptimizeTestConstants.EventSource.REQUEST_CONTENT,
+                        1000);
+
+        Assert.assertNotNull(optimizeRequestEventsList);
+        Assert.assertEquals(1, optimizeRequestEventsList.size()); // 2 offers, but 1 events
+        Assert.assertNotNull(edgeRequestEventList);
+        Assert.assertEquals(1, edgeRequestEventList.size());
+
+        Map<String, Object> xdm =
+                (Map<String, Object>) edgeRequestEventList.get(0).getEventData().get("xdm");
+        Assert.assertEquals("decisioning.propositionDisplay", xdm.get("eventType"));
+
+        List<Map<String, Object>> propositionList =
+                (List<Map<String, Object>>)
+                        ((Map<String, Object>)
+                                        ((Map<String, Object>) xdm.get("_experience"))
+                                                .get("decisioning"))
+                                .get("propositions");
+        Assert.assertNotNull(propositionList);
+        Assert.assertEquals(2, propositionList.size()); // 2 propositions expected
+
+        Map<String, Object> propositionMap1 = propositionList.get(0);
+        Assert.assertEquals(
+                "AT:eyJhY3Rpdml0eUlkIjoiMTI1NTg5IiwiZXhwZXJpZW5jZUlkIjoiMCJ8",
+                propositionMap1.get("id"));
+        Assert.assertEquals("myMbox1", propositionMap1.get("scope"));
+        Assert.assertTrue(((Map<String, Object>) propositionMap1.get("scopeDetails")).isEmpty());
+
+        List<Map<String, Object>> itemsList1 =
+                (List<Map<String, Object>>) propositionMap1.get("items");
+        Assert.assertNotNull(itemsList1);
+
+        Map<String, Object> propositionMap2 = propositionList.get(1);
+        Assert.assertEquals(
+                "AT:eyJhY3Rpdml0eUlkIjoiMTI1NTg5IiwiZXhwZXJpZW5jZUlkIjoiMCJ9",
+                propositionMap2.get("id"));
+        Assert.assertEquals("myMbox2", propositionMap2.get("scope"));
+        Assert.assertTrue(((Map<String, Object>) propositionMap2.get("scopeDetails")).isEmpty());
+
+        List<Map<String, Object>> itemsList2 =
+                (List<Map<String, Object>>) propositionMap2.get("items");
+        Assert.assertNotNull(itemsList2);
     }
 
     private void updateConfiguration(final Map<String, Object> config) throws InterruptedException {
