@@ -5,7 +5,9 @@ import com.adobe.marketing.mobile.AdobeError
 import com.adobe.marketing.mobile.Event
 import com.adobe.marketing.mobile.EventType
 import com.adobe.marketing.mobile.ExtensionApiV2
+import com.adobe.marketing.mobile.ExtensionApiV2Builder
 import com.adobe.marketing.mobile.ExtensionV2
+import com.adobe.marketing.mobile.ExtensionV2Delegate
 import com.adobe.marketing.mobile.MobileCore
 import com.adobe.marketing.mobile.SharedStateResolution
 import com.adobe.marketing.mobile.SharedStateStatus
@@ -78,8 +80,16 @@ private object PropositionManager {
     }
 }
 
+class OptimizeExtensionDelegate : ExtensionV2Delegate() {
+    override fun getExtensionV2Class(): Class<out ExtensionV2> {
+        return OptimizeExtensionV2::class.java
+    }
+}
 
-class OptimizeExtensionV2(api: ExtensionApiV2) : ExtensionV2(api) {
+class OptimizeExtensionV2 : ExtensionV2() {
+    override val metadata: Map<String, String>?
+        get() = null
+
     override val name: String
         get() = OptimizeConstants.EXTENSION_NAME
 
@@ -124,8 +134,28 @@ class OptimizeExtensionV2(api: ExtensionApiV2) : ExtensionV2(api) {
     private var previewCachedPropositions: MutableMap<DecisionScope?, OptimizeProposition?> =
         ConcurrentHashMap()
 
-    override fun onRegistered() {
-        api.registerEventListener(
+    private var api: ExtensionApiV2? = null
+
+    override fun onRegistered(buildExtensionApi: ExtensionApiV2Builder) {
+        api = buildExtensionApi { event ->
+            if (OptimizeConstants.EventType.OPTIMIZE.equals(event.type, ignoreCase = true)
+                && OptimizeConstants.EventSource.REQUEST_CONTENT.equals(
+                    event.source, ignoreCase = true
+                )
+            ) {
+                val configurationSharedState =
+                    api?.getSharedState(
+                        OptimizeConstants.Configuration.EXTENSION_NAME,
+                        event,
+                        false,
+                        SharedStateResolution.ANY
+                    )
+                return@buildExtensionApi configurationSharedState != null
+                        && configurationSharedState.status == SharedStateStatus.SET
+            }
+            return@buildExtensionApi true
+        }
+        api?.registerEventListener(
             OptimizeConstants.EventType.OPTIMIZE,
             OptimizeConstants.EventSource.REQUEST_CONTENT
         ) { event: Event ->
@@ -134,12 +164,12 @@ class OptimizeExtensionV2(api: ExtensionApiV2) : ExtensionV2(api) {
             )
         }
 
-        api.registerEventListener(
+        api?.registerEventListener(
             OptimizeConstants.EventType.EDGE,
             OptimizeConstants.EventSource.EDGE_PERSONALIZATION_DECISIONS
         ) { event: Event -> this.handleEdgeResponse(event) }
 
-        api.registerEventListener(
+        api?.registerEventListener(
             OptimizeConstants.EventType.EDGE,
             OptimizeConstants.EventSource.ERROR_RESPONSE_CONTENT
         ) { event: Event ->
@@ -148,7 +178,7 @@ class OptimizeExtensionV2(api: ExtensionApiV2) : ExtensionV2(api) {
             )
         }
 
-        api.registerEventListener(
+        api?.registerEventListener(
             OptimizeConstants.EventType.OPTIMIZE,
             OptimizeConstants.EventSource.REQUEST_RESET
         ) { event: Event ->
@@ -159,7 +189,7 @@ class OptimizeExtensionV2(api: ExtensionApiV2) : ExtensionV2(api) {
 
         // Register listener - Mobile Core `resetIdentities()` API dispatches generic identity
         // request reset event.
-        api.registerEventListener(
+        api?.registerEventListener(
             OptimizeConstants.EventType.GENERIC_IDENTITY,
             OptimizeConstants.EventSource.REQUEST_RESET
         ) { event: Event ->
@@ -168,30 +198,11 @@ class OptimizeExtensionV2(api: ExtensionApiV2) : ExtensionV2(api) {
             )
         }
 
-        api.registerEventListener(
+        api?.registerEventListener(
             EventType.SYSTEM,
             OptimizeConstants.EventSource.DEBUG
         ) { event: Event -> this.handleDebugEvent(event) }
 
-    }
-
-    override suspend  fun readyForEvent(event: Event): Boolean {
-        if (OptimizeConstants.EventType.OPTIMIZE.equals(event.type, ignoreCase = true)
-            && OptimizeConstants.EventSource.REQUEST_CONTENT.equals(
-                event.source, ignoreCase = true
-            )
-        ) {
-            val configurationSharedState =
-                api.getSharedState(
-                    OptimizeConstants.Configuration.EXTENSION_NAME,
-                    event,
-                    false,
-                    SharedStateResolution.ANY
-                )
-            return configurationSharedState != null
-                    && configurationSharedState.status == SharedStateStatus.SET
-        }
-        return true
     }
 
     /**
@@ -240,7 +251,7 @@ class OptimizeExtensionV2(api: ExtensionApiV2) : ExtensionV2(api) {
                                 + " request event, provided list of decision scopes has no"
                                 + " valid scope.")
                     )
-                    api.dispatch(
+                    api?.dispatch(
                         createResponseEventWithError(
                             event, AdobeError.UNEXPECTED_ERROR
                         )
@@ -255,7 +266,7 @@ class OptimizeExtensionV2(api: ExtensionApiV2) : ExtensionV2(api) {
                         "handleGetPropositions - Cannot process the get propositions request event,"
                                 + " provided list of decision scopes has no valid scope."
                     )
-                    api.dispatch(createResponseEventWithError(event, AdobeError.UNEXPECTED_ERROR))
+                    api?.dispatch(createResponseEventWithError(event, AdobeError.UNEXPECTED_ERROR))
                     return
                 }
                 scope.launch {
@@ -310,7 +321,7 @@ class OptimizeExtensionV2(api: ExtensionApiV2) : ExtensionV2(api) {
                                     .inResponseToEvent(event)
                                     .build()
 
-                            api.dispatch(responseEvent)
+                            api?.dispatch(responseEvent)
                         } catch (e: Exception) {
                             Log.warning(
                                 OptimizeConstants.LOG_TAG,
@@ -319,7 +330,7 @@ class OptimizeExtensionV2(api: ExtensionApiV2) : ExtensionV2(api) {
                                         + " to an exception (%s)!",
                                 e.localizedMessage
                             )
-                            api.dispatch(
+                            api?.dispatch(
                                 createResponseEventWithError(
                                     event,
                                     AdobeError.UNEXPECTED_ERROR
@@ -327,7 +338,7 @@ class OptimizeExtensionV2(api: ExtensionApiV2) : ExtensionV2(api) {
                             )
                         }
                     } else {
-                        api.dispatch(
+                        api?.dispatch(
                             createResponseEventWithError(
                                 event,
                                 AdobeError.UNEXPECTED_ERROR
@@ -497,7 +508,7 @@ class OptimizeExtensionV2(api: ExtensionApiV2) : ExtensionV2(api) {
                 )
             )
         ) {
-            api.dispatch(createResponseEventWithError(event, getUnexpectedError()))
+            api?.dispatch(createResponseEventWithError(event, getUnexpectedError()))
             return
         }
 
@@ -531,7 +542,7 @@ class OptimizeExtensionV2(api: ExtensionApiV2) : ExtensionV2(api) {
                 .inResponseToEvent(event)
                 .build()
 
-        api.dispatch(responseEvent)
+        api?.dispatch(responseEvent)
     }
 
     /**
@@ -620,7 +631,7 @@ class OptimizeExtensionV2(api: ExtensionApiV2) : ExtensionV2(api) {
                     .build()
 
             // Dispatch notification event
-            api.dispatch(edgeEvent)
+            api?.dispatch(edgeEvent)
         } catch (e: Exception) {
             Log.warning(
                 OptimizeConstants.LOG_TAG,
@@ -775,7 +786,7 @@ class OptimizeExtensionV2(api: ExtensionApiV2) : ExtensionV2(api) {
      *
      * @param event incoming [Event] object to be processed.
      */
-    private suspend  fun handleTrackPropositions(event: Event) {
+    private suspend fun handleTrackPropositions(event: Event) {
         val eventData = event.eventData
 
         val configData = retrieveConfigurationSharedState(event)
@@ -834,7 +845,7 @@ class OptimizeExtensionV2(api: ExtensionApiV2) : ExtensionV2(api) {
                     .setEventData(edgeEventData)
                     .build()
 
-            api.dispatch(edgeEvent)
+            api?.dispatch(edgeEvent)
         } catch (e: Exception) {
             Log.warning(
                 OptimizeConstants.LOG_TAG,
@@ -949,7 +960,7 @@ class OptimizeExtensionV2(api: ExtensionApiV2) : ExtensionV2(api) {
                     .build()
 
             // Dispatch notification event
-            api.dispatch(notificationEvent)
+            api?.dispatch(notificationEvent)
         } catch (e: Exception) {
             Log.warning(
                 OptimizeConstants.LOG_TAG,
@@ -968,7 +979,7 @@ class OptimizeExtensionV2(api: ExtensionApiV2) : ExtensionV2(api) {
      */
     suspend fun retrieveConfigurationSharedState(event: Event): Map<String, Any?> {
         val configurationSharedState =
-            api.getSharedState(
+            api?.getSharedState(
                 OptimizeConstants.Configuration.EXTENSION_NAME,
                 event,
                 false,
