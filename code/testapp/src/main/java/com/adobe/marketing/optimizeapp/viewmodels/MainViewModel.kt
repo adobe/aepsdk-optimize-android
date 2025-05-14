@@ -14,6 +14,7 @@ package com.adobe.marketing.optimizeapp.viewmodels
 import android.util.Log
 import androidx.compose.runtime.*
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.adobe.marketing.mobile.AdobeCallbackWithError
 import com.adobe.marketing.mobile.AdobeError
 import com.adobe.marketing.mobile.edge.identity.AuthenticatedState
@@ -27,6 +28,7 @@ import com.adobe.marketing.mobile.optimize.Optimize
 import com.adobe.marketing.mobile.optimize.OptimizeProposition
 import com.adobe.marketing.optimizeapp.impl.LogManager
 import com.adobe.marketing.optimizeapp.models.OptimizePair
+import com.adobe.marketing.optimizeapp.odd.ODDManager
 import com.adobe.marketing.optimizeapp.ui.model.TimeoutConfigsCardData
 
 class MainViewModel : ViewModel() {
@@ -38,7 +40,7 @@ class MainViewModel : ViewModel() {
     var textOdeHtml by mutableStateOf("")
     var textOdeJson by mutableStateOf("")
 
-    var textTargetMbox by mutableStateOf("")
+    var textTargetMbox by mutableStateOf("mboxAug")
     var textTargetOrderId by mutableStateOf("")
     var textTargetOrderTotal by mutableStateOf("")
     var textTargetPurchaseId by mutableStateOf("")
@@ -56,12 +58,22 @@ class MainViewModel : ViewModel() {
     private val _dialogContent = mutableStateOf("")
     val dialogContent: State<String> = _dialogContent
 
+    val oddManager = ODDManager(
+        decisionScopes = {
+            return@ODDManager getDecisionScopes()
+        },
+        dataMap = {
+            return@ODDManager getDataMap(getTargetParams())
+        },
+        coroutineScope = viewModelScope
+    )
+
     private val _mutableTimeoutConfig = mutableStateOf(
         TimeoutConfigsCardData(
-            "10.0",
+            value = "1.0",
             pref1Txt = "Default timeout | Config timeout",
             pref2Txt = "Custom timeout (in seconds)",
-            isCustomTimeoutOpted = false
+            isCustomTimeoutOpted = true
         )
     )
     val timeoutConfig: State<TimeoutConfigsCardData> = _mutableTimeoutConfig
@@ -218,7 +230,7 @@ class MainViewModel : ViewModel() {
         )
     }
 
-    private fun getDataMap(targetParams: Map<String, String>): MutableMap<String, Any> {
+    private fun getDataMap(targetParams: Map<String, String>): Map<String, Any> {
         val data = mutableMapOf<String, Any>()
         if (targetParams.isNotEmpty()) {
             data["__adobe"] = mapOf<String, Any>(Pair("target", targetParams))

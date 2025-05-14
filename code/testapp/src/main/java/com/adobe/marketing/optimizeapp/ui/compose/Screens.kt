@@ -41,7 +41,8 @@ fun MainScreen(viewModel: MainViewModel) {
     }
     val bottomNavigationItems = listOf(
         BottomNavigationScreen.OffersScreen,
-        BottomNavigationScreen.SettingsScreen
+        BottomNavigationScreen.SettingsScreen,
+        BottomNavigationScreen.ODDScreen
     )
 
     Scaffold(
@@ -53,6 +54,7 @@ fun MainScreen(viewModel: MainViewModel) {
                     appBarTitle = when (it) {
                         BottomNavigationScreen.SettingsScreen -> "Settings"
                         BottomNavigationScreen.OffersScreen -> "Welcome to Optimize Demo"
+                        BottomNavigationScreen.ODDScreen -> "On Device Decisioning"
                     }
                 })
         },
@@ -131,6 +133,10 @@ private fun NavigationConfiguration(navController: NavHostController, viewModel:
         composable(BottomNavigationScreen.SettingsScreen.route) {
             SettingsView(viewModel = viewModel)
         }
+
+        composable(BottomNavigationScreen.ODDScreen.route) {
+            OddScreen(viewModel = viewModel)
+        }
     }
 }
 
@@ -140,7 +146,7 @@ sealed class BottomNavigationScreen(
     @DrawableRes val iconResId: Int
 ) {
     object OffersScreen : BottomNavigationScreen("offers", R.string.offers, R.drawable.offer)
-    object SettingsScreen :
-        BottomNavigationScreen("settings", R.string.settings, R.drawable.settings)
+    object SettingsScreen : BottomNavigationScreen("settings", R.string.settings, R.drawable.settings)
+    object ODDScreen : BottomNavigationScreen("odd", R.string.odd, R.drawable.odd)
 
 }

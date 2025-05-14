@@ -54,6 +54,14 @@ android {
 
 dependencies {
     implementation(project(":optimize"))
+
+//    ODD Dependencies START
+    implementation("com.squareup.retrofit2:retrofit:2.9.0")
+    implementation("com.squareup.retrofit2:converter-gson:2.9.0")
+    implementation("com.squareup.okhttp3:logging-interceptor:4.10.0")
+    implementation("androidx.compose.material3:material3:1.3.2")
+//    ODD Dependencies END
+
     implementation("com.adobe.marketing.mobile:core:3.2.0")
     implementation("com.adobe.marketing.mobile:edge:3.0.0")
     implementation("com.adobe.marketing.mobile:edgeidentity:3.0.0")
