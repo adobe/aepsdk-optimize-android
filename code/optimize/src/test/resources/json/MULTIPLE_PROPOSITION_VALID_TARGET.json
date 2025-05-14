@@ -1,0 +1,66 @@
+[
+  {
+    "id": "AT:eyJhY3Rpdml0eUlkIjoiMTI1NTg5IiwiZXhwZXJpZW5jZUlkIjoiMCJ8",
+    "items": [
+      {
+        "id": "246314",
+        "schema": "https://ns.adobe.com/personalization/json-content-item",
+        "data": {
+          "id": "246314",
+          "format": "application/json",
+          "content": {
+            "testing": "wo-ho"
+          }
+        }
+      }
+    ],
+    "scope": "myMbox1",
+    "scopeDetails": {
+      "decisionProvider": "TGT",
+      "activity": {
+        "id": "125588"
+      },
+      "experience": {
+        "id": "0"
+      },
+      "strategies": [
+        {
+          "algorithmID": "0",
+          "trafficType": "0"
+        }
+      ]
+    }
+  },
+  {
+    "id": "AT:eyJhY3Rpdml0eUlkIjoiMTI1NTg5IiwiZXhwZXJpZW5jZUlkIjoiMCJ9",
+    "items": [
+      {
+        "id": "246315",
+        "schema": "https://ns.adobe.com/personalization/json-content-item",
+        "data": {
+          "id": "246315",
+          "format": "application/json",
+          "content": {
+            "testing": "ho-ho"
+          }
+        }
+      }
+    ],
+    "scope": "myMbox2",
+    "scopeDetails": {
+      "decisionProvider": "TGT",
+      "activity": {
+        "id": "125589"
+      },
+      "experience": {
+        "id": "1"
+      },
+      "strategies": [
+        {
+          "algorithmID": "1",
+          "trafficType": "1"
+        }
+      ]
+    }
+  }
+]

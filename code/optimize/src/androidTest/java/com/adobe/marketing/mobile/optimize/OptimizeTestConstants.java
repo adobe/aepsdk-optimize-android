@@ -13,7 +13,7 @@ package com.adobe.marketing.mobile.optimize;
 
 public class OptimizeTestConstants {
 
-    static final String EXTENSION_VERSION = "3.3.1";
+    static final String EXTENSION_VERSION = "3.5.0";
     public static final String LOG_TAG = "OptimizeTest";
     static final String CONFIG_DATA_STORE = "AdobeMobile_ConfigState";
 
