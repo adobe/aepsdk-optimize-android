@@ -461,17 +461,19 @@ public class Offer {
                             Object.class, data, OptimizeConstants.JsonKeys.PAYLOAD_ITEM_DATA);
 
             if (!OptimizeUtils.isNullOrEmpty(offerData)) {
-                final String nestedId =
-                        DataReader.getString(
-                                offerData, OptimizeConstants.JsonKeys.PAYLOAD_ITEM_DATA_ID);
-                if (OptimizeUtils.isNullOrEmpty(id) || !id.equals(nestedId)) {
-                    Log.debug(
-                            OptimizeConstants.LOG_TAG,
-                            SELF_TAG,
-                            "Cannot create Offer object, provided item id is null or empty or it"
-                                    + " doesn't match item data id.");
-                    return null;
-                }
+                //                final String nestedId =
+                //                        DataReader.getString(
+                //                                offerData,
+                // OptimizeConstants.JsonKeys.PAYLOAD_ITEM_DATA_ID);
+                //                if (OptimizeUtils.isNullOrEmpty(id) || !id.equals(nestedId)) {
+                //                    Log.debug(
+                //                            OptimizeConstants.LOG_TAG,
+                //                            SELF_TAG,
+                //                            "Cannot create Offer object, provided item id is null
+                // or empty or it"
+                //                                    + " doesn't match item data id.");
+                //                    return null;
+                //                }
 
                 final String format =
                         DataReader.getString(

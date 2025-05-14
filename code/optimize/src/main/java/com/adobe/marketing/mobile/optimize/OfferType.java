@@ -58,6 +58,7 @@ public enum OfferType {
                 return TEXT;
 
             case "text/html":
+            case "application/vnd.adobe.target.html-content-item":
                 return HTML;
 
             default:
