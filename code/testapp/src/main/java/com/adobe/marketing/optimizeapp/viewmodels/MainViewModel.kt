@@ -33,7 +33,6 @@ import com.adobe.marketing.optimizeapp.models.OptimizePair
 import com.adobe.marketing.optimizeapp.ui.model.PreferenceGroupData
 import com.adobe.marketing.optimizeapp.ui.model.PreferenceItemData
 import com.adobe.marketing.optimizeapp.odd.ODDManager
-import com.adobe.marketing.optimizeapp.ui.model.TimeoutConfigsCardData
 
 class MainViewModel : ViewModel() {
 
@@ -115,6 +114,9 @@ class MainViewModel : ViewModel() {
                     )
                 }
             )
+        )
+    )
+
     val oddManager = ODDManager(
         decisionScopes = {
             return@ODDManager getDecisionScopes()
@@ -125,14 +127,6 @@ class MainViewModel : ViewModel() {
         coroutineScope = viewModelScope
     )
 
-    private val _mutableTimeoutConfig = mutableStateOf(
-        TimeoutConfigsCardData(
-            value = "1.0",
-            pref1Txt = "Default timeout | Config timeout",
-            pref2Txt = "Custom timeout (in seconds)",
-            isCustomTimeoutOpted = true
-        )
-    )
     val preferences: State<List<PreferenceGroupData>> = _mutablePreferences
 
     private fun updateSelectedOption(preferenceIndex: Int, selectedIndex: Int) {
