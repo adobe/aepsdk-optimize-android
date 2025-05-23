@@ -28,6 +28,8 @@ public class OptimizeProposition {
     private final List<Offer> offers;
     private final String scope;
     private final Map<String, Object> scopeDetails;
+    private Map<String, Object> activity;
+    private Map<String, Object> placement;
 
     /**
      * Constructor creates a {@code OptimizeProposition} using the provided proposition {@code id},
@@ -46,6 +48,39 @@ public class OptimizeProposition {
         this.id = id != null ? id : "";
         this.scope = scope != null ? scope : "";
         this.scopeDetails = scopeDetails != null ? scopeDetails : new HashMap<>();
+
+        this.offers = offers != null ? offers : new ArrayList<>();
+        // Setting a soft reference to OptimizeProposition in each Offer
+        for (final Offer o : this.offers) {
+            if (o.propositionReference == null) {
+                o.propositionReference = new SoftReference<>(this);
+            }
+        }
+    }
+
+    /**
+     * Constructor creates a {@code OptimizeProposition} using the provided proposition {@code id},
+     * {@code offers}, {@code scope} and {@code scopeDetails}.
+     *
+     * @param id {@link String} containing proposition identifier.
+     * @param offers {@code List<Offer>} containing proposition items.
+     * @param scope {@code String} containing encoded scope.
+     * @param scopeDetails {@code Map<String, Object>} containing scope details.
+     * @param activity {@code Map<String, Object>} containing activity details.
+     * @param placement {@code Map<String, Object>} containing placement details.
+     */
+    OptimizeProposition(
+            final String id,
+            final List<Offer> offers,
+            final String scope,
+            final Map<String, Object> scopeDetails,
+            final Map<String, Object> activity,
+            final Map<String, Object> placement) {
+        this.id = id != null ? id : "";
+        this.scope = scope != null ? scope : "";
+        this.scopeDetails = scopeDetails != null ? scopeDetails : new HashMap<>();
+        this.activity = activity != null ? activity : new HashMap<>();
+        this.placement = placement != null ? placement : new HashMap<>();
 
         this.offers = offers != null ? offers : new ArrayList<>();
         // Setting a soft reference to OptimizeProposition in each Offer
@@ -90,6 +125,24 @@ public class OptimizeProposition {
      */
     public Map<String, Object> getScopeDetails() {
         return scopeDetails;
+    }
+
+    /**
+     * Gets the {@code OptimizeProposition} activity details.
+     *
+     * @return {@code Map<String, Object>} containing the activity details.
+     */
+    public Map<String, Object> getActivity() {
+        return activity;
+    }
+
+    /**
+     * Gets the {@code OptimizeProposition} placement details.
+     *
+     * @return {@code Map<String, Object>} containing the placement details.
+     */
+    public Map<String, Object> getPlacement() {
+        return placement;
     }
 
     /**
@@ -153,9 +206,19 @@ public class OptimizeProposition {
                 return null;
             }
 
-            final Map<String, Object> scopeDetails =
+            // Get existing scopeDetails or create new one
+            Map<String, Object> scopeDetails =
                     DataReader.getTypedMap(
                             Object.class, data, OptimizeConstants.JsonKeys.PAYLOAD_SCOPEDETAILS);
+
+            // Parse activity and placement objects
+            Map<String, Object> activity =
+                    DataReader.getTypedMap(
+                            Object.class, data, OptimizeConstants.JsonKeys.PAYLOAD_ACTIVITY);
+
+            Map<String, Object> placement =
+                    DataReader.getTypedMap(
+                            Object.class, data, OptimizeConstants.JsonKeys.PAYLOAD_PLACEMENT);
 
             final List<Map<String, Object>> items =
                     DataReader.getTypedListOfMap(
@@ -170,7 +233,7 @@ public class OptimizeProposition {
                 }
             }
 
-            return new OptimizeProposition(id, offers, scope, scopeDetails);
+            return new OptimizeProposition(id, offers, scope, scopeDetails, activity, placement);
 
         } catch (Exception e) {
             Log.warning(
@@ -192,6 +255,8 @@ public class OptimizeProposition {
         propositionMap.put(OptimizeConstants.JsonKeys.PAYLOAD_ID, this.id);
         propositionMap.put(OptimizeConstants.JsonKeys.PAYLOAD_SCOPE, this.scope);
         propositionMap.put(OptimizeConstants.JsonKeys.PAYLOAD_SCOPEDETAILS, this.scopeDetails);
+        propositionMap.put(OptimizeConstants.JsonKeys.PAYLOAD_ACTIVITY, this.activity);
+        propositionMap.put(OptimizeConstants.JsonKeys.PAYLOAD_PLACEMENT, this.placement);
 
         List<Map<String, Object>> offersList = new ArrayList<>();
         for (final Offer offer : this.offers) {
@@ -210,6 +275,10 @@ public class OptimizeProposition {
         if (id != null ? !id.equals(that.id) : that.id != null) return false;
         if (offers != null ? !offers.equals(that.offers) : that.offers != null) return false;
         if (scope != null ? !scope.equals(that.scope) : that.scope != null) return false;
+        if (activity != null ? !activity.equals(that.activity) : that.activity != null)
+            return false;
+        if (placement != null ? !placement.equals(that.placement) : that.placement != null)
+            return false;
         return scopeDetails != null
                 ? scopeDetails.equals(that.scopeDetails)
                 : that.scopeDetails == null;
@@ -217,6 +286,6 @@ public class OptimizeProposition {
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, offers, scope, scopeDetails);
+        return Objects.hash(id, offers, scope, scopeDetails, activity, placement);
     }
 }

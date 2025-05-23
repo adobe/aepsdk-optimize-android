@@ -46,16 +46,6 @@ internal object XDMUtils {
         "Failed to dispatch track propositions request event, input xdm is null or empty."
     )
 
-    /**
-     * Generates a map containing XDM formatted data for `Experience Event - OptimizeProposition
-     * Interactions` field group from this `OptimizeProposition` offer and given
-     * `experienceEventType`.
-     * The method returns null if the proposition reference within the offer is released and no
-     * longer valid.
-     * @param experienceEventType [String] containing the event type for the Experience Event
-     * @return `Map<String></String>, Object>` containing the XDM data for the proposition interaction.
-     */
-
     @JvmStatic
     fun generateInteractionXdm(
         experienceEventType: String,
@@ -67,11 +57,23 @@ internal object XDMUtils {
                     mutableMapOf<String, Any>(
                         OptimizeConstants.JsonKeys.DECISIONING_PROPOSITIONS_ID to prop.id,
                         OptimizeConstants.JsonKeys.DECISIONING_PROPOSITIONS_SCOPE to prop.scope,
-                        OptimizeConstants.JsonKeys.DECISIONING_PROPOSITIONS_SCOPEDETAILS to prop.scopeDetails,
                         OptimizeConstants.JsonKeys.DECISIONING_PROPOSITIONS_ITEMS to prop.offers.map { offer ->
                             mapOf(OptimizeConstants.JsonKeys.DECISIONING_PROPOSITIONS_ITEMS_ID to offer.id)
                         }
-                    )
+                    ).apply {
+                        val scopeDetails = prop.scopeDetails?.toMutableMap() ?: mutableMapOf()
+
+                        if (scopeDetails.isEmpty()) {
+                            prop.activity?.takeIf { it.isNotEmpty() }?.let {
+                                scopeDetails[OptimizeConstants.JsonKeys.PAYLOAD_ACTIVITY] = it
+                            }
+                            prop.placement?.takeIf { it.isNotEmpty() }?.let {
+                                scopeDetails[OptimizeConstants.JsonKeys.PAYLOAD_PLACEMENT] = it
+                            }
+                        }
+
+                        put(OptimizeConstants.JsonKeys.DECISIONING_PROPOSITIONS_SCOPEDETAILS, scopeDetails)
+                    }
                 }
             )
         ),

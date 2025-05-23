@@ -126,6 +126,8 @@ class OptimizeConstants {
 
     static final class JsonKeys {
         static final String PAYLOAD_ID = "id";
+        static final String PAYLOAD_ACTIVITY = "activity";
+        static final String PAYLOAD_PLACEMENT = "placement";
         static final String PAYLOAD_SCOPE = "scope";
         static final String PAYLOAD_SCOPEDETAILS = "scopeDetails";
         static final String PAYLOAD_ITEMS = "items";
