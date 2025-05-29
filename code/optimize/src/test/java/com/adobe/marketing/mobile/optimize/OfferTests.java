@@ -450,7 +450,7 @@ public class OfferTests {
                         .readValue(
                                 getClass()
                                         .getClassLoader()
-                                        .getResource("json/PROPOSITION_VALID.json"),
+                                        .getResource("json/PROPOSITION_VALID_ODE.json"),
                                 HashMap.class);
         final OptimizeProposition optimizeProposition =
                 OptimizeProposition.fromEventData(propositionData);
@@ -486,7 +486,9 @@ public class OfferTests {
         final Map<String, Object> scopeDetails =
                 (Map<String, Object>) propositionInteractionDetailsMap.get("scopeDetails");
         Assert.assertNotNull(scopeDetails);
-        Assert.assertTrue(scopeDetails.isEmpty());
+        Assert.assertFalse(scopeDetails.isEmpty());
+        Assert.assertNotNull(scopeDetails.get("activity"));
+        Assert.assertNotNull(scopeDetails.get("placement"));
         final List<Map<String, Object>> items =
                 (List<Map<String, Object>>) propositionInteractionDetailsMap.get("items");
         Assert.assertNotNull(items);
@@ -591,7 +593,7 @@ public class OfferTests {
                         .readValue(
                                 getClass()
                                         .getClassLoader()
-                                        .getResource("json/PROPOSITION_VALID.json"),
+                                        .getResource("json/PROPOSITION_VALID_ODE.json"),
                                 HashMap.class);
         final OptimizeProposition optimizeProposition =
                 OptimizeProposition.fromEventData(propositionData);
@@ -627,7 +629,9 @@ public class OfferTests {
         final Map<String, Object> scopeDetails =
                 (Map<String, Object>) propositionInteractionDetailsMap.get("scopeDetails");
         Assert.assertNotNull(scopeDetails);
-        Assert.assertTrue(scopeDetails.isEmpty());
+        Assert.assertFalse(scopeDetails.isEmpty());
+        Assert.assertNotNull(scopeDetails.get("activity"));
+        Assert.assertNotNull(scopeDetails.get("placement"));
         final List<Map<String, Object>> items =
                 (List<Map<String, Object>>) propositionInteractionDetailsMap.get("items");
         Assert.assertNotNull(items);
@@ -734,7 +738,7 @@ public class OfferTests {
                             .readValue(
                                     getClass()
                                             .getClassLoader()
-                                            .getResource("json/PROPOSITION_VALID.json"),
+                                            .getResource("json/PROPOSITION_VALID_ODE.json"),
                                     HashMap.class);
             final OptimizeProposition optimizeProposition =
                     OptimizeProposition.fromEventData(propositionData);
@@ -784,7 +788,9 @@ public class OfferTests {
             final Map<String, Object> scopeDetails =
                     (Map<String, Object>) propositionInteractionDetailsMap.get("scopeDetails");
             Assert.assertNotNull(scopeDetails);
-            Assert.assertTrue(scopeDetails.isEmpty());
+            Assert.assertFalse(scopeDetails.isEmpty());
+            Assert.assertNotNull(scopeDetails.get("activity"));
+            Assert.assertNotNull(scopeDetails.get("placement"));
             final List<Map<String, Object>> items =
                     (List<Map<String, Object>>) propositionInteractionDetailsMap.get("items");
             Assert.assertNotNull(items);
@@ -883,7 +889,7 @@ public class OfferTests {
                             .readValue(
                                     getClass()
                                             .getClassLoader()
-                                            .getResource("json/PROPOSITION_VALID.json"),
+                                            .getResource("json/PROPOSITION_VALID_ODE.json"),
                                     HashMap.class);
             final OptimizeProposition optimizeProposition =
                     OptimizeProposition.fromEventData(propositionData);
@@ -917,7 +923,7 @@ public class OfferTests {
                             .readValue(
                                     getClass()
                                             .getClassLoader()
-                                            .getResource("json/PROPOSITION_VALID.json"),
+                                            .getResource("json/PROPOSITION_VALID_ODE.json"),
                                     HashMap.class);
             final OptimizeProposition optimizeProposition =
                     OptimizeProposition.fromEventData(propositionData);
@@ -967,7 +973,9 @@ public class OfferTests {
             final Map<String, Object> scopeDetails =
                     (Map<String, Object>) propositionInteractionDetailsMap.get("scopeDetails");
             Assert.assertNotNull(scopeDetails);
-            Assert.assertTrue(scopeDetails.isEmpty());
+            Assert.assertFalse(scopeDetails.isEmpty());
+            Assert.assertNotNull(scopeDetails.get("activity"));
+            Assert.assertNotNull(scopeDetails.get("placement"));
             final List<Map<String, Object>> items =
                     (List<Map<String, Object>>) propositionInteractionDetailsMap.get("items");
             Assert.assertNotNull(items);
@@ -1066,7 +1074,7 @@ public class OfferTests {
                             .readValue(
                                     getClass()
                                             .getClassLoader()
-                                            .getResource("json/PROPOSITION_VALID.json"),
+                                            .getResource("json/PROPOSITION_VALID_ODE.json"),
                                     HashMap.class);
             final OptimizeProposition optimizeProposition =
                     OptimizeProposition.fromEventData(propositionData);

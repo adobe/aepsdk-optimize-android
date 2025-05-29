@@ -24,6 +24,7 @@ import io.mockk.verify
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
+import java.lang.ref.SoftReference
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
@@ -434,5 +435,103 @@ class OfferUtilsTest {
         assertEquals(2, offers.size)
         assertEquals("246314", offers.first()["id"])
         assertEquals("offer1", offers.last()["id"])
+    }
+
+    @Test
+    fun `test generateDisplayInteractionXdm() handles offers with empty activity and placement`() {
+        val offer = Offer.Builder("test-offer", OfferType.TEXT, "Test Offer").build()
+        val proposition = OptimizeProposition(
+            "test-id",
+            listOf(offer) as List<Offer?>?,
+            "test-scope",
+            emptyMap(),
+            emptyMap()
+        )
+        offer.propositionReference = SoftReference(proposition)
+
+        val xdm = listOf(offer).generateDisplayInteractionXdm()
+
+        assertNotNull(xdm)
+        assertEquals(OptimizeConstants.JsonValues.EE_EVENT_TYPE_PROPOSITION_DISPLAY, xdm["eventType"])
+
+        val rawPropositions = (
+            (xdm["_experience"] as? Map<String, Any>)
+                ?.get("decisioning") as? Map<String, Any>
+            )?.get("propositions") as? List<Map<String, Any>>
+
+        assertNotNull(rawPropositions)
+        assertEquals(1, rawPropositions.size)
+
+        assertEquals("test-id", rawPropositions.first()["id"])
+        assertEquals("test-scope", rawPropositions.first()["scope"])
+        assertEquals(emptyMap<String, Any>(), rawPropositions.first()["scopeDetails"])
+    }
+
+    @Test
+    fun `test generateDisplayInteractionXdm() handles offers with activity and placement in scopeDetails`() {
+        val scopeDetails = mapOf(
+            "activity" to mapOf("id" to "activity-id"),
+            "placement" to mapOf("id" to "placement-id")
+        )
+        val offer = Offer.Builder("test-offer", OfferType.TEXT, "Test Offer").build()
+        val proposition = OptimizeProposition(
+            "test-id",
+            listOf(offer),
+            "test-scope",
+            scopeDetails
+        )
+        offer.propositionReference = SoftReference(proposition)
+
+        val xdm = listOf(offer).generateDisplayInteractionXdm()
+
+        assertNotNull(xdm)
+        assertEquals(OptimizeConstants.JsonValues.EE_EVENT_TYPE_PROPOSITION_DISPLAY, xdm["eventType"])
+
+        val rawPropositions = (
+            (xdm["_experience"] as? Map<String, Any>)
+                ?.get("decisioning") as? Map<String, Any>
+            )?.get("propositions") as? List<Map<String, Any>>
+
+        assertNotNull(rawPropositions)
+        assertEquals(1, rawPropositions.size)
+
+        assertEquals("test-id", rawPropositions.first()["id"])
+        assertEquals("test-scope", rawPropositions.first()["scope"])
+        assertEquals(scopeDetails, rawPropositions.first()["scopeDetails"])
+    }
+
+    @Test
+    fun `test generateDisplayInteractionXdm() handles offers with activity and placement in proposition`() {
+        val activity = mapOf("id" to "prop-activity-id")
+        val placement = mapOf("id" to "prop-placement-id")
+        val offer = Offer.Builder("test-offer", OfferType.TEXT, "Test Offer").build()
+        val proposition = OptimizeProposition(
+            "test-id",
+            listOf(offer),
+            "test-scope",
+            activity,
+            placement
+        )
+        offer.propositionReference = SoftReference(proposition)
+
+        val xdm = listOf(offer).generateDisplayInteractionXdm()
+
+        assertNotNull(xdm)
+        assertEquals(OptimizeConstants.JsonValues.EE_EVENT_TYPE_PROPOSITION_DISPLAY, xdm["eventType"])
+
+        val rawPropositions = (
+            (xdm["_experience"] as? Map<String, Any>)
+                ?.get("decisioning") as? Map<String, Any>
+            )?.get("propositions") as? List<Map<String, Any>>
+
+        assertNotNull(rawPropositions)
+        assertEquals(1, rawPropositions.size)
+
+        assertEquals("test-id", rawPropositions.first()["id"])
+        assertEquals("test-scope", rawPropositions.first()["scope"])
+        val scopeDetails = rawPropositions.first()["scopeDetails"] as? Map<String, Any>
+        assertNotNull(scopeDetails)
+        assertEquals(activity, scopeDetails["activity"])
+        assertEquals(placement, scopeDetails["placement"])
     }
 }

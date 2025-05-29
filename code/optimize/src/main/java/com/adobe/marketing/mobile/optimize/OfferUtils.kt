@@ -57,9 +57,14 @@ object OfferUtils {
 
     /**
      * Extracts unique [OptimizeProposition]s from the list of offers based on their proposition ID.
-     * For each proposition, it filters the offers to only include those that are present in the original list.
      *
-     * @return [List] of unique [OptimizeProposition]s with filtered offers, or empty list if no valid propositions are found
+     * <p>For each distinct proposition, it filters the associated offers to include only those
+     * present in the original list (matched by offer ID).
+     *
+     * <p>If the proposition's [scopeDetails] map is empty, the resulting [OptimizeProposition]
+     * includes additional [activity] and [placement] metadata; otherwise, a simpler constructor is used.
+     *
+     * @return [List] of unique [OptimizeProposition]s with filtered offers, or an empty list if no valid propositions are found.
      */
     private fun List<Offer>.mapToUniquePropositions(): List<OptimizeProposition> {
         val offerIds = mapTo(mutableSetOf()) { it.id }
@@ -70,7 +75,13 @@ object OfferUtils {
                     it.id in offerIds
                 }.distinctBy { it.id }
                 if (displayedOffers.isNotEmpty()) {
-                    OptimizeProposition(
+                    if (proposition.scopeDetails.isNullOrEmpty()) OptimizeProposition(
+                        proposition.id,
+                        displayedOffers,
+                        proposition.scope,
+                        proposition.activity,
+                        proposition.placement
+                    ) else OptimizeProposition(
                         proposition.id,
                         displayedOffers,
                         proposition.scope,

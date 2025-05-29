@@ -885,7 +885,7 @@ public class OptimizeExtensionTests {
         Assert.assertEquals(
                 "eyJhY3Rpdml0eUlkIjoieGNvcmU6b2ZmZXItYWN0aXZpdHk6MTExMTExMTExMTExMTExMSIsInBsYWNlbWVudElkIjoieGNvcmU6b2ZmZXItcGxhY2VtZW50OjExMTExMTExMTExMTExMTEifQ==",
                 optimizeProposition.getScope());
-        Assert.assertTrue(optimizeProposition.getScopeDetails().isEmpty());
+        Assert.assertNull(optimizeProposition.getScopeDetails());
         Assert.assertEquals(1, optimizeProposition.getOffers().size());
 
         final Offer offer = optimizeProposition.getOffers().get(0);
@@ -2021,7 +2021,7 @@ public class OptimizeExtensionTests {
                         .readValue(
                                 getClass()
                                         .getClassLoader()
-                                        .getResource("json/PROPOSITION_VALID.json"),
+                                        .getResource("json/PROPOSITION_VALID_ODE.json"),
                                 HashMap.class);
         final OptimizeProposition testOptimizeProposition =
                 OptimizeProposition.fromEventData(testPropositionData);
@@ -2055,7 +2055,7 @@ public class OptimizeExtensionTests {
                         .readValue(
                                 getClass()
                                         .getClassLoader()
-                                        .getResource("json/PROPOSITION_VALID.json"),
+                                        .getResource("json/PROPOSITION_VALID_ODE.json"),
                                 HashMap.class);
         final OptimizeProposition testOptimizeProposition =
                 OptimizeProposition.fromEventData(testPropositionData);
@@ -2098,7 +2098,7 @@ public class OptimizeExtensionTests {
                         .readValue(
                                 getClass()
                                         .getClassLoader()
-                                        .getResource("json/PROPOSITION_VALID.json"),
+                                        .getResource("json/PROPOSITION_VALID_ODE.json"),
                                 HashMap.class);
         final OptimizeProposition testOptimizeProposition =
                 OptimizeProposition.fromEventData(testPropositionData);
@@ -2141,7 +2141,7 @@ public class OptimizeExtensionTests {
                         .readValue(
                                 getClass()
                                         .getClassLoader()
-                                        .getResource("json/PROPOSITION_VALID.json"),
+                                        .getResource("json/PROPOSITION_VALID_ODE.json"),
                                 HashMap.class);
         final OptimizeProposition testOptimizeProposition =
                 OptimizeProposition.fromEventData(testPropositionData);
@@ -2193,7 +2193,7 @@ public class OptimizeExtensionTests {
                         .readValue(
                                 getClass()
                                         .getClassLoader()
-                                        .getResource("json/PROPOSITION_VALID.json"),
+                                        .getResource("json/PROPOSITION_VALID_ODE.json"),
                                 HashMap.class);
         final OptimizeProposition testOptimizeProposition =
                 OptimizeProposition.fromEventData(testPropositionData);
@@ -2359,7 +2359,7 @@ public class OptimizeExtensionTests {
         Assert.assertEquals(
                 "eyJhY3Rpdml0eUlkIjoieGNvcmU6b2ZmZXItYWN0aXZpdHk6MTExMTExMTExMTExMTExMSIsInBsYWNlbWVudElkIjoieGNvcmU6b2ZmZXItcGxhY2VtZW50OjExMTExMTExMTExMTExMTEifQ==",
                 optimizeProposition.getScope());
-        Assert.assertTrue(optimizeProposition.getScopeDetails().isEmpty());
+        Assert.assertNull(optimizeProposition.getScopeDetails());
         Assert.assertEquals(1, optimizeProposition.getOffers().size());
 
         final Offer offer = optimizeProposition.getOffers().get(0);
@@ -2383,7 +2383,7 @@ public class OptimizeExtensionTests {
                         .readValue(
                                 getClass()
                                         .getClassLoader()
-                                        .getResource("json/PROPOSITION_VALID.json"),
+                                        .getResource("json/PROPOSITION_VALID_ODE.json"),
                                 HashMap.class);
         final OptimizeProposition testOptimizePropositionA =
                 OptimizeProposition.fromEventData(testPropositionDataA);
@@ -2720,7 +2720,7 @@ public class OptimizeExtensionTests {
                             .readValue(
                                     getClass()
                                             .getClassLoader()
-                                            .getResource("json/PROPOSITION_VALID.json"),
+                                            .getResource("json/PROPOSITION_VALID_ODE.json"),
                                     HashMap.class);
 
             final OptimizeProposition testOptimizeProposition =
