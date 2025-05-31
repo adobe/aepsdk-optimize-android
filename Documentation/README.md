@@ -1,4 +1,4 @@
-# Adobe Journey Optimizer - Decisioning extension documentation
+# Offer Decisioning and Target extension documentation
 
 ## Contents
 - [Getting started](getting-started.md)
