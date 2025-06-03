@@ -243,8 +243,8 @@ class OptimizeExtension extends Extension {
             Log.debug(
                     OptimizeConstants.LOG_TAG,
                     SELF_TAG,
-                    "handleOptimizeRequestContent - Ignoring the Optimize request event, either"
-                            + " event is null or event data is null/ empty.");
+                    "Optimize - Internal | handleOptimizeRequestContent - Ignoring the Optimize"
+                            + " request event, either event is null or event data is null/ empty.");
             return;
         }
 
@@ -271,9 +271,9 @@ class OptimizeExtension extends Extension {
                         Log.debug(
                                 OptimizeConstants.LOG_TAG,
                                 SELF_TAG,
-                                "handleOptimizeRequestContent - Cannot process the get propositions"
-                                        + " request event, provided list of decision scopes has no"
-                                        + " valid scope.");
+                                "Optimize - Internal | handleOptimizeRequestContent - Cannot"
+                                    + " process the get propositions request event, provided list"
+                                    + " of decision scopes has no valid scope.");
                         getApi().dispatch(
                                         createResponseEventWithError(
                                                 event, AdobeError.UNEXPECTED_ERROR));
@@ -307,8 +307,9 @@ class OptimizeExtension extends Extension {
                         Log.trace(
                                 OptimizeConstants.LOG_TAG,
                                 SELF_TAG,
-                                "handleOptimizeRequestContent - All scopes are cached and none are"
-                                        + " in progress, dispatching event directly.");
+                                "Optimize - Internal | handleOptimizeRequestContent - All scopes"
+                                        + " are cached and none are in progress, dispatching event"
+                                        + " directly.");
 
                         // Dispatch the event directly
                         handleGetPropositions(event);
@@ -316,8 +317,9 @@ class OptimizeExtension extends Extension {
                         Log.trace(
                                 OptimizeConstants.LOG_TAG,
                                 SELF_TAG,
-                                "handleOptimizeRequestContent - Scopes are not fully cached or are"
-                                        + " in progress, adding event to dispatcher.");
+                                "Optimize - Internal | handleOptimizeRequestContent - Scopes are"
+                                        + " not fully cached or are in progress, adding event to"
+                                        + " dispatcher.");
                         eventsDispatcher.offer(event);
                     }
                     break;
@@ -325,8 +327,8 @@ class OptimizeExtension extends Extension {
                     Log.warning(
                             OptimizeConstants.LOG_TAG,
                             SELF_TAG,
-                            "handleOptimizeRequestContent - Failed to process get propositions"
-                                    + " request event due to an exception (%s)!",
+                            "Optimize - Internal | handleOptimizeRequestContent - Failed to process"
+                                    + " get propositions request event due to an exception (%s)!",
                             e.getLocalizedMessage());
                 }
                 break;
@@ -337,8 +339,9 @@ class OptimizeExtension extends Extension {
                 Log.debug(
                         OptimizeConstants.LOG_TAG,
                         SELF_TAG,
-                        "handleOptimizeRequestContent - Ignoring the Optimize request event,"
-                                + " provided request type (%s) is not handled by this extension.",
+                        "Optimize - Internal | handleOptimizeRequestContent - Ignoring the Optimize"
+                            + " request event, provided request type (%s) is not handled by this"
+                            + " extension.",
                         requestType);
                 break;
         }
@@ -356,14 +359,19 @@ class OptimizeExtension extends Extension {
      */
     void handleUpdatePropositions(@NonNull final Event event) {
         final Map<String, Object> eventData = event.getEventData();
+        Log.debug(
+                OptimizeConstants.LOG_TAG,
+                SELF_TAG,
+                "Optimize - Internal | handleUpdatePropositions called.");
 
         final Map<String, Object> configData = retrieveConfigurationSharedState(event);
         if (OptimizeUtils.isNullOrEmpty(configData)) {
             Log.debug(
                     OptimizeConstants.LOG_TAG,
                     SELF_TAG,
-                    "handleUpdatePropositions - Cannot process the update propositions request"
-                            + " event, Configuration shared state is not available.");
+                    "Optimize - Internal | handleUpdatePropositions - Cannot process the update"
+                            + " propositions request event, Configuration shared state is not"
+                            + " available.");
             return;
         }
 
@@ -378,8 +386,9 @@ class OptimizeExtension extends Extension {
                 Log.debug(
                         OptimizeConstants.LOG_TAG,
                         SELF_TAG,
-                        "handleUpdatePropositions - Cannot process the update propositions request"
-                                + " event, provided list of decision scopes has no valid scope.");
+                        "Optimize - Internal | handleUpdatePropositions - Cannot process the update"
+                            + " propositions request event, provided list of decision scopes has no"
+                            + " valid scope.");
                 return;
             }
 
@@ -475,8 +484,18 @@ class OptimizeExtension extends Extension {
 
                             AEPOptimizeError aepOptimizeError;
                             if (error == AdobeError.CALLBACK_TIMEOUT) {
+                                Log.debug(
+                                        OptimizeConstants.LOG_TAG,
+                                        SELF_TAG,
+                                        "Optimize - Internal | handleUpdatePropositions fail"
+                                                + " callback timeout.");
                                 aepOptimizeError = AEPOptimizeError.Companion.getTimeoutError();
                             } else {
+                                Log.debug(
+                                        OptimizeConstants.LOG_TAG,
+                                        SELF_TAG,
+                                        "Optimize - Internal | handleUpdatePropositions fail"
+                                                + " unknown error.");
                                 aepOptimizeError = AEPOptimizeError.Companion.getUnexpectedError();
                             }
 
@@ -491,6 +510,11 @@ class OptimizeExtension extends Extension {
                             final String requestEventId =
                                     OptimizeUtils.getRequestEventId(callbackEvent);
                             if (OptimizeUtils.isNullOrEmpty(requestEventId)) {
+                                Log.debug(
+                                        OptimizeConstants.LOG_TAG,
+                                        SELF_TAG,
+                                        "Optimize - Internal | handleUpdatePropositions callback"
+                                                + " error - requestId is null or empty.");
                                 fail(AdobeError.UNEXPECTED_ERROR);
                                 return;
                             }
@@ -524,6 +548,11 @@ class OptimizeExtension extends Extension {
                                             .inResponseToEvent(event)
                                             .build();
 
+                            Log.debug(
+                                    OptimizeConstants.LOG_TAG,
+                                    SELF_TAG,
+                                    "Optimize - Internal | handleUpdatePropositions callback"
+                                            + " response event dispatch.");
                             getApi().dispatch(responseEvent);
 
                             final Event updateCompleteEvent =
@@ -544,6 +573,11 @@ class OptimizeExtension extends Extension {
                                             .chainToParentEvent(event)
                                             .build();
 
+                            Log.debug(
+                                    OptimizeConstants.LOG_TAG,
+                                    SELF_TAG,
+                                    "Optimize - Internal | handleUpdatePropositions callback"
+                                            + " updateComplete event dispatch.");
                             getApi().dispatch(updateCompleteEvent);
                         }
                     });
@@ -567,6 +601,10 @@ class OptimizeExtension extends Extension {
      * @param event incoming {@link Event} object to be processed.
      */
     void handleUpdatePropositionsCompleted(@NonNull final Event event) {
+        Log.debug(
+                OptimizeConstants.LOG_TAG,
+                SELF_TAG,
+                "Optimize - Internal | handleUpdatePropositionsCompleted callback");
         try {
             final String requestCompletedForEventId =
                     DataReader.getString(
@@ -576,8 +614,9 @@ class OptimizeExtension extends Extension {
                 Log.debug(
                         OptimizeConstants.LOG_TAG,
                         SELF_TAG,
-                        "handleUpdatePropositionsCompleted - Ignoring Optimize complete event,"
-                                + " event Id for the completed event is not present in event data");
+                        "Optimize - Internal | handleUpdatePropositionsCompleted - Ignoring"
+                            + " Optimize complete event, event Id for the completed event is not"
+                            + " present in event data");
                 return;
             }
 
@@ -587,9 +626,9 @@ class OptimizeExtension extends Extension {
                 Log.debug(
                         OptimizeConstants.LOG_TAG,
                         SELF_TAG,
-                        "handleUpdatePropositionsCompleted - Ignoring Optimize complete event,"
-                            + " event Id is not being tracked for completion as requested scopes is"
-                            + " null or empty.");
+                        "Optimize - Internal | handleUpdatePropositionsCompleted - Ignoring"
+                                + " Optimize complete event, event Id is not being tracked for"
+                                + " completion as requested scopes is null or empty.");
                 return;
             }
 
@@ -602,8 +641,8 @@ class OptimizeExtension extends Extension {
             Log.warning(
                     OptimizeConstants.LOG_TAG,
                     SELF_TAG,
-                    "handleUpdatePropositionsCompleted - Cannot process the update propositions"
-                            + " complete event due to an exception (%s)!",
+                    "Optimize - Internal | handleUpdatePropositionsCompleted - Cannot process the"
+                            + " update propositions complete event due to an exception (%s)!",
                     e.getLocalizedMessage());
         } finally {
             propositionsInProgress.clear();
@@ -622,6 +661,10 @@ class OptimizeExtension extends Extension {
      * @param requestedScopes a {@code List<DecisionScope>} for which propositions are requested.
      */
     private void updateCachedPropositions(@NonNull final List<DecisionScope> requestedScopes) {
+        Log.debug(
+                OptimizeConstants.LOG_TAG,
+                SELF_TAG,
+                "Optimize - Internal | updateCachedPropositions called");
         // update cache with accumulated propositions
         cachedPropositions.putAll(propositionsInProgress);
 
@@ -645,6 +688,10 @@ class OptimizeExtension extends Extension {
      * @param event incoming {@link Event} object to be processed.
      */
     void handleEdgeResponse(@NonNull final Event event) {
+        Log.debug(
+                OptimizeConstants.LOG_TAG,
+                SELF_TAG,
+                "Optimize - Internal | handleEdgeResponse called");
         try {
             final Map<String, Object> eventData = event.getEventData();
             final String requestEventId = OptimizeUtils.getRequestEventId(event);
@@ -655,9 +702,9 @@ class OptimizeExtension extends Extension {
                 Log.debug(
                         OptimizeConstants.LOG_TAG,
                         SELF_TAG,
-                        "handleEdgeResponse - Ignoring Edge event, either handle type is not"
-                            + " personalization:decisions, or the response isn't intended for this"
-                            + " extension.");
+                        "Optimize - Internal | handleEdgeResponse - Ignoring Edge event, either"
+                            + " handle type is not personalization:decisions, or the response isn't"
+                            + " intended for this extension.");
                 propositionsInProgress.clear();
                 return;
             }
@@ -669,9 +716,9 @@ class OptimizeExtension extends Extension {
                 Log.debug(
                         OptimizeConstants.LOG_TAG,
                         SELF_TAG,
-                        "handleEdgeResponse - Cannot process the Edge personalization:decisions"
-                                + " event, propositions list is either null or empty in the Edge"
-                                + " response.");
+                        "Optimize - Internal | handleEdgeResponse - Cannot process the Edge"
+                            + " personalization:decisions event, propositions list is either null"
+                            + " or empty in the Edge response.");
                 return;
             }
 
@@ -690,9 +737,9 @@ class OptimizeExtension extends Extension {
                 Log.debug(
                         OptimizeConstants.LOG_TAG,
                         SELF_TAG,
-                        "handleEdgeResponse - Cannot process the Edge personalization:decisions"
-                            + " event, no propositions with valid offers are present in the Edge"
-                            + " response.");
+                        "Optimize - Internal | handleEdgeResponse - Cannot process the Edge"
+                            + " personalization:decisions event, no propositions with valid offers"
+                            + " are present in the Edge response.");
                 return;
             }
 
@@ -715,13 +762,17 @@ class OptimizeExtension extends Extension {
                             .build();
 
             // Dispatch notification event
+            Log.debug(
+                    OptimizeConstants.LOG_TAG,
+                    SELF_TAG,
+                    "Optimize - Internal | handleEdgeResponse notification event dispatched");
             getApi().dispatch(edgeEvent);
         } catch (final Exception e) {
             Log.warning(
                     OptimizeConstants.LOG_TAG,
                     SELF_TAG,
-                    "handleEdgeResponse - Cannot process the Edge personalization:decisions event"
-                            + " due to an exception (%s)!",
+                    "Optimize - Internal | handleEdgeResponse - Cannot process the Edge"
+                            + " personalization:decisions event due to an exception (%s)!",
                     e.getLocalizedMessage());
         }
     }
@@ -746,9 +797,9 @@ class OptimizeExtension extends Extension {
                 Log.debug(
                         OptimizeConstants.LOG_TAG,
                         SELF_TAG,
-                        "handleEdgeResponse - Ignoring Edge event, either handle type is not edge"
-                                + " error response content, or the response isn't intended for this"
-                                + " extension.");
+                        "Optimize - Internal | handleEdgeResponse - Ignoring Edge event, either"
+                                + " handle type is not edge error response content, or the response"
+                                + " isn't intended for this extension.");
                 return;
             }
 
@@ -756,8 +807,9 @@ class OptimizeExtension extends Extension {
                 Log.debug(
                         OptimizeConstants.LOG_TAG,
                         SELF_TAG,
-                        "handleEdgeErrorResponse - Ignoring the Edge error response event, either"
-                                + " event is null or event data is null/ empty.");
+                        "Optimize - Internal | handleEdgeErrorResponse - Ignoring the Edge error"
+                                + " response event, either event is null or event data is null/"
+                                + " empty.");
                 return;
             }
 
@@ -791,7 +843,8 @@ class OptimizeExtension extends Extension {
             Log.warning(
                     OptimizeConstants.LOG_TAG,
                     SELF_TAG,
-                    "handleEdgeErrorResponse - Decisioning Service error! Error type: (%s),\n"
+                    "Optimize - Internal | handleEdgeErrorResponse - Decisioning Service error!"
+                            + " Error type: (%s),\n"
                             + "title: (%s),\n"
                             + "detail: (%s),\n"
                             + "status: (%s),\n"
@@ -807,7 +860,7 @@ class OptimizeExtension extends Extension {
                 Log.debug(
                         OptimizeConstants.LOG_TAG,
                         SELF_TAG,
-                        "Recoverable error encountered: Status %d",
+                        "Optimize - Internal | Recoverable error encountered: Status %d",
                         errorStatus);
                 return;
             } else {
@@ -820,8 +873,8 @@ class OptimizeExtension extends Extension {
             Log.warning(
                     OptimizeConstants.LOG_TAG,
                     SELF_TAG,
-                    "handleEdgeResponse - Cannot process the Edge Error Response event"
-                            + " due to an exception (%s)!",
+                    "Optimize - Internal | handleEdgeResponse - Cannot process the Edge Error"
+                            + " Response event due to an exception (%s)!",
                     e.getLocalizedMessage());
         }
     }
@@ -837,6 +890,10 @@ class OptimizeExtension extends Extension {
      * @param event incoming {@link Event} object to be processed.
      */
     void handleGetPropositions(@NonNull final Event event) {
+        Log.debug(
+                OptimizeConstants.LOG_TAG,
+                SELF_TAG,
+                "Optimize - Internal | handleGetPropositions called");
         final Map<String, Object> eventData = event.getEventData();
 
         try {
@@ -850,8 +907,9 @@ class OptimizeExtension extends Extension {
                 Log.debug(
                         OptimizeConstants.LOG_TAG,
                         SELF_TAG,
-                        "handleGetPropositions - Cannot process the get propositions request event,"
-                                + " provided list of decision scopes has no valid scope.");
+                        "Optimize - Internal | handleGetPropositions - Cannot process the get"
+                            + " propositions request event, provided list of decision scopes has no"
+                            + " valid scope.");
                 getApi().dispatch(createResponseEventWithError(event, AdobeError.UNEXPECTED_ERROR));
                 return;
             }
@@ -899,8 +957,8 @@ class OptimizeExtension extends Extension {
             Log.warning(
                     OptimizeConstants.LOG_TAG,
                     SELF_TAG,
-                    "handleGetPropositions - Failed to process get propositions request event due"
-                            + " to an exception (%s)!",
+                    "Optimize - Internal | handleGetPropositions - Failed to process get"
+                            + " propositions request event due to an exception (%s)!",
                     e.getLocalizedMessage());
             getApi().dispatch(createResponseEventWithError(event, AdobeError.UNEXPECTED_ERROR));
         }
@@ -925,8 +983,9 @@ class OptimizeExtension extends Extension {
             Log.debug(
                     OptimizeConstants.LOG_TAG,
                     SELF_TAG,
-                    "handleTrackPropositions - Cannot process the track propositions request event,"
-                            + " Configuration shared state is not available.");
+                    "Optimize - Internal | handleTrackPropositions - Cannot process the track"
+                            + " propositions request event, Configuration shared state is not"
+                            + " available.");
             return;
         }
 
@@ -975,8 +1034,8 @@ class OptimizeExtension extends Extension {
             Log.warning(
                     OptimizeConstants.LOG_TAG,
                     SELF_TAG,
-                    "handleTrackPropositions - Failed to process track propositions request event"
-                            + " due to an exception (%s)!",
+                    "Optimize - Internal | handleTrackPropositions - Failed to process track"
+                            + " propositions request event due to an exception (%s)!",
                     e.getLocalizedMessage());
         }
     }
@@ -1008,8 +1067,8 @@ class OptimizeExtension extends Extension {
                 Log.debug(
                         OptimizeConstants.LOG_TAG,
                         SELF_TAG,
-                        "handleDebugEvent - Ignoring the Optimize Debug event, either event is null"
-                                + " or event data is null/ empty.");
+                        "Optimize - Internal | handleDebugEvent - Ignoring the Optimize Debug"
+                                + " event, either event is null or event data is null/ empty.");
                 return;
             }
 
@@ -1017,9 +1076,9 @@ class OptimizeExtension extends Extension {
                 Log.debug(
                         OptimizeConstants.LOG_TAG,
                         SELF_TAG,
-                        "handleDebugEvent - Ignoring Optimize Debug event, either handle type is"
-                                + " not com.adobe.eventType.system or source is not"
-                                + " com.adobe.eventSource.debug");
+                        "Optimize - Internal | handleDebugEvent - Ignoring Optimize Debug event,"
+                            + " either handle type is not com.adobe.eventType.system or source is"
+                            + " not com.adobe.eventSource.debug");
                 return;
             }
 
@@ -1032,8 +1091,8 @@ class OptimizeExtension extends Extension {
                 Log.debug(
                         OptimizeConstants.LOG_TAG,
                         SELF_TAG,
-                        "handleDebugEvent - Cannot process the Debug event, propositions list is"
-                                + " either null or empty in the response.");
+                        "Optimize - Internal | handleDebugEvent - Cannot process the Debug event,"
+                                + " propositions list is either null or empty in the response.");
                 return;
             }
 
@@ -1052,8 +1111,8 @@ class OptimizeExtension extends Extension {
                 Log.debug(
                         OptimizeConstants.LOG_TAG,
                         SELF_TAG,
-                        "handleDebugEvent - Cannot process the Debug event, no propositions with"
-                                + " valid offers are present in the response.");
+                        "Optimize - Internal | handleDebugEvent - Cannot process the Debug event,"
+                            + " no propositions with valid offers are present in the response.");
                 return;
             }
 
@@ -1080,7 +1139,8 @@ class OptimizeExtension extends Extension {
             Log.warning(
                     OptimizeConstants.LOG_TAG,
                     SELF_TAG,
-                    "handleDebugEvent - Cannot process the Debug event due to an exception (%s)!",
+                    "Optimize - Internal | handleDebugEvent - Cannot process the Debug event due to"
+                            + " an exception (%s)!",
                     e.getLocalizedMessage());
         }
     }
@@ -1117,8 +1177,8 @@ class OptimizeExtension extends Extension {
             Log.debug(
                     OptimizeConstants.LOG_TAG,
                     SELF_TAG,
-                    "retrieveValidDecisionScopes - No valid decision scopes are retrieved, provided"
-                            + " decision scopes list is null or empty.");
+                    "Optimize - Internal | retrieveValidDecisionScopes - No valid decision scopes"
+                            + " are retrieved, provided decision scopes list is null or empty.");
             return null;
         }
 
@@ -1135,8 +1195,8 @@ class OptimizeExtension extends Extension {
             Log.warning(
                     OptimizeConstants.LOG_TAG,
                     SELF_TAG,
-                    "retrieveValidDecisionScopes - No valid decision scopes are retrieved, provided"
-                            + " list of decision scopes has no valid scope.");
+                    "Optimize - Internal | retrieveValidDecisionScopes - No valid decision scopes"
+                        + " are retrieved, provided list of decision scopes has no valid scope.");
             return null;
         }
 

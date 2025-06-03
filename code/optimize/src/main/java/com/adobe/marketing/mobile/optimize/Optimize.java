@@ -129,12 +129,28 @@ public class Optimize {
             final double timeoutSeconds,
             @Nullable final AdobeCallback<Map<DecisionScope, OptimizeProposition>> callback) {
 
+        Log.debug(
+                OptimizeConstants.LOG_TAG,
+                SELF_TAG,
+                "Optimize - Public API | \n"
+                        + "decisionScopes: "
+                        + decisionScopes
+                        + "\n"
+                        + "xdm: "
+                        + xdm
+                        + "\n"
+                        + "data: "
+                        + data
+                        + "\n"
+                        + "timeout: "
+                        + timeoutSeconds);
+
         if (OptimizeUtils.isNullOrEmpty(decisionScopes)) {
             Log.warning(
                     OptimizeConstants.LOG_TAG,
                     SELF_TAG,
-                    "Cannot update propositions, provided list of decision scopes is null or"
-                            + " empty.");
+                    "Optimize - Public API | Cannot update propositions, provided list of decision"
+                            + " scopes is null or empty.");
 
             AEPOptimizeError aepOptimizeError = AEPOptimizeError.Companion.getInvalidRequestError();
             failWithOptimizeError(callback, aepOptimizeError);
@@ -154,8 +170,8 @@ public class Optimize {
             Log.warning(
                     OptimizeConstants.LOG_TAG,
                     SELF_TAG,
-                    "Cannot update propositions, provided list of decision scopes has no valid"
-                            + " scope.");
+                    "Optimize - Public API | Cannot update propositions, provided list of decision"
+                            + " scopes has no valid scope.");
             AEPOptimizeError aepOptimizeError = AEPOptimizeError.Companion.getInvalidRequestError();
             failWithOptimizeError(callback, aepOptimizeError);
             return;
@@ -200,8 +216,18 @@ public class Optimize {
                     public void fail(final AdobeError adobeError) {
                         AEPOptimizeError aepOptimizeError;
                         if (adobeError == AdobeError.CALLBACK_TIMEOUT) {
+                            Log.debug(
+                                    OptimizeConstants.LOG_TAG,
+                                    SELF_TAG,
+                                    "Optimize - Public API | update propositions request timed"
+                                            + " out");
                             aepOptimizeError = AEPOptimizeError.Companion.getTimeoutError();
                         } else {
+                            Log.debug(
+                                    OptimizeConstants.LOG_TAG,
+                                    SELF_TAG,
+                                    "Optimize - Public API | Error Called - update propositions"
+                                            + " unknown error");
                             aepOptimizeError = AEPOptimizeError.Companion.getUnexpectedError();
                         }
                         failWithOptimizeError(callback, aepOptimizeError);
@@ -212,6 +238,11 @@ public class Optimize {
                         try {
                             final Map<String, Object> eventData = event.getEventData();
                             if (OptimizeUtils.isNullOrEmpty(eventData)) {
+                                Log.debug(
+                                        OptimizeConstants.LOG_TAG,
+                                        SELF_TAG,
+                                        "Optimize - Public API | Callback - update propositions"
+                                                + " request timed out");
 
                                 AEPOptimizeError aepOptimizeError =
                                         AEPOptimizeError.Companion.getUnexpectedError();
@@ -225,13 +256,26 @@ public class Optimize {
                                         eventData.get(
                                                 OptimizeConstants.EventDataKeys.RESPONSE_ERROR);
                                 try {
-                                    failWithOptimizeError(
-                                            callback,
+                                    AEPOptimizeError aepOptimizeError =
                                             AEPOptimizeError.toAEPOptimizeError(
-                                                    (Map<String, ? extends Object>) error));
+                                                    (Map<String, ? extends Object>) error);
+                                    Log.debug(
+                                            OptimizeConstants.LOG_TAG,
+                                            SELF_TAG,
+                                            "Optimize - Public API | Callback - error recieved - "
+                                                    + aepOptimizeError.getTitle());
+
+                                    failWithOptimizeError(callback, aepOptimizeError);
                                 } catch (Exception e) {
                                     AEPOptimizeError aepOptimizeError =
                                             AEPOptimizeError.Companion.getUnexpectedError();
+                                    Log.debug(
+                                            OptimizeConstants.LOG_TAG,
+                                            SELF_TAG,
+                                            "Optimize - Public API | Callback - error received"
+                                                    + " while parsing response error: "
+                                                    + e.getMessage());
+
                                     failWithOptimizeError(callback, aepOptimizeError);
                                 }
                                 return;
@@ -241,6 +285,12 @@ public class Optimize {
                                     OptimizeConstants.EventDataKeys.PROPOSITIONS)) {
                                 AEPOptimizeError aepOptimizeError =
                                         AEPOptimizeError.Companion.getUnexpectedError();
+                                Log.debug(
+                                        OptimizeConstants.LOG_TAG,
+                                        SELF_TAG,
+                                        "Optimize - Public API | Callback - no propositions in"
+                                                + " event data");
+
                                 failWithOptimizeError(callback, aepOptimizeError);
                                 return;
                             }
@@ -269,8 +319,18 @@ public class Optimize {
 
                             if (callback != null) {
                                 callback.call(propositionsMap);
+                                Log.debug(
+                                        OptimizeConstants.LOG_TAG,
+                                        SELF_TAG,
+                                        "Optimize - Public API | Callback complete");
                             }
                         } catch (DataReaderException e) {
+                            Log.debug(
+                                    OptimizeConstants.LOG_TAG,
+                                    SELF_TAG,
+                                    "Optimize - Public API | Callback - error while parsing"
+                                            + e.getMessage());
+
                             failWithOptimizeError(
                                     callback, AEPOptimizeError.Companion.getUnexpectedError());
                         }
@@ -314,11 +374,21 @@ public class Optimize {
             @NonNull final List<DecisionScope> decisionScopes,
             final double timeoutSeconds,
             @NonNull final AdobeCallback<Map<DecisionScope, OptimizeProposition>> callback) {
+        Log.debug(
+                OptimizeConstants.LOG_TAG,
+                SELF_TAG,
+                "Optimize - Public API | \n"
+                        + "decisionScopes: "
+                        + decisionScopes
+                        + "\n"
+                        + "timeout: "
+                        + timeoutSeconds);
         if (OptimizeUtils.isNullOrEmpty(decisionScopes)) {
             Log.warning(
                     OptimizeConstants.LOG_TAG,
                     SELF_TAG,
-                    "Cannot get propositions, provided list of decision scopes is null or empty.");
+                    "Optimize - Public API | Cannot get propositions, provided list of decision"
+                            + " scopes is null or empty.");
             failWithError(callback, AdobeError.UNEXPECTED_ERROR);
             return;
         }
@@ -335,8 +405,8 @@ public class Optimize {
             Log.warning(
                     OptimizeConstants.LOG_TAG,
                     SELF_TAG,
-                    "Cannot update propositions, provided list of decision scopes has no valid"
-                            + " scope.");
+                    "Optimize - Public API |Cannot update propositions, provided list of decision"
+                            + " scopes has no valid scope.");
             failWithError(callback, AdobeError.UNEXPECTED_ERROR);
             return;
         }
@@ -368,6 +438,10 @@ public class Optimize {
                 new AdobeCallbackWithError<Event>() {
                     @Override
                     public void fail(final AdobeError adobeError) {
+                        Log.debug(
+                                OptimizeConstants.LOG_TAG,
+                                SELF_TAG,
+                                "Optimize - Public API | Fail - " + adobeError.getErrorName());
                         failWithError(callback, adobeError);
                     }
 
@@ -376,6 +450,11 @@ public class Optimize {
                         try {
                             final Map<String, Object> eventData = event.getEventData();
                             if (OptimizeUtils.isNullOrEmpty(eventData)) {
+                                Log.debug(
+                                        OptimizeConstants.LOG_TAG,
+                                        SELF_TAG,
+                                        "Optimize - Public API | Callback - error, event data is"
+                                                + " null or empty");
                                 failWithError(callback, AdobeError.UNEXPECTED_ERROR);
                                 return;
                             }
@@ -386,8 +465,13 @@ public class Optimize {
                                         DataReader.getInt(
                                                 eventData,
                                                 OptimizeConstants.EventDataKeys.RESPONSE_ERROR);
-                                failWithError(
-                                        callback, OptimizeUtils.convertToAdobeError(errorCode));
+                                AdobeError err = OptimizeUtils.convertToAdobeError(errorCode);
+                                Log.debug(
+                                        OptimizeConstants.LOG_TAG,
+                                        SELF_TAG,
+                                        "Optimize - Public API | Callback - error - "
+                                                + err.getErrorName());
+                                failWithError(callback, err);
                                 return;
                             }
 
@@ -413,7 +497,16 @@ public class Optimize {
                                 }
                             }
                             callback.call(propositionsMap);
+                            Log.debug(
+                                    OptimizeConstants.LOG_TAG,
+                                    SELF_TAG,
+                                    "Optimize - Public API | Callback - callback complete");
                         } catch (DataReaderException e) {
+                            Log.debug(
+                                    OptimizeConstants.LOG_TAG,
+                                    SELF_TAG,
+                                    "Optimize - Public API | Callback - Error while parsing "
+                                            + e.getMessage());
                             failWithError(callback, AdobeError.UNEXPECTED_ERROR);
                         }
                     }
@@ -445,6 +538,10 @@ public class Optimize {
                     public void call(final Event event) {
                         final Map<String, Object> eventData = event.getEventData();
                         if (OptimizeUtils.isNullOrEmpty(eventData)) {
+                            Log.debug(
+                                    OptimizeConstants.LOG_TAG,
+                                    SELF_TAG,
+                                    "Optimize - Public API | Listener - No event data received");
                             return;
                         }
 
@@ -474,6 +571,10 @@ public class Optimize {
 
                             if (!propositionsMap.isEmpty()) {
                                 callback.call(propositionsMap);
+                                Log.debug(
+                                        OptimizeConstants.LOG_TAG,
+                                        SELF_TAG,
+                                        "Optimize - Public API | Listener - callback complete");
                             }
                         } catch (DataReaderException ignored) {
                         }
