@@ -1465,7 +1465,9 @@ public class OptimizeFunctionalTests {
                         "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
                         Collections.singletonList(offer),
                         "eyJhY3Rpdml0eUlkIjoieGNvcmU6b2ZmZXItYWN0aXZpdHk6MTExMTExMTExMTExMTExMSIsInBsYWNlbWVudElkIjoieGNvcmU6b2ZmZXItcGxhY2VtZW50OjExMTExMTExMTExMTExMTEifQ==",
-                        Collections.emptyMap());
+                        Collections.emptyMap(),
+                        null,
+                        null);
 
         // Action
         TestHelper.resetTestExpectations();
@@ -1555,7 +1557,9 @@ public class OptimizeFunctionalTests {
                         "AT:eyJhY3Rpdml0eUlkIjoiMTI1NTg5IiwiZXhwZXJpZW5jZUlkIjoiMCJ9",
                         Collections.singletonList(offer),
                         "myMbox",
-                        testDecisionScopesMap);
+                        testDecisionScopesMap,
+                        null,
+                        null);
 
         // Action
         TestHelper.resetTestExpectations();
@@ -1644,7 +1648,9 @@ public class OptimizeFunctionalTests {
                         "AT:eyJhY3Rpdml0eUlkIjoiMTI1NTg5IiwiZXhwZXJpZW5jZUlkIjoiMCJ9",
                         Collections.singletonList(offer),
                         "myMbox",
-                        testDecisionScopesMap);
+                        testDecisionScopesMap,
+                        null,
+                        null);
 
         // Action
         TestHelper.resetTestExpectations();
@@ -2089,7 +2095,9 @@ public class OptimizeFunctionalTests {
         final Map<String, Object> scopeDetails =
                 (Map<String, Object>) propositionInteractionDetailsMap.get("scopeDetails");
         Assert.assertNotNull(scopeDetails);
-        Assert.assertTrue(scopeDetails.isEmpty());
+        Assert.assertFalse(scopeDetails.isEmpty());
+        Assert.assertNotNull(scopeDetails.get("activity"));
+        Assert.assertNotNull(scopeDetails.get("placement"));
         final List<Map<String, Object>> items =
                 (List<Map<String, Object>>) propositionInteractionDetailsMap.get("items");
         Assert.assertNotNull(items);
@@ -2679,6 +2687,8 @@ public class OptimizeFunctionalTests {
                         "AT:eyJhY3Rpdml0eUlkIjoiMTI1NTg5IiwiZXhwZXJpZW5jZUlkIjoiMCJ8",
                         Collections.singletonList(offer1),
                         "myMbox1",
+                        null,
+                        Collections.emptyMap(),
                         Collections.emptyMap());
 
         OptimizeProposition optimizeProposition2 =
@@ -2686,6 +2696,8 @@ public class OptimizeFunctionalTests {
                         "AT:eyJhY3Rpdml0eUlkIjoiMTI1NTg5IiwiZXhwZXJpZW5jZUlkIjoiMCJ9",
                         Collections.singletonList(offer2),
                         "myMbox2",
+                        null,
+                        Collections.emptyMap(),
                         Collections.emptyMap());
 
         List<OptimizeProposition> optimizePropositionList = new ArrayList<>();

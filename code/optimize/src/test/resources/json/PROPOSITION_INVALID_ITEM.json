@@ -1,0 +1,9 @@
+{
+  "id": "test-id",
+  "scope": "test-scope",
+  "items": [
+    {
+      "invalid": "item"
+    }
+  ]
+} 

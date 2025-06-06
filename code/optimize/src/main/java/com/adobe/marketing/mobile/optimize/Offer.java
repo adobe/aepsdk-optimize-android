@@ -295,56 +295,82 @@ public class Offer {
     }
 
     /**
-     * Generates a map containing XDM formatted data for {@code Experience Event -
-     * OptimizeProposition Interactions} field group from this {@code OptimizeProposition} item.
+     * Generates a map containing XDM-formatted data for the {@code Experience Event -
+     * OptimizeProposition Display} field group from this {@code Offer} instance.
      *
-     * <p>The returned XDM data does contain the {@code eventType} for the Experience Event with
-     * value {@code decisioning.propositionDisplay}.
+     * <p>This method constructs a new {@code OptimizeProposition} object using the current offer
+     * and its associated proposition reference. If the {@code scopeDetails} of the referenced
+     * proposition are empty, the {@code activity} and {@code placement} maps are also included;
+     * otherwise, the simpler constructor is used.
      *
-     * <p>Note: The Edge sendEvent API can be used to dispatch this data in an Experience Event
+     * <p>The returned XDM map contains the {@code eventType} {@code
+     * decisioning.propositionDisplay}.
+     *
+     * <p>Note: The Edge sendEvent API can be used to dispatch this data as an Experience Event,
      * along with any additional XDM, free-form data, and override dataset identifier.
      *
-     * @return {@code Map<String, Object>} containing the XDM data for the proposition interaction.
+     * @return {@code Map<String, Object>} containing the XDM data for the proposition display
+     *     interaction.
      * @see XDMUtils#generateInteractionXdm(String, List)
      */
     public Map<String, Object> generateDisplayInteractionXdm() {
         if (propositionReference == null || propositionReference.get() == null) {
             return null;
         }
-        OptimizeProposition proposition =
+
+        OptimizeProposition original = propositionReference.get();
+        OptimizeProposition proposition;
+
+        proposition =
                 new OptimizeProposition(
-                        propositionReference.get().getId(),
+                        original.getId(),
                         Collections.singletonList(this),
-                        propositionReference.get().getScope(),
-                        propositionReference.get().getScopeDetails());
+                        original.getScope(),
+                        original.getScopeDetails(),
+                        original.getActivity(),
+                        original.getPlacement());
+
         return XDMUtils.generateInteractionXdm(
                 OptimizeConstants.JsonValues.EE_EVENT_TYPE_PROPOSITION_DISPLAY,
                 Collections.singletonList(proposition));
     }
 
     /**
-     * Generates a map containing XDM formatted data for {@code Experience Event -
-     * OptimizeProposition Interactions} field group from this {@code OptimizeProposition} offer.
+     * Generates a map containing XDM-formatted data for the {@code Experience Event -
+     * OptimizeProposition Interact} field group from this {@code Offer} instance.
      *
-     * <p>The returned XDM data contains the {@code eventType} for the Experience Event with value
-     * {@code decisioning.propositionInteract}.
+     * <p>This method constructs a new {@code OptimizeProposition} object using the current offer
+     * and its associated proposition reference. If the {@code scopeDetails} of the referenced
+     * proposition are empty, the {@code activity} and {@code placement} maps are also included;
+     * otherwise, the simpler constructor is used.
      *
-     * <p>Note: The Edge sendEvent API can be used to dispatch this data in an Experience Event
+     * <p>The returned XDM map contains the {@code eventType} {@code
+     * decisioning.propositionInteract}.
+     *
+     * <p>Note: The Edge sendEvent API can be used to dispatch this data as an Experience Event,
      * along with any additional XDM, free-form data, and override dataset identifier.
      *
-     * @return {@code Map<String, Object>} containing the XDM data for the proposition interaction.
+     * @return {@code Map<String, Object>} containing the XDM data for the proposition tap
+     *     interaction.
      * @see XDMUtils#generateInteractionXdm(String, List)
      */
     public Map<String, Object> generateTapInteractionXdm() {
         if (propositionReference == null || propositionReference.get() == null) {
             return null;
         }
-        OptimizeProposition proposition =
+
+        OptimizeProposition original = propositionReference.get();
+        OptimizeProposition proposition;
+
+        proposition =
                 new OptimizeProposition(
-                        propositionReference.get().getId(),
+                        original.getId(),
                         Collections.singletonList(this),
-                        propositionReference.get().getScope(),
-                        propositionReference.get().getScopeDetails());
+                        original.getScope(),
+                        original.getScopeDetails(),
+                        original.getActivity(),
+                        original.getPlacement());
+
         return XDMUtils.generateInteractionXdm(
                 OptimizeConstants.JsonValues.EE_EVENT_TYPE_PROPOSITION_INTERACT,
                 Collections.singletonList(proposition));

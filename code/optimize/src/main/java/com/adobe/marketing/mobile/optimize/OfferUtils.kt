@@ -57,9 +57,11 @@ object OfferUtils {
 
     /**
      * Extracts unique [OptimizeProposition]s from the list of offers based on their proposition ID.
-     * For each proposition, it filters the offers to only include those that are present in the original list.
      *
-     * @return [List] of unique [OptimizeProposition]s with filtered offers, or empty list if no valid propositions are found
+     * <p>For each distinct proposition, it filters the associated offers to include only those
+     * present in the original list (matched by offer ID).
+     *
+     * @return [List] of unique [OptimizeProposition]s with filtered offers, or an empty list if no valid propositions are found.
      */
     private fun List<Offer>.mapToUniquePropositions(): List<OptimizeProposition> {
         val offerIds = mapTo(mutableSetOf()) { it.id }
@@ -74,7 +76,9 @@ object OfferUtils {
                         proposition.id,
                         displayedOffers,
                         proposition.scope,
-                        proposition.scopeDetails
+                        proposition.scopeDetails,
+                        proposition.activity,
+                        proposition.placement
                     )
                 } else null
             }

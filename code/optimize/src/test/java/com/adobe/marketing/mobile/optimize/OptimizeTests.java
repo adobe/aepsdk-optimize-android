@@ -198,7 +198,7 @@ public class OptimizeTests {
                             .readValue(
                                     getClass()
                                             .getClassLoader()
-                                            .getResource("json/PROPOSITION_VALID.json"),
+                                            .getResource("json/PROPOSITION_VALID_ODE.json"),
                                     HashMap.class);
             final OptimizeProposition optimizeProposition =
                     OptimizeProposition.fromEventData(propositionData);
@@ -508,7 +508,7 @@ public class OptimizeTests {
                             .readValue(
                                     getClass()
                                             .getClassLoader()
-                                            .getResource("json/PROPOSITION_VALID.json"),
+                                            .getResource("json/PROPOSITION_VALID_ODE.json"),
                                     HashMap.class);
             final OptimizeProposition optimizeProposition =
                     OptimizeProposition.fromEventData(propositionData);
@@ -752,7 +752,7 @@ public class OptimizeTests {
                             .readValue(
                                     getClass()
                                             .getClassLoader()
-                                            .getResource("json/PROPOSITION_VALID.json"),
+                                            .getResource("json/PROPOSITION_VALID_ODE.json"),
                                     HashMap.class);
             final OptimizeProposition optimizeProposition =
                     OptimizeProposition.fromEventData(propositionData);
@@ -1181,7 +1181,7 @@ public class OptimizeTests {
                             .readValue(
                                     getClass()
                                             .getClassLoader()
-                                            .getResource("json/PROPOSITION_VALID.json"),
+                                            .getResource("json/PROPOSITION_VALID_ODE.json"),
                                     HashMap.class);
             final OptimizeProposition optimizeProposition =
                     OptimizeProposition.fromEventData(propositionData);

@@ -12,6 +12,7 @@
 package com.adobe.marketing.mobile.optimize;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -27,7 +28,7 @@ public class OptimizePropositionTests {
                         .readValue(
                                 getClass()
                                         .getClassLoader()
-                                        .getResource("json/PROPOSITION_VALID.json"),
+                                        .getResource("json/PROPOSITION_VALID_ODE.json"),
                                 HashMap.class);
         final OptimizeProposition optimizeProposition =
                 OptimizeProposition.fromEventData(propositionData);
@@ -133,13 +134,99 @@ public class OptimizePropositionTests {
     }
 
     @Test
+    public void testFromEventData_invalidPropositionEmptyItems() throws Exception {
+        Map<String, Object> propositionData =
+                new ObjectMapper()
+                        .readValue(
+                                getClass()
+                                        .getClassLoader()
+                                        .getResource("json/PROPOSITION_INVALID_EMPTY_ITEMS.json"),
+                                HashMap.class);
+        final OptimizeProposition optimizeProposition =
+                OptimizeProposition.fromEventData(propositionData);
+        final List<Offer> offers = optimizeProposition.getOffers();
+        Assert.assertNotNull(optimizeProposition);
+        Assert.assertNotNull(offers);
+        Assert.assertTrue(offers.isEmpty());
+    }
+
+    @Test
+    public void testFromEventData_invalidPropositionInvalidItem() throws Exception {
+        Map<String, Object> propositionData =
+                new ObjectMapper()
+                        .readValue(
+                                getClass()
+                                        .getClassLoader()
+                                        .getResource("json/PROPOSITION_INVALID_ITEM.json"),
+                                HashMap.class);
+        final OptimizeProposition optimizeProposition =
+                OptimizeProposition.fromEventData(propositionData);
+        Assert.assertNull(optimizeProposition);
+    }
+
+    @Test
+    public void testFromEventData_validPropositionWithActivityAndPlacement() throws Exception {
+        Map<String, Object> propositionData =
+                new ObjectMapper()
+                        .readValue(
+                                getClass()
+                                        .getClassLoader()
+                                        .getResource(
+                                                "json/PROPOSITION_VALID_WITH_ACTIVITY_PLACEMENT.json"),
+                                HashMap.class);
+        final OptimizeProposition optimizeProposition =
+                OptimizeProposition.fromEventData(propositionData);
+        Assert.assertNotNull(optimizeProposition);
+
+        Assert.assertEquals("test-id", optimizeProposition.getId());
+        Assert.assertEquals("test-scope", optimizeProposition.getScope());
+        Assert.assertTrue(optimizeProposition.getScopeDetails().isEmpty());
+        Assert.assertEquals(1, optimizeProposition.getOffers().size());
+
+        Map<String, Object> activity = optimizeProposition.getActivity();
+        Assert.assertNotNull(activity);
+        Assert.assertEquals("activity-id", activity.get("id"));
+
+        Map<String, Object> placement = optimizeProposition.getPlacement();
+        Assert.assertNotNull(placement);
+        Assert.assertEquals("placement-id", placement.get("id"));
+    }
+
+    @Test
+    public void testFromEventData_validPropositionWithScopeDetails() throws Exception {
+        Map<String, Object> propositionData =
+                new ObjectMapper()
+                        .readValue(
+                                getClass()
+                                        .getClassLoader()
+                                        .getResource(
+                                                "json/PROPOSITION_VALID_WITH_SCOPE_DETAILS.json"),
+                                HashMap.class);
+        final OptimizeProposition optimizeProposition =
+                OptimizeProposition.fromEventData(propositionData);
+        Assert.assertNotNull(optimizeProposition);
+
+        Assert.assertEquals("test-id", optimizeProposition.getId());
+        Assert.assertEquals("test-scope", optimizeProposition.getScope());
+        Assert.assertNotNull(optimizeProposition.getScopeDetails());
+        Assert.assertEquals(1, optimizeProposition.getOffers().size());
+
+        Map<String, Object> scopeDetails = optimizeProposition.getScopeDetails();
+        Assert.assertNotNull(scopeDetails);
+        Assert.assertEquals(
+                "activity-id", ((Map<String, Object>) scopeDetails.get("activity")).get("id"));
+        Assert.assertEquals(
+                "placement-id", ((Map<String, Object>) scopeDetails.get("placement")).get("id"));
+    }
+
+    @Test
     public void testGenerateReferenceXdm_validProposition() throws Exception {
         Map<String, Object> propositionData =
                 new ObjectMapper()
                         .readValue(
                                 getClass()
                                         .getClassLoader()
-                                        .getResource("json/PROPOSITION_VALID.json"),
+                                        .getResource("json/PROPOSITION_VALID_ODE.json"),
                                 HashMap.class);
         final OptimizeProposition optimizeProposition =
                 OptimizeProposition.fromEventData(propositionData);
@@ -189,5 +276,92 @@ public class OptimizePropositionTests {
         Assert.assertEquals(
                 "AT:eyJhY3Rpdml0eUlkIjoiMTI1NTg5IiwiZXhwZXJpZW5jZUlkIjoiMCJ9",
                 decisioning.get("propositionID"));
+    }
+
+    @Test
+    public void testGenerateReferenceXdm_withActivityAndPlacement() throws Exception {
+        Map<String, Object> activity = new HashMap<>();
+        activity.put("id", "activity-id");
+        Map<String, Object> placement = new HashMap<>();
+        placement.put("id", "placement-id");
+
+        OptimizeProposition proposition =
+                new OptimizeProposition(
+                        "test-id",
+                        Collections.emptyList(),
+                        "test-scope",
+                        null,
+                        activity,
+                        placement);
+
+        Map<String, Object> xdm = proposition.generateReferenceXdm();
+        Assert.assertNotNull(xdm);
+        Assert.assertNull(xdm.get("eventType"));
+
+        Map<String, Object> experience = (Map<String, Object>) xdm.get("_experience");
+        Assert.assertNotNull(experience);
+        Map<String, Object> decisioning = (Map<String, Object>) experience.get("decisioning");
+        Assert.assertNotNull(decisioning);
+        Assert.assertEquals("test-id", decisioning.get("propositionID"));
+    }
+
+    @Test
+    public void testGenerateReferenceXdm_withScopeDetails() throws Exception {
+        Map<String, Object> scopeDetails = new HashMap<>();
+        Map<String, Object> activity = new HashMap<>();
+        activity.put("id", "activity-id");
+        Map<String, Object> placement = new HashMap<>();
+        placement.put("id", "placement-id");
+        scopeDetails.put("activity", activity);
+        scopeDetails.put("placement", placement);
+
+        OptimizeProposition proposition =
+                new OptimizeProposition(
+                        "test-id", Collections.emptyList(), "test-scope", scopeDetails, null, null);
+
+        Map<String, Object> xdm = proposition.generateReferenceXdm();
+        Assert.assertNotNull(xdm);
+        Assert.assertNull(xdm.get("eventType"));
+
+        Map<String, Object> experience = (Map<String, Object>) xdm.get("_experience");
+        Assert.assertNotNull(experience);
+        Map<String, Object> decisioning = (Map<String, Object>) experience.get("decisioning");
+        Assert.assertNotNull(decisioning);
+        Assert.assertEquals("test-id", decisioning.get("propositionID"));
+    }
+
+    @Test
+    public void testEqualsAndHashCode() {
+        OptimizeProposition prop1 =
+                new OptimizeProposition(
+                        "test-id",
+                        Collections.emptyList(),
+                        "test-scope",
+                        null,
+                        Collections.emptyMap(),
+                        Collections.emptyMap());
+
+        OptimizeProposition prop2 =
+                new OptimizeProposition(
+                        "test-id",
+                        Collections.emptyList(),
+                        "test-scope",
+                        null,
+                        Collections.emptyMap(),
+                        Collections.emptyMap());
+
+        OptimizeProposition prop3 =
+                new OptimizeProposition(
+                        "different-id",
+                        Collections.emptyList(),
+                        "test-scope",
+                        null,
+                        Collections.emptyMap(),
+                        Collections.emptyMap());
+
+        Assert.assertEquals(prop1, prop2);
+        Assert.assertEquals(prop1.hashCode(), prop2.hashCode());
+        Assert.assertNotEquals(prop1, prop3);
+        Assert.assertNotEquals(prop1.hashCode(), prop3.hashCode());
     }
 }

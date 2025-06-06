@@ -34,11 +34,15 @@ class XDMUtilsTest {
                 }
 
             expectedStructure is List<*> && actual is List<*> ->
-                expectedStructure.firstOrNull()?.let { expectedValue ->
-                    actual.firstOrNull()?.let { actualValue ->
-                        validateStructure(expectedValue, actualValue)
-                    }
-                } ?: false
+                if (expectedStructure.isEmpty()) {
+                    actual.isEmpty() // true only if actual is also empty
+                } else {
+                    expectedStructure.firstOrNull()?.let { expectedValue ->
+                        actual.firstOrNull()?.let { actualValue ->
+                            validateStructure(expectedValue, actualValue)
+                        }
+                    } ?: false
+                }
 
             else -> expectedStructure::class == actual::class
         }
@@ -136,5 +140,308 @@ class XDMUtilsTest {
 
         Assert.assertNotNull(items)
         Assert.assertEquals(1, items?.size)
+    }
+
+    @Test
+    fun `generateInteractionXdm should handle empty propositions list`() {
+        val experienceEventType = "decisioning.propositionDisplay"
+        val result = XDMUtils.generateInteractionXdm(experienceEventType, emptyList())
+
+        val expectedStructure = mapOf(
+            "_experience" to mapOf(
+                "decisioning" to mapOf(
+                    "propositions" to emptyList<Map<String, Any>>()
+                )
+            ),
+            "eventType" to experienceEventType
+        )
+
+        Assert.assertTrue(validateStructure(expectedStructure, result))
+    }
+
+    @Test
+    fun `generateInteractionXdm should handle propositions with empty activity and placement`() {
+        val experienceEventType = "decisioning.propositionDisplay"
+        val proposition = OptimizeProposition(
+            "test-id",
+            emptyList(),
+            "test-scope",
+            null,
+            emptyMap(),
+            emptyMap()
+        )
+        val result = XDMUtils.generateInteractionXdm(experienceEventType, listOf(proposition))
+
+        val expectedStructure = mapOf(
+            "_experience" to mapOf(
+                "decisioning" to mapOf(
+                    "propositions" to listOf(
+                        mapOf(
+                            "id" to "test-id",
+                            "scope" to "test-scope",
+                            "items" to arrayListOf<Map<String, Any>>()
+                        )
+                    )
+                )
+            ),
+            "eventType" to experienceEventType
+        )
+
+        Assert.assertTrue(validateStructure(expectedStructure, result))
+    }
+
+    @Test
+    fun `generateInteractionXdm should handle propositions with activity and placement in scopeDetails`() {
+        val experienceEventType = "decisioning.propositionDisplay"
+        val scopeDetails = mapOf(
+            "activity" to mapOf("id" to "activity-id"),
+            "placement" to mapOf("id" to "placement-id")
+        )
+        val proposition = OptimizeProposition(
+            "test-id",
+            emptyList(),
+            "test-scope",
+            scopeDetails,
+            null,
+            null
+        )
+        val result = XDMUtils.generateInteractionXdm(experienceEventType, listOf(proposition))
+
+        val expectedStructure = mapOf(
+            "_experience" to mapOf(
+                "decisioning" to mapOf(
+                    "propositions" to listOf(
+                        mapOf(
+                            "id" to "test-id",
+                            "scope" to "test-scope",
+                            "scopeDetails" to scopeDetails,
+                            "items" to emptyList<Map<String, Any>>()
+                        )
+                    )
+                )
+            ),
+            "eventType" to experienceEventType
+        )
+
+        Assert.assertTrue(validateStructure(expectedStructure, result))
+    }
+
+    @Test
+    fun `generateInteractionXdm should handle propositions with activity and placement are in proposition`() {
+        val experienceEventType = "decisioning.propositionDisplay"
+        val activity = mapOf("id" to "prop-activity-id")
+        val placement = mapOf("id" to "prop-placement-id")
+        val proposition = OptimizeProposition(
+            "test-id",
+            emptyList(),
+            "test-scope",
+            null,
+            activity,
+            placement
+        )
+        val result = XDMUtils.generateInteractionXdm(experienceEventType, listOf(proposition))
+
+        val expectedStructure = mapOf(
+            "_experience" to mapOf(
+                "decisioning" to mapOf(
+                    "propositions" to listOf(
+                        mapOf(
+                            "id" to "test-id",
+                            "scope" to "test-scope",
+                            "items" to emptyList<Map<String, Any>>()
+                        )
+                    )
+                )
+            ),
+            "eventType" to experienceEventType
+        )
+
+        Assert.assertTrue(validateStructure(expectedStructure, result))
+    }
+
+    @Test
+    fun `generateInteractionXdm should handle propositions with null activity and placement`() {
+        val experienceEventType = "decisioning.propositionDisplay"
+        val proposition = OptimizeProposition(
+            "test-id",
+            emptyList(),
+            "test-scope",
+            null,
+            null,
+            null
+        )
+        val result = XDMUtils.generateInteractionXdm(experienceEventType, listOf(proposition))
+
+        val expectedStructure = mapOf(
+            "_experience" to mapOf(
+                "decisioning" to mapOf(
+                    "propositions" to listOf(
+                        mapOf(
+                            "id" to "test-id",
+                            "scope" to "test-scope",
+                            "items" to emptyList<Map<String, Any>>()
+                        )
+                    )
+                )
+            ),
+            "eventType" to experienceEventType
+        )
+
+        Assert.assertTrue(validateStructure(expectedStructure, result))
+    }
+
+    @Test
+    fun `generateInteractionXdm should handle propositions with null scopeDetails`() {
+        val experienceEventType = "decisioning.propositionDisplay"
+        val proposition = OptimizeProposition(
+            "test-id",
+            emptyList(),
+            "test-scope",
+            null,
+            null,
+            null
+        )
+        val result = XDMUtils.generateInteractionXdm(experienceEventType, listOf(proposition))
+
+        val expectedStructure = mapOf(
+            "_experience" to mapOf(
+                "decisioning" to mapOf(
+                    "propositions" to listOf(
+                        mapOf(
+                            "id" to "test-id",
+                            "scope" to "test-scope",
+                            "items" to emptyList<Map<String, Any>>()
+                        )
+                    )
+                )
+            ),
+            "eventType" to experienceEventType
+        )
+
+        Assert.assertTrue(validateStructure(expectedStructure, result))
+    }
+
+    @Test
+    fun `generateInteractionXdm should handle propositions with empty items`() {
+        val experienceEventType = "decisioning.propositionDisplay"
+        val proposition = OptimizeProposition(
+            "test-id",
+            emptyList(),
+            "test-scope",
+            null,
+            emptyMap(),
+            emptyMap()
+        )
+        val result = XDMUtils.generateInteractionXdm(experienceEventType, listOf(proposition))
+
+        val expectedStructure = mapOf(
+            "_experience" to mapOf(
+                "decisioning" to mapOf(
+                    "propositions" to listOf(
+                        mapOf(
+                            "id" to "test-id",
+                            "scope" to "test-scope",
+                            "items" to emptyList<Map<String, Any>>()
+                        )
+                    )
+                )
+            ),
+            "eventType" to experienceEventType
+        )
+
+        Assert.assertTrue(validateStructure(expectedStructure, result))
+    }
+
+    @Test
+    fun `generateInteractionXdm should handle propositions with null items`() {
+        val experienceEventType = "decisioning.propositionDisplay"
+        val proposition = OptimizeProposition(
+            "test-id",
+            null,
+            "test-scope",
+            null,
+            emptyMap(),
+            emptyMap()
+        )
+        val result = XDMUtils.generateInteractionXdm(experienceEventType, listOf(proposition))
+
+        val expectedStructure = mapOf(
+            "_experience" to mapOf(
+                "decisioning" to mapOf(
+                    "propositions" to listOf(
+                        mapOf(
+                            "id" to "test-id",
+                            "scope" to "test-scope",
+                            "items" to emptyList<Map<String, Any>>()
+                        )
+                    )
+                )
+            ),
+            "eventType" to experienceEventType
+        )
+
+        Assert.assertTrue(validateStructure(expectedStructure, result))
+    }
+
+    @Test
+    fun `generateInteractionXdm should handle propositions with null scope`() {
+        val experienceEventType = "decisioning.propositionDisplay"
+        val proposition = OptimizeProposition(
+            "test-id",
+            emptyList(),
+            null,
+            null,
+            emptyMap(),
+            emptyMap()
+        )
+        val result = XDMUtils.generateInteractionXdm(experienceEventType, listOf(proposition))
+
+        val expectedStructure = mapOf(
+            "_experience" to mapOf(
+                "decisioning" to mapOf(
+                    "propositions" to listOf(
+                        mapOf(
+                            "id" to "test-id",
+                            "scope" to "",
+                            "items" to emptyList<Map<String, Any>>()
+                        )
+                    )
+                )
+            ),
+            "eventType" to experienceEventType
+        )
+
+        Assert.assertTrue(validateStructure(expectedStructure, result))
+    }
+
+    @Test
+    fun `generateInteractionXdm should handle propositions with null id`() {
+        val experienceEventType = "decisioning.propositionDisplay"
+        val proposition = OptimizeProposition(
+            null,
+            emptyList(),
+            "test-scope",
+            null,
+            emptyMap(),
+            emptyMap()
+        )
+        val result = XDMUtils.generateInteractionXdm(experienceEventType, listOf(proposition))
+
+        val expectedStructure = mapOf(
+            "_experience" to mapOf(
+                "decisioning" to mapOf(
+                    "propositions" to listOf(
+                        mapOf(
+                            "id" to "",
+                            "scope" to "test-scope",
+                            "items" to emptyList<Map<String, Any>>()
+                        )
+                    )
+                )
+            ),
+            "eventType" to experienceEventType
+        )
+
+        Assert.assertTrue(validateStructure(expectedStructure, result))
     }
 }
