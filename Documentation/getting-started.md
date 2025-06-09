@@ -1,6 +1,6 @@
-# Adobe Journey Optimizer - Decisioning Extension
+# Offer Decisioning and Target Extension
 
-The Adobe Journey Optimizer - Decisioning extension powers real-time personalization workflows using Adobe Journey Optimizer - Offer Decisioning or Adobe Target in mobile apps via the Edge Network. It helps deliver personalized decisions to your app and enables tracking user interactions with the proposed decisions.
+The Offer Decisioning and Target extension powers real-time personalization workflows using Adobe Journey Optimizer - Offer Decisioning or Adobe Target in mobile apps via the Edge Network. It helps deliver personalized decisions to your app and enables tracking user interactions with the proposed decisions.
 
 ## Prerequisites
 
@@ -22,16 +22,16 @@ On [Experience Platform Data Collection](https://experience.adobe.com/#/data-col
 ![Datastream configuration - Adobe Target](./assets/ajo-decisioning-datastream-configuration-at.png)
 4. Click **Save**.
 
-### Configure Adobe Journey Optimizer - Decisioning extension in Tag property for Mobile
+### Configure Offer Decisioning and Target extension in Tag property for Mobile
 
 On [Experience Platform Data Collection](https://experience.adobe.com/#/data-collection/), navigate to **Data Collection** > **Tags** using the left navigation panel. Select an existing mobile tag property or create a new property.
 
 1. In your mobile property, navigate to **Extensions** in the left navigation panel and click on the **Catalog** tab.
-2. In the extensions Catalog, search or locate the **Adobe Journey Optimizer - Decisioning** extension, and click **Install**.
+2. In the extensions Catalog, search or locate the **Offer Decisioning and Target** extension, and click **Install**.
 3. Since an extension configuration is not necessary, click **Save**.
 4. Follow the publishing process to update SDK configuration. For more details, see the [publish the configuration guide](https://developer.adobe.com/client-sdks/documentation/getting-started/create-a-mobile-property/#publish-the-configuration).
 
-![Adobe Journey Optimizer - Decisioning extension configuration](./assets/ajo-decisioning-extension-configuration.png)
+![Offer Decisioning and Target extension configuration](./assets/ajo-decisioning-extension-configuration.png)
 
 ## Integrate Experience Platform Optimize SDK in your mobile application
 
@@ -89,7 +89,7 @@ public class MainApp extends Application {
 
         MobileCore.registerExtensions(
             Arrays.asList(Edge.EXTENSION, Identity.EXTENSION, Optimize.EXTENSION),
-            o -> Log.d("MainApp", "Adobe Journey Optimizer - Decisioning Mobile SDK was initialized.")
+            o -> Log.d("MainApp", "Offer Decisioning and Target Mobile SDK was initialized.")
         );
     }
 }
@@ -239,7 +239,7 @@ On Experience Platform Data Collection, navigate to **Data Collection** > **Tags
 4. On the right pane, click on **+** to specify **XDM Event Type** equals **personalization.request**.
 5. Click on **Keep Changes**.
 
-![Adobe Journey Optimizer - Decisioning extension Lifecycle rule Event Configuration](./assets/ajo-decisioning-lifecycle-rule-event.png)
+![Offer Decisioning and Target extension Lifecycle rule Event Configuration](./assets/ajo-decisioning-lifecycle-rule-event.png)
 
 #### Define the action
 
@@ -249,7 +249,7 @@ On Experience Platform Data Collection, navigate to **Data Collection** > **Tags
 4. On the right pane, specify the **JSON Payload** containing metrics of interest. An example JSON Payload containing all of the mobile Lifecycle metrics is shown below.
 5. Click on **Keep Changes**.
 
-![Adobe Journey Optimizer - Decisioning extension Lifecycle rule Action Configuration](./assets/ajo-decisioning-lifecycle-rule-action.png)
+![Offer Decisioning and Target extension Lifecycle rule Action Configuration](./assets/ajo-decisioning-lifecycle-rule-action.png)
 
 ```javascript
 {
@@ -289,7 +289,7 @@ On Experience Platform Data Collection, navigate to **Data Collection** > **Tags
 
 After you finish your rule configuration, verify the rule details are as shown below:
 
-![Adobe Journey Optimizer - Decisioning extension Lifecycle rule Configuration](./assets/ajo-decisioning-lifecycle-rule.png)
+![Offer Decisioning and Target extension Lifecycle rule Configuration](./assets/ajo-decisioning-lifecycle-rule.png)
 
 1. Click on **Save**.
 2. [Republish your configuration](https://developer.adobe.com/client-sdks/documentation/getting-started/create-a-mobile-property/#publish-the-configuration) to the desired environment.
@@ -418,4 +418,4 @@ To update the SDK configuration programmatically, use the following information 
 
 ## Next Steps
 
-- Get familiar with the various APIs offered by the AEP SDK by checking out the [Adobe Journey Optimizer - Decisioning API reference](./api-reference.md).
+- Get familiar with the various APIs offered by the AEP SDK by checking out the [Offer Decisioning and Target API reference](./api-reference.md).
