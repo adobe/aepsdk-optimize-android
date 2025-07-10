@@ -1,4 +1,4 @@
-# Adobe Journey Optimizer - Decisioning API reference
+# Offer Decisioning and Target API reference
 
 ## Prerequisites
 

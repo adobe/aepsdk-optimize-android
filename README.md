@@ -1,7 +1,7 @@
 # Adobe Experience Platform Optimize Mobile SDK
 
 ## About this project
-The AEP Optimize mobile SDK Extension provides APIs to enable real-time personalization workflows in the Adobe Experience Platform SDKs using Adobe Target or Adobe Journey Optimizer Offer Decisioning. It depends on the Mobile Core and requires Edge Extension to send personalization query events to the Experience Edge network.
+The AEP Optimize Mobile SDK provides APIs to enable real-time personalization workflows in the Adobe Experience Platform SDKs using Adobe Target or Adobe Journey Optimizer Offer Decisioning. It depends on the Mobile Core and requires Edge Extension to send personalization query events to the Experience Edge network.
 
 ## Getting started
 
