@@ -234,15 +234,6 @@ public class Optimize {
                                             AEPOptimizeError.Companion.getUnexpectedError();
                                     failWithOptimizeError(callback, aepOptimizeError);
                                 }
-                                return;
-                            }
-
-                            if (!eventData.containsKey(
-                                    OptimizeConstants.EventDataKeys.PROPOSITIONS)) {
-                                AEPOptimizeError aepOptimizeError =
-                                        AEPOptimizeError.Companion.getUnexpectedError();
-                                failWithOptimizeError(callback, aepOptimizeError);
-                                return;
                             }
 
                             final List<Map<String, Object>> propositionsList;
