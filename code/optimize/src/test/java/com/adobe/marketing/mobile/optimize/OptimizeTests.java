@@ -225,7 +225,7 @@ public class OptimizeTests {
     }
 
     @Test
-    public void testUpdatePropositionsWithCallback_validDecisionScopeWithError() throws Exception {
+    public void testUpdatePropositionsWithCallback_SuccessWithError() throws Exception {
         try (MockedStatic<MobileCore> mobileCoreMockedStatic =
                         Mockito.mockStatic(MobileCore.class);
                 MockedStatic<Base64> base64MockedStatic = Mockito.mockStatic(Base64.class)) {
