@@ -56,7 +56,7 @@ ci-publish-maven-local-jitpack: assemble-phone-release
 	(./code/gradlew -p code/$(EXTENSION-LIBRARY-FOLDER-NAME) publishReleasePublicationToMavenLocal -Pjitpack  -x signReleasePublication)
 
 ci-publish-staging: assemble-phone-release
-	(./code/gradlew -p code/$(EXTENSION-LIBRARY-FOLDER-NAME) publishReleasePublicationToSonatypeRepository)
+	(./code/gradlew -p code/$(EXTENSION-LIBRARY-FOLDER-NAME) publish --stacktrace)
 
 ci-publish: assemble-phone-release
-	(./code/gradlew -p code/$(EXTENSION-LIBRARY-FOLDER-NAME) publishReleasePublicationToSonatypeRepository -Prelease)
+	(./code/gradlew -p code/$(EXTENSION-LIBRARY-FOLDER-NAME) publish -Prelease)
