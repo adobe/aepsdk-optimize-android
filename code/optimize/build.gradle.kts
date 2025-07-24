@@ -23,7 +23,7 @@ aepLibrary {
     enableDokkaDoc = true
     enableSpotless = true
     enableCheckStyle = true
-    enablePlayConsoleVerification = true
+    enablePlayConsoleVerification = false
 
     publishing {
         gitRepoName = "aepsdk-optimize-android"
