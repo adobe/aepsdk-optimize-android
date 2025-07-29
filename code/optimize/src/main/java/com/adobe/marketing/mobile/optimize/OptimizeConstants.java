@@ -13,7 +13,7 @@ package com.adobe.marketing.mobile.optimize;
 
 class OptimizeConstants {
     static final String LOG_TAG = "Optimize";
-    static final String EXTENSION_VERSION = "3.6.1";
+    static final String EXTENSION_VERSION = "3.6.2";
     static final String EXTENSION_NAME = "com.adobe.optimize";
     static final String FRIENDLY_NAME = "Optimize";
     static final double GET_RESPONSE_CALLBACK_TIMEOUT = 10;
