@@ -25,9 +25,7 @@ jobs:
     permissions:
         contents: write
     uses: adobe/aepsdk-commons/.github/workflows/android-maven-snapshot.yml@gha-android-3.4.2
-    secrets: 
-      inherit: true
-      GOOGLE_TOKEN: ${{ secrets.GOOGLE_TOKEN }}
+    secrets: inherit
     with:
       ref: ${{ inputs.ref }}
       staging-dir: code/optimize/build/staging-deploy
