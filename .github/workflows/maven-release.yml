@@ -41,10 +41,12 @@ jobs:
     permissions:
         contents: write
     uses: adobe/aepsdk-commons/.github/workflows/android-maven-release.yml@gha-android-3.4.2
+    secrets: 
+      inherit: true
+      GOOGLE_TOKEN: ${{ secrets.GOOGLE_TOKEN }}
     with:
       tag: ${{ github.event.inputs.tag }}
       create-github-release: ${{ github.event.inputs.create-github-release == 'true' }}
       version-validation-paths: code/gradle.properties, code/optimize/src/main/java/com/adobe/marketing/mobile/optimize/OptimizeConstants.java
       version-validation-dependencies: Core ${{ github.event.inputs.core-dependency }}, Edge ${{ github.event.inputs.edge-dependency }}
       staging-dir: code/optimize/build/staging-deploy
-    secrets: inherit
