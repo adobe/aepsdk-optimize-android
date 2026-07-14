@@ -55,7 +55,7 @@ android {
 dependencies {
     implementation(project(":optimize"))
     implementation(platform("com.adobe.marketing.mobile:sdk-bom:3.8.0"))
-    implementation("com.adobe.marketing.mobile:edge")
+    implementation(project(":edge"))
     implementation("com.adobe.marketing.mobile:core")
     implementation("com.adobe.marketing.mobile:edgeidentity")
     implementation("com.adobe.marketing.mobile:assurance")

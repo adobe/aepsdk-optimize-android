@@ -39,6 +39,15 @@ class OptimizeExtension extends Extension {
 
     private static final String SELF_TAG = "OptimizeExtension";
 
+    // Shared log source for EdgeFlow-tagged trace lines (see logEdgeFlowCallbackFired), used
+    // instead
+    // of SELF_TAG so the "<extension>/<source> - " prefix Log.trace builds is a short, constant
+    // width
+    // — matching the same convention the Edge module's EdgeFlowLog.SOURCE uses — rather than
+    // shifting
+    // by SELF_TAG's length.
+    private static final String EDGE_FLOW_SOURCE = "Flow";
+
     // Concurrent Map containing the cached propositions returned in various
     // personalization:decisions events
     // for the same Edge personalization request.
@@ -458,6 +467,14 @@ class OptimizeExtension extends Extension {
             // anticipated response in the extension.
             updateRequestEventIdsInProgress.put(edgeEvent.getUniqueIdentifier(), validScopes);
 
+            Log.trace(
+                    OptimizeConstants.LOG_TAG,
+                    EDGE_FLOW_SOURCE,
+                    "OptFlow REQUEST     | ev=%s | scopes=%s | t=%d",
+                    edgeEvent.getUniqueIdentifier(),
+                    validScopeNames,
+                    System.currentTimeMillis());
+
             // add the Edge event to update propositions in the events queue.
             eventsDispatcher.offer(edgeEvent);
             long timeoutMillis = ConfigUtils.retrieveOptimizeRequestTimeout(event, configData);
@@ -467,6 +484,12 @@ class OptimizeExtension extends Extension {
                     new AdobeCallbackWithError<Event>() {
                         @Override
                         public void fail(final AdobeError error) {
+                            logEdgeFlowCallbackFired(
+                                    edgeEvent.getUniqueIdentifier(),
+                                    event.getUniqueIdentifier(),
+                                    event.getTimestamp(),
+                                    error);
+
                             // response event failed or timed out, remove this event's unique
                             // identifier from the requested event IDs dictionary and kick-off
                             // queue.
@@ -495,6 +518,12 @@ class OptimizeExtension extends Extension {
                                 return;
                             }
 
+                            logEdgeFlowCallbackFired(
+                                    edgeEvent.getUniqueIdentifier(),
+                                    event.getUniqueIdentifier(),
+                                    event.getTimestamp(),
+                                    null);
+
                             final Map<String, Object> responseEventData = new HashMap<>();
                             AEPOptimizeError aepOptimizeError =
                                     updateRequestEventIdsErrors.get(requestEventId);
@@ -503,6 +532,16 @@ class OptimizeExtension extends Extension {
                                         OptimizeConstants.EventDataKeys.RESPONSE_ERROR,
                                         aepOptimizeError.toEventData());
                             }
+
+                            Log.trace(
+                                    OptimizeConstants.LOG_TAG,
+                                    EDGE_FLOW_SOURCE,
+                                    "OptFlow CALLBACK-RD | ev=%s | requestedScopes=%s |"
+                                            + " inProgressKeysAtRead=%s | t=%d",
+                                    requestEventId,
+                                    updateRequestEventIdsInProgress.get(requestEventId),
+                                    propositionsInProgress.keySet(),
+                                    System.currentTimeMillis());
 
                             final List<Map<String, Object>> propositionsList = new ArrayList<>();
 
@@ -558,6 +597,47 @@ class OptimizeExtension extends Extension {
     }
 
     /**
+     * Logs the moment this extension's own {@code updatePropositions} response/timeout callback
+     * fires, tagged {@code EdgeFlow} so it can be filtered alongside the Edge SDK's own {@code
+     * EdgeFlow} lifecycle trace. This callback is fired by Core's {@code
+     * dispatchEventWithResponseCallback} listener as soon as an event whose {@code responseID}
+     * matches {@code edgeEventId} is dispatched — which is the Edge SDK's {@code CONTENT_COMPLETE}
+     * event, dispatched from inside its own per-event completion loop. Because of that, this
+     * callback fires on the same batched-together timing as the Edge {@code COMPLETION} lines, not
+     * staggered by individual handle arrival.
+     *
+     * <p>The {@code ev=} value printed here is the same Edge event id printed by the Edge SDK's own
+     * {@code EdgeFlow} lines (the two modules don't share a logging class, so the column widths are
+     * duplicated locally to keep the lines visually aligned when filtered together).
+     *
+     * @param edgeEventId the Edge personalization request event's unique id (matches Edge's {@code
+     *     ev=})
+     * @param optimizeRequestEventId this extension's {@code UPDATE_PROPOSITIONS_REQUEST} event id
+     *     (what the app-level callback is ultimately keyed on)
+     * @param requestTimestampMs timestamp (ms) of the original update propositions request, used to
+     *     compute elapsed time
+     * @param error non-null when this fired via the failure/timeout path
+     */
+    private static void logEdgeFlowCallbackFired(
+            final String edgeEventId,
+            final String optimizeRequestEventId,
+            final long requestTimestampMs,
+            final AdobeError error) {
+        final long elapsedMs = System.currentTimeMillis() - requestTimestampMs;
+        final String idPlaceholder = String.format("%-36s", "").replace(' ', '-');
+        Log.trace(
+                OptimizeConstants.LOG_TAG,
+                EDGE_FLOW_SOURCE,
+                "EdgeFlow %-12s | ev=%-36s#-- | req=%s | +%d ms, optReqEventId=%s%s",
+                error == null ? "OPT-CALLBACK" : "OPT-CB-FAIL",
+                edgeEventId != null ? edgeEventId : idPlaceholder,
+                idPlaceholder,
+                elapsedMs,
+                optimizeRequestEventId,
+                error != null ? ", error=" + error.getErrorName() : "");
+    }
+
+    /**
      * Handles the event with type {@value OptimizeConstants.EventType#OPTIMIZE} and source {@value
      * OptimizeConstants.EventSource#CONTENT_COMPLETE}.
      *
@@ -567,8 +647,9 @@ class OptimizeExtension extends Extension {
      * @param event incoming {@link Event} object to be processed.
      */
     void handleUpdatePropositionsCompleted(@NonNull final Event event) {
+        String requestCompletedForEventId = null;
         try {
-            final String requestCompletedForEventId =
+            requestCompletedForEventId =
                     DataReader.getString(
                             event.getEventData(),
                             OptimizeConstants.EventDataKeys.COMPLETED_UPDATE_EVENT_ID);
@@ -593,6 +674,16 @@ class OptimizeExtension extends Extension {
                 return;
             }
 
+            Log.trace(
+                    OptimizeConstants.LOG_TAG,
+                    EDGE_FLOW_SOURCE,
+                    "OptFlow COMPLETION  | ev=%s | requestedScopes=%s | inProgressKeysAtRead=%s |"
+                            + " t=%d",
+                    requestCompletedForEventId,
+                    requestedScopes,
+                    propositionsInProgress.keySet(),
+                    System.currentTimeMillis());
+
             // Update propositions in cache
             updateCachedPropositions(requestedScopes);
 
@@ -606,6 +697,14 @@ class OptimizeExtension extends Extension {
                             + " complete event due to an exception (%s)!",
                     e.getLocalizedMessage());
         } finally {
+            Log.trace(
+                    OptimizeConstants.LOG_TAG,
+                    EDGE_FLOW_SOURCE,
+                    "OptFlow CLEAR       | ev=%s | inProgressKeysBeforeClear=%s | t=%d",
+                    requestCompletedForEventId,
+                    propositionsInProgress.keySet(),
+                    System.currentTimeMillis());
+
             propositionsInProgress.clear();
 
             // Resume events dispatcher processing after update propositions request is completed.
@@ -658,9 +757,24 @@ class OptimizeExtension extends Extension {
                         "handleEdgeResponse - Ignoring Edge event, either handle type is not"
                             + " personalization:decisions, or the response isn't intended for this"
                             + " extension.");
+                Log.trace(
+                        OptimizeConstants.LOG_TAG,
+                        EDGE_FLOW_SOURCE,
+                        "OptFlow HANDLE-SKIP | ev=%s | inProgressKeysBeforeClear=%s | t=%d",
+                        requestEventId,
+                        propositionsInProgress.keySet(),
+                        System.currentTimeMillis());
                 propositionsInProgress.clear();
                 return;
             }
+
+            Log.trace(
+                    OptimizeConstants.LOG_TAG,
+                    EDGE_FLOW_SOURCE,
+                    "OptFlow HANDLE-RECV | ev=%s | inProgressKeysBefore=%s | t=%d",
+                    requestEventId,
+                    propositionsInProgress.keySet(),
+                    System.currentTimeMillis());
 
             final List<Map<String, Object>> payload =
                     DataReader.getTypedListOfMap(
@@ -698,6 +812,15 @@ class OptimizeExtension extends Extension {
 
             // accumulate propositions in in-progress propositions dictionary
             propositionsInProgress.putAll(propositionsMap);
+
+            Log.trace(
+                    OptimizeConstants.LOG_TAG,
+                    EDGE_FLOW_SOURCE,
+                    "OptFlow HANDLE-WROTE| ev=%s | wroteScopes=%s | inProgressKeysAfter=%s | t=%d",
+                    requestEventId,
+                    propositionsMap.keySet(),
+                    propositionsInProgress.keySet(),
+                    System.currentTimeMillis());
 
             final List<Map<String, Object>> propositionsList = new ArrayList<>();
             for (final OptimizeProposition optimizeProposition : propositionsMap.values()) {

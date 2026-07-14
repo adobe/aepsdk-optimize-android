@@ -18,7 +18,7 @@ import com.adobe.marketing.mobile.MobileCore
 class MainApplication : Application() {
 
     companion object {
-        const val LAUNCH_ENVIRONMENT_FILE_ID = ""
+        const val LAUNCH_ENVIRONMENT_FILE_ID = "3149c49c3910/0f12baf27522/launch-c219c0fa9543"
     }
 
     override fun onCreate() {
@@ -26,6 +26,9 @@ class MainApplication : Application() {
         MobileCore.setLogLevel(LoggingMode.VERBOSE)
         MobileCore.initialize(this, LAUNCH_ENVIRONMENT_FILE_ID){
             print("Adobe mobile SDKs are successfully registered.")
+            // Edge event batching toggle for live validation (overrides any Launch config).
+            // CONFIG A (baseline): false. CONFIG B/C: true.
+            MobileCore.updateConfiguration(mapOf("edge.batching.enabled" to false))
         }
     }
 }

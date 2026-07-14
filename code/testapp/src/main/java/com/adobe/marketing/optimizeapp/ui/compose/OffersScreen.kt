@@ -11,6 +11,7 @@
  */
 package com.adobe.marketing.optimizeapp.ui.compose
 
+import android.view.MotionEvent
 import android.view.ViewGroup
 import android.webkit.WebView
 import androidx.compose.foundation.Image
@@ -62,10 +63,6 @@ import com.adobe.marketing.optimizeapp.viewmodels.MainViewModel
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.map
-
-private val clickHandler: (Offer) -> Unit = { offer ->
-    offer.tapped()
-}
 
 @Composable
 fun OffersView(viewModel: MainViewModel) {
@@ -143,51 +140,107 @@ fun ActionButtons(
     modifier: Modifier = Modifier,
     viewModel: MainViewModel,
 ) {
-    Row(
+    Column(
         modifier = modifier
             .padding(10.dp)
             .fillMaxWidth()
             .wrapContentHeight(),
-        horizontalArrangement = Arrangement.spacedBy(10.dp)
+        verticalArrangement = Arrangement.spacedBy(10.dp)
     ) {
-
-        Button(
-            modifier = Modifier.weight(1f),
-            onClick = {
-                viewModel.updatePropositions()
-            }
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(10.dp)
         ) {
-            Text(
-                text = "Update Propositions",
-                textAlign = TextAlign.Center,
-                style = MaterialTheme.typography.button
-            )
+
+            Button(
+                modifier = Modifier.weight(1f),
+                onClick = {
+                    viewModel.updatePropositions()
+                }
+            ) {
+                Text(
+                    text = "Update Propositions",
+                    textAlign = TextAlign.Center,
+                    style = MaterialTheme.typography.button
+                )
+            }
+
+            Button(
+                modifier = Modifier.weight(1f),
+                onClick = {
+                    viewModel.getPropositions()
+                }
+            ) {
+                Text(
+                    text = "Get Propositions",
+                    textAlign = TextAlign.Center,
+                    style = MaterialTheme.typography.button
+                )
+            }
+
+            Button(
+                modifier = Modifier.weight(1f),
+                onClick = {
+                    viewModel.clearCachedPropositions()
+                }
+            ) {
+                Text(
+                    text = "Clear Propositions",
+                    textAlign = TextAlign.Center,
+                    style = MaterialTheme.typography.button
+                )
+            }
         }
 
-        Button(
-            modifier = Modifier.weight(1f),
-            onClick = {
-                viewModel.getPropositions()
-            }
+        // Batch-test buttons (additive): fire multiple Edge events to exercise Edge batching.
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(10.dp)
         ) {
-            Text(
-                text = "Get Propositions",
-                textAlign = TextAlign.Center,
-                style = MaterialTheme.typography.button
-            )
+            Button(
+                modifier = Modifier.weight(1f),
+                onClick = {
+                    viewModel.updatePropositionsBatch()
+                }
+            ) {
+                Text(
+                    text = "Update x5",
+                    textAlign = TextAlign.Center,
+                    style = MaterialTheme.typography.button
+                )
+            }
+
+            Button(
+                modifier = Modifier.weight(1f),
+                onClick = {
+                    viewModel.trackReceivedPropositionsBatch()
+                }
+            ) {
+                Text(
+                    text = "Track Displayed",
+                    textAlign = TextAlign.Center,
+                    style = MaterialTheme.typography.button
+                )
+            }
         }
 
-        Button(
-            modifier = Modifier.weight(1f),
-            onClick = {
-                viewModel.clearCachedPropositions()
-            }
+        // Measurement harness: 6 distinct updatePropositions calls (see updatePropositionsSequence).
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(10.dp)
         ) {
-            Text(
-                text = "Clear Propositions",
-                textAlign = TextAlign.Center,
-                style = MaterialTheme.typography.button
-            )
+            Button(
+                modifier = Modifier.weight(1f),
+                onClick = {
+                    viewModel.updatePropositionsSequence()
+                }
+            ) {
+                Text(
+                    text = "Run Seq (6 calls)",
+                    textAlign = TextAlign.Center,
+                    style = MaterialTheme.typography.button
+                )
+            }
         }
     }
 }
@@ -347,7 +400,7 @@ fun TextOffer(offer: Offer) {
             .fillMaxWidth()
             .height(100.dp)
             .clickable {
-                clickHandler(offer)
+                offer.tapped()
             },
         style = MaterialTheme.typography.body1,
         textAlign = TextAlign.Center
@@ -372,7 +425,7 @@ fun ImageOffers(offers: List<Offer>? = null) {
                     .width(100.dp)
                     .height(100.dp)
                     .clickable {
-                        clickHandler(offer)
+                        offer.tapped()
                     }
             )
         } ?: Image(
@@ -401,7 +454,7 @@ fun HTMLOffers(
     ) {
         offers?.onEach {
             HtmlOfferWebView(html = it.content, onclick = {
-                clickHandler(it)
+                it.tapped()
             }
             )
         } ?: HtmlOfferWebView(html = placeholderHtml)
@@ -420,9 +473,12 @@ fun HtmlOfferWebView(html: String, onclick: (() -> Unit)? = null) {
                 ViewGroup.LayoutParams.WRAP_CONTENT
             )
 
-            setOnTouchListener { _, _ ->
-                onclick?.invoke()
-                this.performClick()
+            setOnTouchListener { v, event ->
+                if (event.action == MotionEvent.ACTION_UP) {
+                    onclick?.invoke()
+                    v.performClick()
+                }
+                false
             }
         }
     }, update = {
@@ -442,14 +498,16 @@ fun TargetOffersView(offers: List<Offer>? = null) {
             when (it.type) {
                 OfferType.HTML -> HtmlOfferWebView(
                     html = it.content,
-                    onclick = { clickHandler(it) })
+                    onclick = {
+                        it.tapped()
+                    })
 
                 else -> Text(
                     text = it.content, modifier = Modifier
                         .padding(vertical = 20.dp)
                         .fillMaxWidth()
                         .wrapContentHeight()
-                        .clickable { clickHandler(it) }, textAlign = TextAlign.Center
+                        .clickable { it.tapped() }, textAlign = TextAlign.Center
                 )
             }
         } ?: TextOffers(offers = null, placeholder = "Placeholder Target Text")

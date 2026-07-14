@@ -34,3 +34,5 @@ include (
          ":testapp",
          ":optimize"
 )
+include(":edge")
+project(":edge").projectDir = file("/Users/sagar/Adobe/aepsdk-edge-android/code/edge")

@@ -34,6 +34,18 @@ import com.adobe.marketing.optimizeapp.ui.model.PreferenceItemData
 
 class MainViewModel : ViewModel() {
 
+    /**
+     * XDM-encoded Offer Decisioning scope used only by [updatePropositionsSequence]'s call2/5/6.
+     * Not provisioned in this sandbox/datastream, so it 404s at Edge (see BATCHING_OBSERVATIONS.md
+     * Section 6/11) — kept out of the textOdeText Settings field default so the plain
+     * "Update Propositions" button (used as a warm-up call in measurement) succeeds cleanly.
+     */
+    private val SEQUENCE_ODE_SCOPE =
+        "eyJ4ZG06YWN0aXZpdHlJZCI6Inhjb3JlOm9mZmVyLWFjdGl2aXR5OjE4ZTBlZjZlZDg5MWI5NTEiLCJ4ZG06cGxhY2VtZW50SWQiOiJ4Y29yZTpvZmZlci1wbGFjZW1lbnQ6MThlMGVlMDQ5NGRkMTdjNCJ9"
+
+    // Spacing between updatePropositionsSequence()'s 6 calls — see that function's doc for why.
+    private val INTER_CALL_DELAY_MS = 20L
+
     //Settings textField Values
     var textAssuranceUrl by mutableStateOf("")
     var textOdeText by mutableStateOf("")
@@ -41,7 +53,7 @@ class MainViewModel : ViewModel() {
     var textOdeHtml by mutableStateOf("")
     var textOdeJson by mutableStateOf("")
 
-    var textTargetMbox by mutableStateOf("")
+    var textTargetMbox by mutableStateOf("mboxAug")
     var textTargetOrderId by mutableStateOf("")
     var textTargetOrderTotal by mutableStateOf("")
     var textTargetPurchaseId by mutableStateOf("")
@@ -225,21 +237,24 @@ class MainViewModel : ViewModel() {
         val data = getDataMap(targetParams)
         val xdmData = mapOf(Pair("xdmKey", "1234"))
 
+        val startTime = System.currentTimeMillis()
         val callback =
             object : AdobeCallbackWithOptimizeError<Map<DecisionScope, OptimizeProposition>> {
                 override fun call(propositions: Map<DecisionScope, OptimizeProposition>?) {
-                    logBoxManager.addLog("Update Propositions | Success | ${propositions?.size} propositions: \n" +
+                    val elapsed = System.currentTimeMillis() - startTime
+                    logBoxManager.addLog("Update Propositions | Success | $elapsed ms | ${propositions?.size} propositions: \n" +
                             "Propositions updated: ${propositions?.keys?.joinToString { it.name }}"
                     )
-                    Log.i("Optimize Test App", "Propositions updated successfully.")
+                    Log.i("Optimize Test App", "Propositions updated successfully in $elapsed ms.")
                 }
 
                 override fun fail(error: AEPOptimizeError?) {
+                    val elapsed = System.currentTimeMillis() - startTime
                     showDialog("Error in Update Propositions:: ${error?.adobeError?.errorName ?: "Undefined"}.")
-                    logBoxManager.addLog("Update Propositions | Failed | ${error?.adobeError?.errorName}")
+                    logBoxManager.addLog("Update Propositions | Failed | $elapsed ms | ${error?.adobeError?.errorName}")
                     Log.i(
                         "Optimize Test App",
-                        "Error in updating Propositions:: ${error?.title ?: "Undefined"}."
+                        "Error in updating Propositions:: ${error?.title ?: "Undefined"} (after $elapsed ms)."
                     )
                 }
             }
@@ -260,9 +275,97 @@ class MainViewModel : ViewModel() {
                     timeout,
                     callback
                 )
-            } ?: Optimize.updatePropositions(decisionScopeList, xdmData, data, callback)
+            } ?: Optimize.updatePropositions(decisionScopeList, xdmData, data, 10.0, callback)
         } else
-            Optimize.updatePropositions(decisionScopeList, xdmData, data, callback)
+            Optimize.updatePropositions(decisionScopeList, xdmData, data, 10.0, callback)
+    }
+
+    /**
+     * Batch-test helper: fires [count] updatePropositions calls in a tight loop. Each call emits one
+     * Edge event; while the first request is in flight the rest accumulate in the Edge hit queue and
+     * are sent together as a single batched /v1/interact request (when edge.batching.enabled=true).
+     */
+    fun updatePropositionsBatch(count: Int = 5) {
+        logBoxManager.addLog("Update Propositions (batch) | firing $count updatePropositions calls")
+        repeat(count) { updatePropositions() }
+    }
+
+    /**
+     * Batch-test helper: fires a per-offer displayed() tracking call for every cached offer. Each
+     * call emits one Edge proposition-interaction event; multiple offers therefore produce multiple
+     * Edge events that the hit queue batches into one request.
+     */
+    fun trackReceivedPropositionsBatch() {
+        val offers = optimizePropositionStateMap.values.flatMap { it.offers ?: emptyList() }
+        logBoxManager.addLog("Track Displayed (batch) | firing displayed() on ${offers.size} offer(s)")
+        offers.forEach { it.displayed() }
+    }
+
+    /**
+     * Measurement harness: fires six DISTINCT updatePropositions calls — call1 alone, then a pause of
+     * [INTER_CALL_DELAY_MS], then calls 2‑6 back‑to‑back with no further delay — exercising different
+     * scope combinations plus repeats to observe caching:
+     *   call1 = [mboxAug]                 call2 = [ODE decisionScope]
+     *   call3 = [mboxAug] (repeat)        call4 = [invalidMbox]
+     *   call5 = [mboxAug, ODE, invalidMbox]   call6 = [same three] (repeat)
+     * Each call logs "SEQCALL <tag> | <result> | <elapsed> ms | ..." (to logBox and logcat via
+     * Log.i("Optimize Test App", ...)) so per-call response time can be extracted for each config.
+     *
+     * Firing all 6 back-to-back races the hit queue's background executor: the first batch cycle
+     * reads however many events happen to already be queued when it wakes up, which varies run to
+     * run. A single pause after call1 (comfortably longer than the in-process time to schedule/run a
+     * batch cycle) lets that first cycle reliably grab only call1. Calls 2‑6 are then fired with no
+     * gap between them so they enqueue essentially simultaneously and land in one consistent batch
+     * once call1's request clears — no per-call delay to race against each other.
+     */
+    fun updatePropositionsSequence() {
+        val mbox = DecisionScope(textTargetMbox)   // "mboxAug" (valid Target mbox)
+        // XDM-encoded Offer Decisioning scope. Hardcoded here (not read from the textOdeText
+        // Settings field, which defaults to "" so the plain "Update Propositions" button/warm-up
+        // call succeeds cleanly without the ODE-scope failure — see SEQUENCE_ODE_SCOPE for why.
+        val ode = DecisionScope(SEQUENCE_ODE_SCOPE)
+        val invalid = DecisionScope("invalidMbox") // not-configured mbox
+
+        logBoxManager.addLog("Sequence | firing 6 distinct updatePropositions calls")
+        Thread {
+            updatePropositionsForScopes("call1_mbox", listOf(mbox))
+            Thread.sleep(INTER_CALL_DELAY_MS)
+            updatePropositionsForScopes("call2_ode", listOf(ode))
+            updatePropositionsForScopes("call3_mbox", listOf(mbox))
+            updatePropositionsForScopes("call4_invalidMbox", listOf(invalid))
+            updatePropositionsForScopes("call5_all", listOf(mbox, ode, invalid))
+            updatePropositionsForScopes("call6_all", listOf(mbox, ode, invalid))
+        }.start()
+    }
+
+    /**
+     * Issues a single updatePropositions call for the given [scopes], timing call → callback and
+     * logging the elapsed with [callTag] for measurement. Mirrors [updatePropositions] but takes an
+     * explicit scope list and does not clear the UI proposition map (so caching across the sequence
+     * is observable).
+     */
+    private fun updatePropositionsForScopes(callTag: String, scopes: List<DecisionScope>) {
+        val targetParams = getTargetParams()
+        val data = getDataMap(targetParams)
+        val xdmData = mapOf(Pair("xdmKey", "1234"))
+        val startTime = System.currentTimeMillis()
+        val callback =
+            object : AdobeCallbackWithOptimizeError<Map<DecisionScope, OptimizeProposition>> {
+                override fun call(propositions: Map<DecisionScope, OptimizeProposition>?) {
+                    val elapsed = System.currentTimeMillis() - startTime
+                    val msg = "SEQCALL $callTag | success | $elapsed ms | ${propositions?.size ?: 0} propositions"
+                    logBoxManager.addLog(msg)
+                    Log.i("Optimize Test App", msg)
+                }
+
+                override fun fail(error: AEPOptimizeError?) {
+                    val elapsed = System.currentTimeMillis() - startTime
+                    val msg = "SEQCALL $callTag | fail | $elapsed ms | ${error?.adobeError?.errorName ?: "Undefined"}"
+                    logBoxManager.addLog(msg)
+                    Log.i("Optimize Test App", msg)
+                }
+            }
+        Optimize.updatePropositions(scopes, xdmData, data, 10.0, callback)
     }
 
     /**
@@ -271,7 +374,7 @@ class MainViewModel : ViewModel() {
     fun clearCachedPropositions() {
         logBoxManager.addLog(
             "Clearing Propositions :\n" +
-                    "Propositions before clearing: ${optimizePropositionStateMap.keys}"
+                    "Propositions before clearing: ${optimizePropositionStateMap.keys.size}"
         )
         optimizePropositionStateMap.clear()
         Optimize.clearCachedPropositions()
@@ -296,7 +399,8 @@ class MainViewModel : ViewModel() {
             DecisionScope(textOdeImage),
             DecisionScope(textOdeHtml),
             DecisionScope(textOdeJson),
-            DecisionScope(textTargetMbox)
+            DecisionScope(textTargetMbox),
+            DecisionScope("invalid_mbox")
         )
     }
 
